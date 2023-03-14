@@ -1,36 +1,26 @@
 import { Request, Response, NextFunction } from "express";
 
-type APIMethods = "POST" | "GET" | "PUT" | "DELETE";
+type CORS = (req: Request, res: Response, next: NextFunction) => void;
 
-type CORS = (options?: {
-  allowedOrigins?: string[];
-  allowedHeaders?: string[];
-  allowedMethods?: APIMethods[];
-  credentials?: boolean;
-}) => (req: Request, res: Response, next: NextFunction) => void;
+let allowedOrigins = ["https://vkaswin.github.io", "http://localhost:3001"];
 
-const cors: CORS = (options) => (req, res, next) => {
-  let { allowedOrigins, allowedHeaders, credentials } = options || {};
+let allowedHeaders = ["Authorization", "Content-Type"];
 
+const cors: CORS = (req, res, next) => {
   let origin = req.headers.origin;
   let method = req.method;
 
-  if (origin && allowedOrigins && allowedOrigins.includes(origin)) {
+  if (origin && allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader(
       "Access-Control-Allow-Methods",
       "GET, POST, PUT, DELETE, OPTIONS"
     );
-    allowedHeaders &&
-      res.setHeader("Access-Control-Allow-Headers", allowedHeaders.join(", "));
-    credentials && res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Headers", allowedHeaders.join(", "));
+    res.setHeader("Access-Control-Allow-Credentials", "true");
   }
 
-  if (method === "OPTIONS") {
-    res.status(200).end();
-  } else {
-    next();
-  }
+  method === "OPTIONS" ? res.status(200).end() : next();
 };
 
 export default cors;

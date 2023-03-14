@@ -10,13 +10,7 @@ const port = process.env.PORT;
 const app = express();
 
 app
-  .use(
-    cors({
-      allowedOrigins: ["https://vkaswin.github.io", "http://localhost:3000"],
-      allowedHeaders: ["Authorization", "Content-Type"],
-      credentials: true,
-    })
-  )
+  .use(cors)
   .use(express.json())
   .use(express.urlencoded({ extended: false }))
   .use(router);
