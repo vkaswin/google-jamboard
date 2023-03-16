@@ -19,13 +19,13 @@ const ShapeSchema = new Schema(
       type: Number,
       required: [true, "Please add height"],
     },
-    top: {
+    x: {
       type: Number,
-      required: [true, "Please add top"],
+      required: [true, "Please add x coordinate"],
     },
-    left: {
+    y: {
       type: Number,
-      required: [true, "Please add left"],
+      required: [true, "Please add y coordinate"],
     },
   },
   { timestamps: true }
