@@ -1,9 +1,10 @@
-import React from "react";
 import { Outlet } from "react-router-dom";
+
+import styles from "./AuthLayout.module.scss";
 
 const AuthLayout = () => {
   return (
-    <div>
+    <div className={styles.container}>
       <Outlet />
     </div>
   );

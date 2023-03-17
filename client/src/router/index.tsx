@@ -1,5 +1,6 @@
-import { lazy, Suspense } from "react";
-import { useRoutes, RouteObject, Navigate } from "react-router-dom";
+import { lazy } from "react";
+import { RouteObject, Navigate, useRoutes } from "react-router-dom";
+import ProtectedRoute from "./ProtectedRoute";
 
 let Document = lazy(
   () => import(/* webpackChunkName: "[Document]" */ "@/pages/Document")
@@ -24,26 +25,22 @@ let routes: RouteObject[] = [
   },
   {
     path: "/auth",
-    element: (
-      <Suspense fallback="Loading...">
-        <AuthLayout />
-      </Suspense>
-    ),
+    element: <AuthLayout />,
     children: [
       {
         path: "sign-in",
         element: (
-          <Suspense fallback="Loading...">
+          <ProtectedRoute requireAuth={false}>
             <SignIn />
-          </Suspense>
+          </ProtectedRoute>
         ),
       },
       {
         path: "sign-up",
         element: (
-          <Suspense fallback="Loading...">
+          <ProtectedRoute requireAuth={false}>
             <SignUp />
-          </Suspense>
+          </ProtectedRoute>
         ),
       },
     ],
@@ -51,15 +48,15 @@ let routes: RouteObject[] = [
   {
     path: "/document/:id",
     element: (
-      <Suspense fallback="Loading...">
+      <ProtectedRoute>
         <Document />
-      </Suspense>
+      </ProtectedRoute>
     ),
   },
 ];
 
-const Routes = () => {
+const Router = () => {
   return useRoutes(routes);
 };
 
-export default Routes;
+export default Router;

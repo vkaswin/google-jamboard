@@ -1,6 +1,7 @@
-import { Fragment } from "react";
+import { Fragment, Suspense } from "react";
 import { HashRouter } from "react-router-dom";
-import Routes from "@/router";
+import AuthProvider from "@/context/AuthContext";
+import Router from "@/router";
 
 import "@/assets/scss/index.scss";
 
@@ -8,7 +9,11 @@ const App = () => {
   return (
     <Fragment>
       <HashRouter>
-        <Routes />
+        <AuthProvider>
+          <Suspense fallback="Loading...">
+            <Router />
+          </Suspense>
+        </AuthProvider>
       </HashRouter>
     </Fragment>
   );

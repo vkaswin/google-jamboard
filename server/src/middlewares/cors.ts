@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 type CORS = (req: Request, res: Response, next: NextFunction) => void;
 
-let allowedOrigins = ["https://vkaswin.github.io", "http://localhost:3001"];
+let allowedOrigins = ["https://vkaswin.github.io", "http://localhost:3000"];
 
 let allowedHeaders = ["Authorization", "Content-Type"];
 

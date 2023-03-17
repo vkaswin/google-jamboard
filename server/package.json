@@ -1,7 +1,7 @@
 {
-    "name": "google-calendar",
+    "name": "google-jamboard",
     "version": "1.0.0",
-    "description": "Calendar App",
+    "description": "Google Jamboard",
     "main": "index.ts",
     "scripts": {
         "build": "tsc",
