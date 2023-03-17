@@ -6,7 +6,9 @@ import path from "path";
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: [{ find: "@", replacement: path.resolve(__dirname, "src") }],
+    alias: {
+      "@": path.resolve(__dirname, "./src/"),
+    },
   },
   base: process.env.NODE_ENV === "production" ? "/google-jamboard" : "/",
 });

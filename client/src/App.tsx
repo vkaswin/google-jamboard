@@ -1,12 +1,16 @@
+import { Fragment } from "react";
+import { HashRouter } from "react-router-dom";
+import Routes from "@/router";
+
 import "@/assets/scss/index.scss";
 
 const App = () => {
   return (
-    <div className="App">
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn
-      </p>
-    </div>
+    <Fragment>
+      <HashRouter>
+        <Routes />
+      </HashRouter>
+    </Fragment>
   );
 };
 
