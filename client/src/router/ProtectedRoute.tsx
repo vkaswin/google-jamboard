@@ -1,6 +1,6 @@
 import { Fragment, ReactNode } from "react";
 import { useLocation, Navigate } from "react-router-dom";
-import useAuth from "@/hooks/useAuth";
+import { cookie } from "@/utils";
 
 type ProtectedRouteProps = {
   children: ReactNode;
@@ -13,14 +13,14 @@ const ProtectedRoute = ({
   children,
   requireAuth = true,
 }: ProtectedRouteProps) => {
-  const { user } = useAuth();
+  let authToken = cookie.get("auth_token");
 
   const { pathname } = useLocation();
 
-  if (user && authPages.includes(pathname))
+  if (authToken && authPages.includes(pathname))
     return <Navigate replace to="/document/64106505659e51ce8d788753" />;
 
-  if (requireAuth && !user) return <Navigate replace to="/auth/sign-in" />;
+  if (requireAuth && !authToken) return <Navigate replace to="/auth/sign-in" />;
 
   return <Fragment>{children}</Fragment>;
 };

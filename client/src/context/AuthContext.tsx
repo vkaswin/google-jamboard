@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import jwtDecode from "jwt-decode";
 import { signInUser, signUpUser } from "@/services/User";
@@ -12,13 +12,14 @@ type AuthProviderProps = {
 };
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
-  let authToken = cookie.get("auth_token");
-
-  let [user, setUser] = useState<User | null>(
-    authToken ? jwtDecode<User>(authToken) : null
-  );
+  let [user, setUser] = useState<User | null>(null);
 
   let navigate = useNavigate();
+
+  useEffect(() => {
+    let authToken = cookie.get("auth_token");
+    authToken && setUser(jwtDecode<User>(authToken));
+  }, []);
 
   let handleAuthResponse = (token: string) => {
     cookie.set({ name: "auth_token", value: token, days: 14 });
