@@ -10,7 +10,7 @@ type ToolTipProps = {
   container?: HTMLElement;
   selector: string;
   children: ReactNode;
-  placement: Placement;
+  placement?: Placement;
 } & ComponentProps<"div">;
 
 const ToolTip = ({
@@ -63,8 +63,6 @@ const ToolTip = ({
     setReferenceElement(element);
   }, [selector]);
 
-  if (!referenceElement) return null;
-
   return createPortal(
     <CSSTransition
       in={isOpen}
@@ -87,7 +85,7 @@ const ToolTip = ({
         <div className={styles.menu}>{children}</div>
       </div>
     </CSSTransition>,
-    referenceElement
+    document.body
   );
 };
 

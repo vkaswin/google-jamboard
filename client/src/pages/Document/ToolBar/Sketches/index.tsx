@@ -1,13 +1,14 @@
-import { Fragment, useLayoutEffect, useState } from "react";
+import { CSSProperties, Fragment } from "react";
+import Popper from "@/components/Popper";
 import ToolTip from "@/components/ToolTip";
 import { sketches, colors } from "@/constants";
-import { usePopper } from "react-popper";
 
 import styles from "./Sketches.module.scss";
 
 type SketchProps = {
   sketch: number;
   sketchColor: number;
+  toggle: () => void;
   onSelectSketch: (index: number) => void;
   onSelectSketchColor: (index: number) => void;
 };
@@ -15,50 +16,39 @@ type SketchProps = {
 const Sketches = ({
   sketch,
   sketchColor,
+  toggle,
   onSelectSketch,
   onSelectSketchColor,
 }: SketchProps) => {
-  let [referenceElement, setReferenceElement] = useState<HTMLElement | null>(
-    null
-  );
-  let [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
+  let handleSketch = (index: number) => {
+    onSelectSketch(index);
+  };
 
-  useLayoutEffect(() => {
-    let element = document.querySelector<HTMLElement>("#sketches");
-    if (!element) return;
-    setReferenceElement(element);
-  }, []);
-
-  const { attributes, styles: style } = usePopper(
-    referenceElement,
-    popperElement,
-    {
-      placement: "right",
-      modifiers: [
-        {
-          name: "offset",
-          options: {
-            offset: [0, 10],
-          },
-        },
-      ],
-    }
-  );
+  let handleColor = (index: number) => {
+    onSelectSketchColor(index);
+  };
 
   return (
-    <div
-      ref={setPopperElement}
-      className={styles.container}
-      style={{
-        ...style.popper,
-      }}
-      {...attributes}
-    >
+    <Popper className={styles.container} selector="#sketches" toggle={toggle}>
       <div className={styles.sketch}>
         {sketches.map(({ label, svg }, index) => {
+          let className = index === sketch ? styles.active : undefined;
+
+          let color =
+            colors[sketchColor].colorCode === "#FFFFFF"
+              ? colors[0].colorCode
+              : colors[sketchColor].colorCode;
+
           return (
             <Fragment key={index}>
-              <button id={`sketch-${index}`}>{svg}</button>
+              <button
+                id={`sketch-${index}`}
+                className={className}
+                onClick={() => handleSketch(index)}
+                style={{ "--sketch": color } as CSSProperties}
+              >
+                {svg}
+              </button>
               <ToolTip selector={`#sketch-${index}`} placement="bottom">
                 {label}
               </ToolTip>
@@ -68,9 +58,15 @@ const Sketches = ({
       </div>
       <div className={styles.color}>
         {colors.map(({ label, colorCode }, index) => {
+          let className = index === sketchColor ? styles.active : undefined;
+
           return (
             <Fragment key={index}>
-              <button id={`color-${index}`}>
+              <button
+                id={`color-${index}`}
+                className={className}
+                onClick={() => handleColor(index)}
+              >
                 <span style={{ backgroundColor: colorCode }}></span>
               </button>
               <ToolTip selector={`#color-${index}`} placement="bottom">
@@ -80,7 +76,7 @@ const Sketches = ({
           );
         })}
       </div>
-    </div>
+    </Popper>
   );
 };
 

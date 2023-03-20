@@ -4,6 +4,7 @@ import Shapes from "./Shapes";
 import { toolBarIcons, shapes, sketches } from "@/constants";
 
 import styles from "./ToolBar.module.scss";
+import ToolTip from "@/components/ToolTip";
 
 type ToolBarProps = {
   shape: number;
@@ -91,28 +92,39 @@ const ToolBar = ({
               ? "shapes"
               : label === "sketch"
               ? "sketches"
-              : undefined;
+              : `toolbar-${index}`;
 
           return (
-            <button
-              key={index}
-              id={id}
-              className={className}
-              onClick={() => handleToolBar(index, label)}
-            >
-              {icon}
-              {(label === "shape" || label === "sketch") && (
-                <i className="bxs-right-arrow"></i>
-              )}
-            </button>
+            <Fragment key={index}>
+              <button
+                id={id}
+                className={className}
+                onClick={() => handleToolBar(index, label)}
+              >
+                {icon}
+                {(label === "shape" || label === "sketch") && (
+                  <i className="bxs-right-arrow"></i>
+                )}
+              </button>
+              <ToolTip selector={`#toolbar-${index}`} placement="right">
+                {title}
+              </ToolTip>
+            </Fragment>
           );
         })}
       </div>
-      {showShape && <Shapes shape={shape} onChange={onSelectShape} />}
+      {showShape && (
+        <Shapes
+          shape={shape}
+          toggle={toggleShape}
+          onSelectShape={onSelectShape}
+        />
+      )}
       {showSketch && (
         <Sketches
           sketch={sketch}
           sketchColor={sketchColor}
+          toggle={toggleSketch}
           onSelectSketch={onSelectSketch}
           onSelectSketchColor={onSelectSketchColor}
         />

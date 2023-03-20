@@ -12,6 +12,7 @@
       border-radius: 50%;
       height: 40px;
       border: none;
+      background-color: transparent;
       &:is(.active) {
         background-color: #eaeaeb;
       }
@@ -22,6 +23,9 @@
     grid-template-columns: repeat(4, 40px);
     grid-template-rows: 40px;
     gap: 10px;
+    svg {
+      fill: var(--sketch);
+    }
   }
   .color {
     display: grid;
@@ -34,7 +38,7 @@
         border-radius: 50%;
       }
       &:nth-child(4) {
-        div {
+        span {
           border: 1px solid #dadce0;
         }
       }

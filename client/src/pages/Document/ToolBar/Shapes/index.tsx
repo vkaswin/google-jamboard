@@ -1,57 +1,31 @@
-import { Fragment, useLayoutEffect, useState } from "react";
+import { Fragment } from "react";
 import ToolTip from "@/components/ToolTip";
-import { sketches, colors, shapes } from "@/constants";
-import { usePopper } from "react-popper";
+import { shapes } from "@/constants";
 
 import styles from "./Shapes.module.scss";
+import Popper from "@/components/Popper";
 
 type ShapeProps = {
   shape: number;
-  onChange: (index: number) => void;
+  toggle: () => void;
+  onSelectShape: (index: number) => void;
 };
 
-const Shapes = ({ shape, onChange }: ShapeProps) => {
-  let [referenceElement, setReferenceElement] = useState<HTMLElement | null>(
-    null
-  );
-  let [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
-
-  useLayoutEffect(() => {
-    let element = document.querySelector<HTMLElement>("#shapes");
-    if (!element) return;
-    setReferenceElement(element);
-  }, []);
-
-  const { attributes, styles: style } = usePopper(
-    referenceElement,
-    popperElement,
-    {
-      placement: "right",
-      modifiers: [
-        {
-          name: "offset",
-          options: {
-            offset: [0, 10],
-          },
-        },
-      ],
-    }
-  );
+const Shapes = ({ shape, toggle, onSelectShape }: ShapeProps) => {
+  let handleClick = (index: number) => {
+    onSelectShape(index);
+    toggle();
+  };
 
   return (
-    <div
-      ref={setPopperElement}
-      className={styles.container}
-      style={{
-        ...style.popper,
-      }}
-      {...attributes}
-    >
+    <Popper className={styles.container} selector="#shapes" toggle={toggle}>
       <div className={styles.shape}>
         {shapes.map(({ label, svg }, index) => {
           return (
             <Fragment key={index}>
-              <button id={`shape-${index}`}>{svg}</button>
+              <button id={`shape-${index}`} onClick={() => handleClick(index)}>
+                {svg}
+              </button>
               <ToolTip selector={`#shape-${index}`} placement="bottom">
                 {label}
               </ToolTip>
@@ -59,7 +33,7 @@ const Shapes = ({ shape, onChange }: ShapeProps) => {
           );
         })}
       </div>
-    </div>
+    </Popper>
   );
 };
 
