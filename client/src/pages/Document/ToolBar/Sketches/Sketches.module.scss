@@ -1,0 +1,43 @@
+.container {
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  .sketch,
+  .color {
+    padding: 10px;
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      height: 40px;
+      border: none;
+      &:is(.active) {
+        background-color: #eaeaeb;
+      }
+    }
+  }
+  .sketch {
+    display: grid;
+    grid-template-columns: repeat(4, 40px);
+    grid-template-rows: 40px;
+    gap: 10px;
+  }
+  .color {
+    display: grid;
+    grid-template-columns: repeat(3, 40px);
+    gap: 10px;
+    button {
+      span {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+      }
+      &:nth-child(4) {
+        div {
+          border: 1px solid #dadce0;
+        }
+      }
+    }
+  }
+}

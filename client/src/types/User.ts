@@ -21,8 +21,8 @@ export interface AuthenticateResponse {
 }
 
 export interface AuthContextType {
-  user: User | null;
-  setUser: Dispatch<SetStateAction<User | null>>;
+  user?: User;
+  setUser: Dispatch<SetStateAction<User | undefined>>;
   signIn: (data: SignInData) => Promise<void>;
   signUp: (data: SignUpData) => Promise<void>;
   logout: () => void;

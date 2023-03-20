@@ -12,7 +12,7 @@ type AuthProviderProps = {
 };
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
-  let [user, setUser] = useState<User | null>(null);
+  let [user, setUser] = useState<User>();
 
   let navigate = useNavigate();
 

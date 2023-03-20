@@ -38,8 +38,32 @@ export const debounce = <T>(
   };
 };
 
+export const clickOutside = ({
+  ref,
+  onClose,
+  doNotClose = () => false,
+}: {
+  ref: HTMLElement;
+  onClose: () => void;
+  doNotClose?: (element: HTMLElement) => boolean;
+}) => {
+  if (!ref) return;
+
+  const handleClickOutside = (event: MouseEvent) => {
+    let { target } = event;
+    if (
+      ref.contains(target as HTMLElement) ||
+      doNotClose(target as HTMLElement)
+    )
+      return;
+    onClose();
+    document.removeEventListener("click", handleClickOutside);
+  };
+
+  document.addEventListener("click", handleClickOutside);
+};
+
 export const getStaticUrl = (path: string) => {
-  debugger;
   return `${
     process.env.NODE_ENV === "production" ? "/google-jamboard" : ""
   }${path}`;

@@ -1,0 +1,33 @@
+.enter {
+  .menu {
+    animation: fadeIn 250ms ease-in-out forwards;
+  }
+}
+
+.exit {
+  .menu {
+    animation: fadeIn 250ms ease-in-out forwards reverse;
+  }
+}
+
+.container {
+  z-index: 10;
+  .menu {
+    background-color: #000;
+    border-radius: 4px;
+    font-size: 14px;
+    padding: 7px;
+    color: white;
+    text-align: center;
+    max-width: 250px;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
