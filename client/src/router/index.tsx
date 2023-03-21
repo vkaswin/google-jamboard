@@ -46,7 +46,7 @@ let routes: RouteObject[] = [
     ],
   },
   {
-    path: "/document/:id",
+    path: "/document/:documentId",
     element: (
       <ProtectedRoute>
         <Document />

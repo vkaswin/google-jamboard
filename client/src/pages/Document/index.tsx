@@ -1,10 +1,24 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import useAuth from "@/hooks/useAuth";
 import Header from "./Header";
 import ToolBar from "./ToolBar";
-import Board from "./Board";
-import useAuth from "@/hooks/useAuth";
+import SketchBoard from "./SketchBoard";
+import { getDocumentById } from "@/services/Document";
+import { DocumentDetail } from "@/types/Document";
 
 import styles from "./Document.module.scss";
+
+// Aspect ratio 16 / 9
+let dimension = {
+  width: 3840,
+  height: 2160,
+};
+
+let canvasDimension = {
+  width: dimension.width / 2,
+  height: dimension.height / 2,
+};
 
 const DocumentPage = () => {
   let { user } = useAuth();
@@ -16,6 +30,55 @@ const DocumentPage = () => {
   let [sketch, setSketch] = useState(0);
 
   let [sketchColor, setSketchColor] = useState(0);
+
+  let [documentDetail, setDocumentDetail] = useState({} as DocumentDetail);
+
+  let containerRef = useRef<HTMLDivElement | null>(null);
+
+  let boardRef = useRef<HTMLDivElement | null>(null);
+
+  let { documentId } = useParams();
+
+  useLayoutEffect(() => {
+    handleResize();
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    getDocumentDetail();
+  }, [documentId]);
+
+  let getDocumentDetail = async () => {
+    if (!documentId) return;
+
+    try {
+      let {
+        data: { data },
+      } = await getDocumentById(documentId);
+      setDocumentDetail(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  let handleResize = () => {
+    if (!containerRef.current || !boardRef.current) return;
+
+    let { clientHeight } = containerRef.current;
+
+    let height = clientHeight - 30;
+    let width = (height / 9) * 16;
+
+    boardRef.current.style.transform = `scaleX(${
+      width / dimension.width
+    }) scaleY(${height / dimension.height}) translate(-50%, -50%)`;
+  };
 
   return (
     <Fragment>
@@ -30,7 +93,22 @@ const DocumentPage = () => {
         onSelectSketch={setSketch}
         onSelectSketchColor={setSketchColor}
       />
-      <Board />
+      <div ref={containerRef} className={styles.container}>
+        <div
+          ref={boardRef}
+          className={styles.board}
+          style={{ width: dimension.width, height: dimension.height }}
+        >
+          <SketchBoard
+            tool={tool}
+            sketch={sketch}
+            sketchColor={sketchColor}
+            documentId={documentId}
+            image={documentDetail.image}
+            dimension={canvasDimension}
+          />
+        </div>
+      </div>
     </Fragment>
   );
 };
