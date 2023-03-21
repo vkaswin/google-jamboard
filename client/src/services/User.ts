@@ -2,7 +2,7 @@ import axios from "./axios";
 import { User } from "./config";
 import { SignInData, SignUpData, AuthenticateResponse } from "@/types/User";
 
-const signInUser = (data: SignInData) => {
+export const signInUser = (data: SignInData) => {
   return axios<AuthenticateResponse>({
     url: User.signIn,
     method: "post",
@@ -10,12 +10,10 @@ const signInUser = (data: SignInData) => {
   });
 };
 
-const signUpUser = (data: SignUpData) => {
+export const signUpUser = (data: SignUpData) => {
   return axios<AuthenticateResponse>({
     url: User.signUp,
     method: "post",
     data,
   });
 };
-
-export { signInUser, signUpUser };

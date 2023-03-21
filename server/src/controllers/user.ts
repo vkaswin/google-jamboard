@@ -4,7 +4,7 @@ import { asyncHandler, CustomError } from "../utils/asyncHandler";
 import { RegisterSchema, LoginSchema } from "../schema/user";
 import { generateJwtToken } from "../utils";
 
-const signUp = asyncHandler(async (req, res) => {
+export const signUp = asyncHandler(async (req, res) => {
   let { email, name, password } = RegisterSchema.parse(req.body);
 
   let isExist = await User.findOne({ email });
@@ -32,7 +32,7 @@ const signUp = asyncHandler(async (req, res) => {
   });
 });
 
-const signIn = asyncHandler(async (req, res) => {
+export const signIn = asyncHandler(async (req, res) => {
   let { email, password } = LoginSchema.parse(req.body);
 
   let user = await User.findOne({ email });
@@ -54,5 +54,3 @@ const signIn = asyncHandler(async (req, res) => {
     token,
   });
 });
-
-export { signIn, signUp };

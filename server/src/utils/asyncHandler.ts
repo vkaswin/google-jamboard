@@ -2,7 +2,7 @@ import { Response, Request, NextFunction } from "express";
 import { JsonWebTokenError } from "jsonwebtoken";
 import { ZodError } from "zod";
 
-class CustomError extends Error {
+export class CustomError extends Error {
   status!: number;
 
   constructor({ message, status }: { message: string; status: number }) {
@@ -11,7 +11,7 @@ class CustomError extends Error {
   }
 }
 
-const asyncHandler = <T>(
+export const asyncHandler = <T>(
   cb: (req: Request, res: Response, next: NextFunction) => T
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -33,5 +33,3 @@ const asyncHandler = <T>(
     }
   };
 };
-
-export { asyncHandler, CustomError };

@@ -1,7 +1,7 @@
 import Image from "../models/image";
 import { asyncHandler, CustomError } from "../utils/asyncHandler";
 
-const updateImage = asyncHandler(async (req, res) => {
+export const updateImage = asyncHandler(async (req, res) => {
   let {
     params: { documentId },
     file: { buffer } = {},
@@ -13,5 +13,3 @@ const updateImage = asyncHandler(async (req, res) => {
     message: "Image has been created successfully",
   });
 });
-
-export { updateImage };

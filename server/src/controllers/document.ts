@@ -2,7 +2,7 @@ import Image from "../models/image";
 import Document from "../models/document";
 import { asyncHandler, CustomError } from "../utils/asyncHandler";
 
-const createDocument = asyncHandler(async (req, res) => {
+export const createDocument = asyncHandler(async (req, res) => {
   let data = await Document.create({
     title: "Demo",
     creatorId: "6410632eed1b8da26018876c",
@@ -19,7 +19,7 @@ const createDocument = asyncHandler(async (req, res) => {
   });
 });
 
-const getDocument = asyncHandler(async (req, res) => {
+export const getDocument = asyncHandler(async (req, res) => {
   let {
     params: { id },
   } = req;
@@ -44,5 +44,3 @@ const getDocument = asyncHandler(async (req, res) => {
 
   res.status(200).send({ data, message: "Success" });
 });
-
-export { createDocument, getDocument };

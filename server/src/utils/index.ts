@@ -1,12 +1,12 @@
 import { sign } from "jsonwebtoken";
 
-let generateJwtToken = (payload: string | object | Buffer) => {
+export const generateJwtToken = (payload: string | object | Buffer) => {
   return sign(payload, process.env.JWT_SECRET as string, {
     expiresIn: process.env.JWT_EXPIRE,
   });
 };
 
-const getPagination = <T>({
+export const getPagination = <T>({
   list,
   limit,
   page,
@@ -27,5 +27,3 @@ const getPagination = <T>({
     list,
   };
 };
-
-export { generateJwtToken, getPagination };

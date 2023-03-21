@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-let RegisterSchema = z.object({
+export const RegisterSchema = z.object({
   name: z
     .string()
     .min(3, { message: "Name must be 3 or more characters long" }),
@@ -8,6 +8,4 @@ let RegisterSchema = z.object({
   password: z.string(),
 });
 
-let LoginSchema = RegisterSchema.omit({ name: true });
-
-export { RegisterSchema, LoginSchema };
+export const LoginSchema = RegisterSchema.omit({ name: true });
