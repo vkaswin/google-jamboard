@@ -1,0 +1,25 @@
+.container {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  svg {
+    fill: #fff;
+    stroke-width: 10;
+    width: 100%;
+    height: 100%;
+    path {
+      stroke: rgba(38, 38, 38, 1);
+      fill-rule: evenodd;
+      stroke-linejoin: round;
+    }
+  }
+  .resizer {
+    position: absolute;
+    inset: -15px;
+    border: 15px solid #669df6;
+  }
+}
+
+.container[data-selected="true"] {
+  cursor: move;
+}

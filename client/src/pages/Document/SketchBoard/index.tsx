@@ -34,7 +34,7 @@ const SketchBoard = ({
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    if (tool === 0 || tool === 1) {
+    if (tool === 0 || tool === 1 || tool === 7) {
       canvasRef.current.addEventListener("pointerdown", handlePointerDown);
     } else {
       canvasRef.current.removeEventListener("pointerdown", handlePointerDown);
@@ -74,19 +74,26 @@ const SketchBoard = ({
     canvasRef.current.addEventListener("pointermove", handlePointerMove);
     canvasRef.current.addEventListener("pointerup", handlePointerUp);
     contextRef.current.beginPath();
-    contextRef.current.moveTo((x - left) * num, (y - top) * num);
+    // contextRef.current.moveTo((x - left) * num, (y - top) * num);
   };
 
   let handlePointerMove = ({ x, y }: MouseEvent) => {
     if (!canvasRef.current || !contextRef.current) return;
     let { left, top, width } = canvasRef.current.getBoundingClientRect();
     let num = dimension.width / width;
+    x = (x - left) * num;
+    y = (y - top) * num;
 
-    if (tool === 1) {
-      contextRef.current.clearRect((x - left) * num, (y - top) * num, 20, 20);
-    } else {
-      contextRef.current.lineTo((x - left) * num, (y - top) * num);
+    if (tool === 0 || tool == 7) {
+      contextRef.current.lineTo(x, y);
       contextRef.current.stroke();
+      // Laser
+      setTimeout(() => {
+        if (!contextRef.current) return;
+        contextRef.current.clearRect(x, y, 2, 2);
+      }, 1000);
+    } else if (tool === 1) {
+      contextRef.current.clearRect(x, y, 20, 20);
     }
   };
 
@@ -119,7 +126,6 @@ const SketchBoard = ({
       ref={canvasRef}
       width={dimension.width}
       height={dimension.height}
-      onContextMenu={(e) => e.preventDefault()}
     />
   );
 };

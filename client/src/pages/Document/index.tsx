@@ -4,8 +4,9 @@ import useAuth from "@/hooks/useAuth";
 import Header from "./Header";
 import ToolBar from "./ToolBar";
 import SketchBoard from "./SketchBoard";
+import Shapes from "./Shapes";
 import { getDocumentById, updateImage } from "@/services/Document";
-import { DocumentDetail } from "@/types/Document";
+import { DocumentDetail, ShapeDetail } from "@/types/Document";
 
 import styles from "./Document.module.scss";
 
@@ -19,6 +20,80 @@ let canvasDimension = {
   width: dimension.width / 2,
   height: dimension.height / 2,
 };
+
+let shapes: ShapeDetail[] = [
+  {
+    type: "rectangle",
+    props: {
+      width: 555.699,
+      height: 789.071,
+      translateX: 2195.94,
+      translateY: 533.011,
+
+      rotate: 0,
+    },
+  },
+  {
+    type: "triangle",
+    props: {
+      width: 400,
+      height: 400,
+      translateX: 3158.39,
+      translateY: 1472.78,
+      rotate: 0,
+    },
+  },
+  {
+    type: "semi-circle",
+    props: {
+      width: 400,
+      height: 200,
+      translateX: 1058.6,
+      translateY: 1592.04,
+      rotate: 0,
+    },
+  },
+  {
+    type: "arrow",
+    props: {
+      width: 400,
+      height: 400,
+      translateX: 2073.17,
+      translateY: 1515.99,
+      rotate: 0,
+    },
+  },
+  {
+    type: "square",
+    props: {
+      width: 400,
+      height: 400,
+      translateX: 557.726,
+      translateY: 310.502,
+      rotate: 0,
+    },
+  },
+  {
+    type: "circle",
+    props: {
+      width: 400,
+      height: 400,
+      translateX: 3139.13,
+      translateY: 194.916,
+      rotate: 0,
+    },
+  },
+  {
+    type: "diamond",
+    props: {
+      width: 400,
+      height: 400,
+      translateX: 621.94,
+      translateY: 1048.96,
+      rotate: 0,
+    },
+  },
+];
 
 const DocumentPage = () => {
   let { user } = useAuth();
@@ -133,6 +208,11 @@ const DocumentPage = () => {
             dimension={canvasDimension}
             onUpdateImage={updateCanvasImage}
           />
+          <div className={styles.shapes}>
+            {shapes.map((shape, index) => {
+              return <Shapes key={index} {...shape} />;
+            })}
+          </div>
         </div>
       </div>
     </Fragment>

@@ -19,7 +19,7 @@ const Header = ({ user }: HeaderProps) => {
     <div className={styles.container}>
       <div className={styles.logo}>
         <img src={getStaticUrl("/logo.png")} />
-        <span>Unitiled Jam</span>
+        <span>Google Jamboard</span>
       </div>
       <div className={styles.slides}>
         <button disabled>

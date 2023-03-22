@@ -12,7 +12,7 @@ type ShapeProps = {
   onSelectShape: (index: number) => void;
 };
 
-const Shapes = ({ shape, isOpen, toggle, onSelectShape }: ShapeProps) => {
+const ShapeOptions = ({ shape, isOpen, toggle, onSelectShape }: ShapeProps) => {
   let handleClick = (index: number) => {
     onSelectShape(index);
     toggle();
@@ -43,4 +43,4 @@ const Shapes = ({ shape, isOpen, toggle, onSelectShape }: ShapeProps) => {
   );
 };
 
-export default Shapes;
+export default ShapeOptions;

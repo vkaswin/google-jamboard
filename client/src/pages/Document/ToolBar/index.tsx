@@ -1,6 +1,6 @@
 import { Fragment, useState } from "react";
-import Sketches from "./Sketches";
-import Shapes from "./Shapes";
+import SketchOptions from "./SketchOptions";
+import ShapeOptions from "./ShapeOptions";
 import { toolBarIcons, shapes, sketches } from "@/constants";
 
 import styles from "./ToolBar.module.scss";
@@ -117,13 +117,13 @@ const ToolBar = ({
           );
         })}
       </div>
-      <Shapes
+      <ShapeOptions
         isOpen={showShape}
         shape={shape}
         toggle={toggleShape}
         onSelectShape={onSelectShape}
       />
-      <Sketches
+      <SketchOptions
         isOpen={showSketch}
         sketch={sketch}
         sketchColor={sketchColor}

@@ -14,7 +14,7 @@ type SketchProps = {
   onSelectSketchColor: (index: number) => void;
 };
 
-const Sketches = ({
+const SketchOptions = ({
   isOpen,
   sketch,
   sketchColor,
@@ -89,4 +89,4 @@ const Sketches = ({
   );
 };
 
-export default Sketches;
+export default SketchOptions;
