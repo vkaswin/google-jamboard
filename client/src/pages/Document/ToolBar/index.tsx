@@ -15,6 +15,7 @@ type ToolBarProps = {
   onSelectShape: (index: number) => void;
   onSelectSketch: (index: number) => void;
   onSelectSketchColor: (index: number) => void;
+  onClearFrame: () => void;
 };
 
 const ToolBar = ({
@@ -26,6 +27,7 @@ const ToolBar = ({
   onSelectShape,
   onSelectSketch,
   onSelectSketchColor,
+  onClearFrame,
 }: ToolBarProps) => {
   let [showShape, setShowShape] = useState(false);
 
@@ -67,7 +69,9 @@ const ToolBar = ({
         <div className={styles.separator}></div>
         <button className={styles.background_btn}>Set background</button>
         <div className={styles.separator}></div>
-        <button className={styles.clear_btn}>Clear frame</button>
+        <button className={styles.clear_btn} onClick={onClearFrame}>
+          Clear frame
+        </button>
       </div>
       <div className={styles.toolbar}>
         {toolBarIcons.map(({ label, svg }, index) => {
@@ -113,22 +117,20 @@ const ToolBar = ({
           );
         })}
       </div>
-      {showShape && (
-        <Shapes
-          shape={shape}
-          toggle={toggleShape}
-          onSelectShape={onSelectShape}
-        />
-      )}
-      {showSketch && (
-        <Sketches
-          sketch={sketch}
-          sketchColor={sketchColor}
-          toggle={toggleSketch}
-          onSelectSketch={onSelectSketch}
-          onSelectSketchColor={onSelectSketchColor}
-        />
-      )}
+      <Shapes
+        isOpen={showShape}
+        shape={shape}
+        toggle={toggleShape}
+        onSelectShape={onSelectShape}
+      />
+      <Sketches
+        isOpen={showSketch}
+        sketch={sketch}
+        sketchColor={sketchColor}
+        toggle={toggleSketch}
+        onSelectSketch={onSelectSketch}
+        onSelectSketchColor={onSelectSketchColor}
+      />
     </Fragment>
   );
 };

@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { updateImage } from "@/services/Document";
 import { getStaticUrl } from "@/utils";
 
 import styles from "./SketchBoard.module.scss";
@@ -11,6 +10,7 @@ type SketchBoardProps = {
   image: string;
   documentId?: string;
   dimension: { width: number; height: number };
+  onUpdateImage: (blob: Blob) => void;
 };
 
 const SketchBoard = ({
@@ -20,6 +20,7 @@ const SketchBoard = ({
   image,
   documentId,
   dimension,
+  onUpdateImage,
 }: SketchBoardProps) => {
   let canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -82,7 +83,7 @@ const SketchBoard = ({
     let num = dimension.width / width;
 
     if (tool === 1) {
-      contextRef.current.clearRect((x - left) * num, (y - top) * num, 10, 10);
+      contextRef.current.clearRect((x - left) * num, (y - top) * num, 20, 20);
     } else {
       contextRef.current.lineTo((x - left) * num, (y - top) * num);
       contextRef.current.stroke();
@@ -98,15 +99,8 @@ const SketchBoard = ({
   };
 
   let handleCanvasImage = async (blob: Blob | null) => {
-    if (!blob || !documentId) return;
-
-    try {
-      let formData = new FormData();
-      formData.append("file", blob);
-      await updateImage(documentId, formData);
-    } catch (error) {
-      console.log(error);
-    }
+    if (!blob) return;
+    onUpdateImage(blob);
   };
 
   let drawImageInCanvas = () => {
@@ -119,16 +113,13 @@ const SketchBoard = ({
     };
   };
 
-  let clearLine = () => {
-    if (!contextRef.current) return;
-  };
-
   return (
     <canvas
       className={styles.sketch_board}
       ref={canvasRef}
       width={dimension.width}
       height={dimension.height}
+      onContextMenu={(e) => e.preventDefault()}
     />
   );
 };

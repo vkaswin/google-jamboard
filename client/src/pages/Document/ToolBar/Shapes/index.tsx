@@ -6,19 +6,25 @@ import styles from "./Shapes.module.scss";
 import Popper from "@/components/Popper";
 
 type ShapeProps = {
+  isOpen: boolean;
   shape: number;
   toggle: () => void;
   onSelectShape: (index: number) => void;
 };
 
-const Shapes = ({ shape, toggle, onSelectShape }: ShapeProps) => {
+const Shapes = ({ shape, isOpen, toggle, onSelectShape }: ShapeProps) => {
   let handleClick = (index: number) => {
     onSelectShape(index);
     toggle();
   };
 
   return (
-    <Popper className={styles.container} selector="#shapes" toggle={toggle}>
+    <Popper
+      className={styles.container}
+      isOpen={isOpen}
+      selector="#shapes"
+      toggle={toggle}
+    >
       <div className={styles.shape}>
         {shapes.map(({ label, svg }, index) => {
           return (

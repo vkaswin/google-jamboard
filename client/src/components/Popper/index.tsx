@@ -1,14 +1,25 @@
 import { ComponentProps, ReactNode, useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePopper } from "react-popper";
+import { CSSTransition } from "react-transition-group";
+import { clickOutside } from "@/utils";
+
+import styles from "./Popper.module.scss";
 
 type PopperProps = {
   children: ReactNode;
   selector: string;
+  isOpen: boolean;
   toggle: () => void;
 } & ComponentProps<"div">;
 
-const Popper = ({ children, selector, toggle, ...rest }: PopperProps) => {
+const Popper = ({
+  children,
+  selector,
+  isOpen,
+  toggle,
+  ...rest
+}: PopperProps) => {
   let [referenceElement, setReferenceElement] = useState<HTMLElement | null>(
     null
   );
@@ -36,17 +47,41 @@ const Popper = ({ children, selector, toggle, ...rest }: PopperProps) => {
     setReferenceElement(element);
   }, []);
 
+  const onEntered = (element: HTMLElement) => {
+    if (!element) return;
+
+    clickOutside({
+      ref: element,
+      onClose: toggle,
+      doNotClose: (event) => {
+        if (!referenceElement) return false;
+        return referenceElement.contains(event);
+      },
+    });
+  };
+
   return createPortal(
-    <div
-      ref={setPopperElement}
-      style={{
-        ...style.popper,
+    <CSSTransition
+      in={isOpen}
+      timeout={200}
+      unmountOnExit
+      classNames={{
+        enterActive: styles.enter,
+        exitActive: styles.exit,
       }}
-      {...attributes.popper}
-      {...rest}
+      onEntered={onEntered}
     >
-      {children}
-    </div>,
+      <div
+        ref={setPopperElement}
+        style={{
+          ...style.popper,
+        }}
+        {...attributes.popper}
+        {...rest}
+      >
+        {children}
+      </div>
+    </CSSTransition>,
     document.body
   );
 };

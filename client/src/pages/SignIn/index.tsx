@@ -49,6 +49,7 @@ const SignIn = () => {
           />
           <Input
             label="Password"
+            type="password"
             errorType={errors?.password?.type}
             message={{
               required: "Please enter password",

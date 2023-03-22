@@ -4,7 +4,7 @@ import useAuth from "@/hooks/useAuth";
 import Header from "./Header";
 import ToolBar from "./ToolBar";
 import SketchBoard from "./SketchBoard";
-import { getDocumentById } from "@/services/Document";
+import { getDocumentById, updateImage } from "@/services/Document";
 import { DocumentDetail } from "@/types/Document";
 
 import styles from "./Document.module.scss";
@@ -80,6 +80,30 @@ const DocumentPage = () => {
     }) scaleY(${height / dimension.height}) translate(-50%, -50%)`;
   };
 
+  let clearCanvas = () => {
+    let canvas = document.querySelector("canvas");
+    if (!canvas) return;
+    let context = canvas.getContext("2d");
+    if (!context) return;
+    context.clearRect(0, 0, canvasDimension.width, canvasDimension.height);
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      updateCanvasImage(blob);
+    });
+  };
+
+  let updateCanvasImage = async (blob: Blob) => {
+    if (!documentId) return;
+
+    try {
+      let formData = new FormData();
+      formData.append("file", blob);
+      await updateImage(documentId, formData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Fragment>
       <Header user={user} />
@@ -92,6 +116,7 @@ const DocumentPage = () => {
         onSelectShape={setShape}
         onSelectSketch={setSketch}
         onSelectSketchColor={setSketchColor}
+        onClearFrame={clearCanvas}
       />
       <div ref={containerRef} className={styles.container}>
         <div
@@ -106,6 +131,7 @@ const DocumentPage = () => {
             documentId={documentId}
             image={documentDetail.image}
             dimension={canvasDimension}
+            onUpdateImage={updateCanvasImage}
           />
         </div>
       </div>

@@ -56,6 +56,7 @@ export const clickOutside = ({
       doNotClose(target as HTMLElement)
     )
       return;
+
     onClose();
     document.removeEventListener("click", handleClickOutside);
   };

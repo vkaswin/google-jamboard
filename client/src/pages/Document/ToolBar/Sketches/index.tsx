@@ -6,6 +6,7 @@ import { sketches, colors } from "@/constants";
 import styles from "./Sketches.module.scss";
 
 type SketchProps = {
+  isOpen: boolean;
   sketch: number;
   sketchColor: number;
   toggle: () => void;
@@ -14,6 +15,7 @@ type SketchProps = {
 };
 
 const Sketches = ({
+  isOpen,
   sketch,
   sketchColor,
   toggle,
@@ -22,14 +24,21 @@ const Sketches = ({
 }: SketchProps) => {
   let handleSketch = (index: number) => {
     onSelectSketch(index);
+    toggle();
   };
 
   let handleColor = (index: number) => {
     onSelectSketchColor(index);
+    toggle();
   };
 
   return (
-    <Popper className={styles.container} selector="#sketches" toggle={toggle}>
+    <Popper
+      className={styles.container}
+      isOpen={isOpen}
+      selector="#sketches"
+      toggle={toggle}
+    >
       <div className={styles.sketch}>
         {sketches.map(({ label, svg }, index) => {
           let className = index === sketch ? styles.active : undefined;
