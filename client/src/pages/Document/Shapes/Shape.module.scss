@@ -2,6 +2,7 @@
   position: absolute;
   top: 0px;
   left: 0px;
+  background-color: transparent;
   svg {
     fill: #fff;
     stroke-width: 10;
@@ -15,8 +16,75 @@
   }
   .resizer {
     position: absolute;
-    inset: -15px;
-    border: 15px solid #669df6;
+    inset: -12px;
+    border: 8px solid #669df6;
+    background-color: transparent;
+    div[data-square] {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-radius: 4px;
+      background-color: #669df6;
+      border: 8px solid #fff;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+    div[data-circle] {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: #669df6;
+      border: 8px solid #fff;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      img {
+        position: absolute;
+        top: -35px;
+        left: -35px;
+        width: 100px;
+        height: 100px;
+      }
+    }
+    .top_center,
+    .bottom_center {
+      left: 50%;
+      transform: translateX(-50%);
+      cursor: s-resize;
+    }
+    .top_center {
+      top: -30px;
+    }
+    .bottom_center {
+      bottom: -30px;
+    }
+    .left,
+    .right {
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: e-resize;
+    }
+    .left {
+      left: -30px;
+    }
+    .right {
+      right: -30px;
+    }
+    .top_left {
+      top: -30px;
+      left: -30px;
+      cursor: crosshair;
+    }
+    .bottom_right,
+    .bottom_left {
+      bottom: -30px;
+    }
+    .bottom_left {
+      left: -30px;
+      cursor: ne-resize;
+    }
+    .bottom_right {
+      right: -30px;
+      cursor: nw-resize;
+    }
   }
 }
 

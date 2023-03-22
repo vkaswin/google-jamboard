@@ -2,6 +2,7 @@ import { Fragment, useMemo, useState } from "react";
 import { ShapeDetail } from "@/types/Document";
 
 import styles from "./Shape.module.scss";
+import { getStaticUrl } from "@/utils";
 
 type ShapeProps = {} & ShapeDetail;
 
@@ -85,7 +86,7 @@ const Shape = ({ type, props }: ShapeProps) => {
       style={{
         width: `${width}px`,
         height: `${height}px`,
-        transform: `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotate}rad)`,
+        transform: `translateX(${translateX}px) translateY(${translateY}px) scale(1) rotate(${rotate}rad)`,
       }}
     >
       <svg
@@ -95,16 +96,18 @@ const Shape = ({ type, props }: ShapeProps) => {
       >
         {path}
       </svg>
-      {isSelected && (
+      {true && (
         <div className={styles.resizer}>
-          <div className={styles.top_left}></div>
-          <div className={styles.top_center}></div>
+          <div className={styles.top_left} data-circle>
+            <img src={getStaticUrl("/rotate.svg")} />
+          </div>
+          <div className={styles.top_center} data-square></div>
           <div className={styles.top_right}></div>
-          <div className={styles.left}></div>
-          <div className={styles.right}></div>
-          <div className={styles.bottom_left}></div>
-          <div className={styles.bottom_center}></div>
-          <div className={styles.bottom_right}></div>
+          <div className={styles.left} data-square></div>
+          <div className={styles.right} data-square></div>
+          <div className={styles.bottom_left} data-circle></div>
+          <div className={styles.bottom_center} data-square></div>
+          <div className={styles.bottom_right} data-circle></div>
         </div>
       )}
     </div>

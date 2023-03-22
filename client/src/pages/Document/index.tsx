@@ -208,11 +208,9 @@ const DocumentPage = () => {
             dimension={canvasDimension}
             onUpdateImage={updateCanvasImage}
           />
-          <div className={styles.shapes}>
-            {shapes.map((shape, index) => {
-              return <Shapes key={index} {...shape} />;
-            })}
-          </div>
+          {shapes.map((shape, index) => {
+            return <Shapes key={index} {...shape} />;
+          })}
         </div>
       </div>
     </Fragment>

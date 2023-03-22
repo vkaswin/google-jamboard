@@ -72,9 +72,11 @@ const SketchBoard = ({
     let num = dimension.width / width;
 
     canvasRef.current.addEventListener("pointermove", handlePointerMove);
-    canvasRef.current.addEventListener("pointerup", handlePointerUp);
+    canvasRef.current.addEventListener("pointerup", handlePointerUp, {
+      once: true,
+    });
     contextRef.current.beginPath();
-    // contextRef.current.moveTo((x - left) * num, (y - top) * num);
+    contextRef.current.moveTo((x - left) * num, (y - top) * num);
   };
 
   let handlePointerMove = ({ x, y }: MouseEvent) => {
@@ -88,10 +90,12 @@ const SketchBoard = ({
       contextRef.current.lineTo(x, y);
       contextRef.current.stroke();
       // Laser
-      setTimeout(() => {
-        if (!contextRef.current) return;
-        contextRef.current.clearRect(x, y, 2, 2);
-      }, 1000);
+      if (tool === 7) {
+        setTimeout(() => {
+          if (!contextRef.current) return;
+          contextRef.current.clearRect(x, y, 2, 2);
+        }, 1000);
+      }
     } else if (tool === 1) {
       contextRef.current.clearRect(x, y, 20, 20);
     }
@@ -101,7 +105,6 @@ const SketchBoard = ({
     if (!canvasRef.current) return;
 
     canvasRef.current.removeEventListener("pointermove", handlePointerMove);
-    canvasRef.current.removeEventListener("pointerup", handlePointerUp);
     canvasRef.current.toBlob(handleCanvasImage, "image/png");
   };
 
@@ -126,6 +129,7 @@ const SketchBoard = ({
       ref={canvasRef}
       width={dimension.width}
       height={dimension.height}
+      style={{ pointerEvents: [0, 1, 7].includes(tool) ? "auto" : "none" }}
     />
   );
 };
