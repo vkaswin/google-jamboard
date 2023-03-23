@@ -5,6 +5,6 @@ const router = Router();
 
 router.post("/create", createDocument);
 
-router.get("/:id/detail", getDocument);
+router.get("/:documentId/detail", getDocument);
 
 export default router;

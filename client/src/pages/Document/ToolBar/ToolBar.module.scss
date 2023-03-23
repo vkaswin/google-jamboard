@@ -1,57 +1,9 @@
 .container {
   position: relative;
   display: flex;
-  align-items: center;
-  background-color: #fff;
-  border-top: 1px solid #e5e5e5;
-  border-bottom: 1px solid #ebebeb;
-  height: 44px;
-  padding: 0px 25px;
-  z-index: 2;
-  .zoom_in,
-  .zoom_out {
-    font-size: 22px;
-  }
-  .redo,
-  .undo {
-    font-size: 28px;
-    &:disabled {
-      opacity: 0.38;
-      color: #5f6368;
-    }
-  }
-  .redo,
-  .zoom_out {
-    margin-right: 5px;
-  }
-  .undo,
-  .zoom_in {
-    margin-left: 5px;
-  }
-  .background_btn,
-  .clear_btn {
-    font-size: 14px;
-  }
-  .separator {
-    height: 26px;
-    margin: 0px 10px;
-    border-left: 1px solid #dadce0;
-  }
-  button {
-    display: flex;
-    align-items: center;
-    background-color: transparent;
-    border: none;
-    color: #3c4043;
-  }
-}
-
-.toolbar {
-  position: fixed;
-  display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
   top: 50%;
   left: 15px;
   transform: translateY(-50%);

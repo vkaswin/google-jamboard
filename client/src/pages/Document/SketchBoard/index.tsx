@@ -35,13 +35,13 @@ const SketchBoard = ({
     if (!canvasRef.current) return;
 
     if (tool === 0 || tool === 1 || tool === 7) {
-      canvasRef.current.addEventListener("pointerdown", handlePointerDown);
+      canvasRef.current.addEventListener("mousedown", handleMouseDown);
     } else {
-      canvasRef.current.removeEventListener("pointerdown", handlePointerDown);
+      canvasRef.current.removeEventListener("mousedown", handleMouseDown);
     }
     return () => {
       if (!canvasRef.current) return;
-      canvasRef.current.removeEventListener("pointerdown", handlePointerDown);
+      canvasRef.current.removeEventListener("mousedown", handleMouseDown);
     };
   }, [tool]);
 
@@ -66,20 +66,20 @@ const SketchBoard = ({
     if (!contextRef.current) return;
   }, [sketchColor, contextRef.current]);
 
-  let handlePointerDown = ({ x, y }: MouseEvent) => {
+  let handleMouseDown = ({ x, y }: MouseEvent) => {
     if (!canvasRef.current || !contextRef.current) return;
     let { left, top, width } = canvasRef.current.getBoundingClientRect();
     let num = dimension.width / width;
 
-    canvasRef.current.addEventListener("pointermove", handlePointerMove);
-    canvasRef.current.addEventListener("pointerup", handlePointerUp, {
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp, {
       once: true,
     });
     contextRef.current.beginPath();
     contextRef.current.moveTo((x - left) * num, (y - top) * num);
   };
 
-  let handlePointerMove = ({ x, y }: MouseEvent) => {
+  let handleMouseMove = ({ x, y }: MouseEvent) => {
     if (!canvasRef.current || !contextRef.current) return;
     let { left, top, width } = canvasRef.current.getBoundingClientRect();
     let num = dimension.width / width;
@@ -101,10 +101,10 @@ const SketchBoard = ({
     }
   };
 
-  let handlePointerUp = () => {
+  let handleMouseUp = () => {
     if (!canvasRef.current) return;
 
-    canvasRef.current.removeEventListener("pointermove", handlePointerMove);
+    window.removeEventListener("mousemove", handleMouseMove);
     canvasRef.current.toBlob(handleCanvasImage, "image/png");
   };
 

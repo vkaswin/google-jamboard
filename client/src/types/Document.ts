@@ -3,6 +3,7 @@ export interface DocumentDetail {
   creatorId: string;
   image: string;
   title: string;
+  shapes: ShapeDetail[];
 }
 
 export type ShapeTypes =
@@ -23,6 +24,7 @@ export interface ShapeProps {
 }
 
 export interface ShapeDetail {
+  _id: string;
   type: ShapeTypes;
   props: ShapeProps;
 }

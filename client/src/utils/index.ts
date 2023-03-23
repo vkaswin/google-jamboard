@@ -38,24 +38,20 @@ export const debounce = <T>(
   };
 };
 
-export const clickOutside = ({
+export const clickOutside = <T extends HTMLElement>({
   ref,
   onClose,
   doNotClose = () => false,
 }: {
-  ref: HTMLElement;
+  ref: T;
   onClose: () => void;
-  doNotClose?: (element: HTMLElement) => boolean;
+  doNotClose?: (element: T) => boolean;
 }) => {
   if (!ref) return;
 
   const handleClickOutside = (event: MouseEvent) => {
     let { target } = event;
-    if (
-      ref.contains(target as HTMLElement) ||
-      doNotClose(target as HTMLElement)
-    )
-      return;
+    if (ref.contains(target as T) || doNotClose(target as T)) return;
 
     onClose();
     document.removeEventListener("click", handleClickOutside);

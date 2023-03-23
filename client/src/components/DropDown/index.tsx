@@ -68,13 +68,19 @@ const DropDown = ({
   useEffect(() => {
     if (selector.length === 0) return;
 
+    if (referenceElement) referenceElement.removeEventListener("click", open);
+
     const element = document.querySelector(selector) as HTMLElement;
 
     if (!element) return;
 
-    element.onclick = open;
+    element.addEventListener("click", open);
 
     setReferenceElement(element);
+
+    return () => {
+      if (referenceElement) referenceElement.removeEventListener("click", open);
+    };
   }, [selector]);
 
   const onEntered = (element: HTMLElement) => {

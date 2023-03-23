@@ -5,10 +5,12 @@ import Header from "./Header";
 import ToolBar from "./ToolBar";
 import SketchBoard from "./SketchBoard";
 import Shapes from "./Shapes";
+import Resizer from "./Resizer";
 import { getDocumentById, updateImage } from "@/services/Document";
-import { DocumentDetail, ShapeDetail } from "@/types/Document";
+import { DocumentDetail } from "@/types/Document";
 
 import styles from "./Document.module.scss";
+import DropDown from "@/components/DropDown";
 
 // Aspect ratio 16 / 9
 let dimension = {
@@ -20,80 +22,6 @@ let canvasDimension = {
   width: dimension.width / 2,
   height: dimension.height / 2,
 };
-
-let shapes: ShapeDetail[] = [
-  {
-    type: "rectangle",
-    props: {
-      width: 555.699,
-      height: 789.071,
-      translateX: 2195.94,
-      translateY: 533.011,
-
-      rotate: 0,
-    },
-  },
-  {
-    type: "triangle",
-    props: {
-      width: 400,
-      height: 400,
-      translateX: 3158.39,
-      translateY: 1472.78,
-      rotate: 0,
-    },
-  },
-  {
-    type: "semi-circle",
-    props: {
-      width: 400,
-      height: 200,
-      translateX: 1058.6,
-      translateY: 1592.04,
-      rotate: 0,
-    },
-  },
-  {
-    type: "arrow",
-    props: {
-      width: 400,
-      height: 400,
-      translateX: 2073.17,
-      translateY: 1515.99,
-      rotate: 0,
-    },
-  },
-  {
-    type: "square",
-    props: {
-      width: 400,
-      height: 400,
-      translateX: 557.726,
-      translateY: 310.502,
-      rotate: 0,
-    },
-  },
-  {
-    type: "circle",
-    props: {
-      width: 400,
-      height: 400,
-      translateX: 3139.13,
-      translateY: 194.916,
-      rotate: 0,
-    },
-  },
-  {
-    type: "diamond",
-    props: {
-      width: 400,
-      height: 400,
-      translateX: 621.94,
-      translateY: 1048.96,
-      rotate: 0,
-    },
-  },
-];
 
 const DocumentPage = () => {
   let { user } = useAuth();
@@ -111,6 +39,8 @@ const DocumentPage = () => {
   let containerRef = useRef<HTMLDivElement | null>(null);
 
   let boardRef = useRef<HTMLDivElement | null>(null);
+
+  let [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
 
   let { documentId } = useParams();
 
@@ -179,21 +109,49 @@ const DocumentPage = () => {
     }
   };
 
+  let handleFocusShape = (id: string) => {
+    setSelectedShapeId(id);
+  };
+
+  let handleBlurShape = () => {
+    setSelectedShapeId(null);
+  };
+
+  let handleDuplicateShape = () => {
+    if (!selectedShapeId) return;
+    console.log(selectedShapeId);
+  };
+
+  let handleDeleteShape = () => {
+    if (!selectedShapeId) return;
+
+    try {
+      let index = documentDetail.shapes.findIndex(
+        ({ _id }) => _id === selectedShapeId
+      );
+      if (index === -1) return;
+      let shapes = [...documentDetail.shapes];
+      shapes.splice(index, 1);
+      setDocumentDetail({ ...documentDetail, shapes });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Fragment>
-      <Header user={user} />
-      <ToolBar
-        tool={tool}
-        shape={shape}
-        sketch={sketch}
-        sketchColor={sketchColor}
-        onSelectTool={setTool}
-        onSelectShape={setShape}
-        onSelectSketch={setSketch}
-        onSelectSketchColor={setSketchColor}
-        onClearFrame={clearCanvas}
-      />
+      <Header user={user} onClearFrame={clearCanvas} />
       <div ref={containerRef} className={styles.container}>
+        <ToolBar
+          tool={tool}
+          shape={shape}
+          sketch={sketch}
+          sketchColor={sketchColor}
+          onSelectTool={setTool}
+          onSelectShape={setShape}
+          onSelectSketch={setSketch}
+          onSelectSketchColor={setSketchColor}
+        />
         <div
           ref={boardRef}
           className={styles.board}
@@ -208,11 +166,36 @@ const DocumentPage = () => {
             dimension={canvasDimension}
             onUpdateImage={updateCanvasImage}
           />
-          {shapes.map((shape, index) => {
-            return <Shapes key={index} {...shape} />;
-          })}
+          {documentDetail.shapes &&
+            documentDetail.shapes.length > 0 &&
+            documentDetail.shapes.map((shape, index) => {
+              return (
+                <Shapes
+                  key={index}
+                  onFocus={handleFocusShape}
+                  onBlur={handleBlurShape}
+                  {...shape}
+                />
+              );
+            })}
         </div>
       </div>
+      <Resizer shapeId={selectedShapeId} />
+      <DropDown
+        selector={`[shape-id='${selectedShapeId}']`}
+        className={styles.shape_dropdown}
+        placement="bottom"
+        aria-disabled={!!selectedShapeId}
+      >
+        <DropDown.Item onClick={handleDuplicateShape}>
+          <i className="bx-duplicate"></i>
+          <span>Duplicate</span>
+        </DropDown.Item>
+        <DropDown.Item onClick={handleDeleteShape}>
+          <i className="bx-trash"></i>
+          <span>Delete</span>
+        </DropDown.Item>
+      </DropDown>
     </Fragment>
   );
 };

@@ -15,7 +15,6 @@ type ToolBarProps = {
   onSelectShape: (index: number) => void;
   onSelectSketch: (index: number) => void;
   onSelectSketchColor: (index: number) => void;
-  onClearFrame: () => void;
 };
 
 const ToolBar = ({
@@ -27,7 +26,6 @@ const ToolBar = ({
   onSelectShape,
   onSelectSketch,
   onSelectSketchColor,
-  onClearFrame,
 }: ToolBarProps) => {
   let [showShape, setShowShape] = useState(false);
 
@@ -53,27 +51,6 @@ const ToolBar = ({
   return (
     <Fragment>
       <div className={styles.container}>
-        <button className={styles.redo} disabled>
-          <i className="bx-undo"></i>
-        </button>
-        <button className={styles.undo} disabled>
-          <i className="bx-redo"></i>
-        </button>
-        <div className={styles.separator}></div>
-        <button className={styles.zoom_out}>
-          <i className="bx-zoom-out"></i>
-        </button>
-        <button className={styles.zoom_in}>
-          <i className="bx-zoom-in"></i>
-        </button>
-        <div className={styles.separator}></div>
-        <button className={styles.background_btn}>Set background</button>
-        <div className={styles.separator}></div>
-        <button className={styles.clear_btn} onClick={onClearFrame}>
-          Clear frame
-        </button>
-      </div>
-      <div className={styles.toolbar}>
         {toolBarIcons.map(({ label, svg }, index) => {
           let icon =
             label === "shape"

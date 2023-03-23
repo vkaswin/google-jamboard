@@ -4,28 +4,23 @@ const ShapeSchema = new Schema(
   {
     documentId: {
       type: Schema.Types.ObjectId,
+      required: [true, "Please add documentId"],
       index: true,
       ref: "Document",
     },
-    shape: {
+    type: {
       type: String,
-      required: [true, "Please add shape"],
+      required: [true, "Please add type"],
     },
-    width: {
-      type: Number,
-      required: [true, "Please add width"],
-    },
-    height: {
-      type: Number,
-      required: [true, "Please add height"],
-    },
-    x: {
-      type: Number,
-      required: [true, "Please add x coordinate"],
-    },
-    y: {
-      type: Number,
-      required: [true, "Please add y coordinate"],
+    props: {
+      type: {
+        width: Number,
+        height: Number,
+        translateX: Number,
+        translateY: Number,
+        rotate: Number,
+      },
+      required: [true, "Please add props"],
     },
   },
   { timestamps: true }

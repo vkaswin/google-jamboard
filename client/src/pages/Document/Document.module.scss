@@ -11,3 +11,18 @@
     transform-origin: top left;
   }
 }
+
+.shape_dropdown {
+  button {
+    font-size: 14px;
+    i {
+      font-size: 18px;
+    }
+  }
+}
+
+.shape_dropdown[aria-disabled="false"] {
+  user-select: none;
+  pointer-events: none;
+  visibility: hidden;
+}

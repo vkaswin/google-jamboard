@@ -1,23 +1,36 @@
-import { Fragment, useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ShapeDetail } from "@/types/Document";
+import { clickOutside } from "@/utils";
 
 import styles from "./Shape.module.scss";
-import { getStaticUrl } from "@/utils";
 
-type ShapeProps = {} & ShapeDetail;
+type ShapeProps = {
+  onFocus: (id: string) => void;
+  onBlur: () => void;
+} & ShapeDetail;
 
-const Shape = ({ type, props }: ShapeProps) => {
+const Shape = ({ _id, type, props, onFocus, onBlur }: ShapeProps) => {
   let [property, setProperty] = useState(props);
+
+  let { width, height, translateX, translateY, rotate } = property;
 
   let [isSelected, setIsSelected] = useState(false);
 
-  let { width, height, translateX, translateY, rotate } = props;
+  let shapeRef = useRef<HTMLDivElement | null>(null);
 
-  let handleFocus = () => {
+  let handleClick = () => {
+    if (!shapeRef.current) return;
+
     setIsSelected(true);
+    onFocus(_id);
+    clickOutside({
+      ref: shapeRef.current,
+      onClose: handleClickOutSide,
+    });
   };
 
-  let handleBlur = () => {
+  let handleClickOutSide = () => {
+    onBlur();
     setIsSelected(false);
   };
 
@@ -57,18 +70,11 @@ const Shape = ({ type, props }: ShapeProps) => {
 
       case "triangle":
         return (
-          <Fragment>
-            <path
-              d={`M${width} ${height} L${width} ${height} L0 ${height} L${
-                width / 2
-              } 0 Z`}
-            ></path>
-            <path
-              d={`M${width} ${height} L${width} ${height} L0 ${height} L${
-                width / 2
-              } 0 Z`}
-            ></path>
-          </Fragment>
+          <path
+            d={`M${width} ${height} L${width} ${height} L0 ${height} L${
+              width / 2
+            } 0 Z`}
+          ></path>
         );
 
       default:
@@ -78,11 +84,10 @@ const Shape = ({ type, props }: ShapeProps) => {
 
   return (
     <div
+      ref={shapeRef}
       className={styles.container}
       data-selected={isSelected}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      tabIndex={-1}
+      onClick={handleClick}
       style={{
         width: `${width}px`,
         height: `${height}px`,
@@ -96,20 +101,6 @@ const Shape = ({ type, props }: ShapeProps) => {
       >
         {path}
       </svg>
-      {true && (
-        <div className={styles.resizer}>
-          <div className={styles.top_left} data-circle>
-            <img src={getStaticUrl("/rotate.svg")} />
-          </div>
-          <div className={styles.top_center} data-square></div>
-          <div className={styles.top_right}></div>
-          <div className={styles.left} data-square></div>
-          <div className={styles.right} data-square></div>
-          <div className={styles.bottom_left} data-circle></div>
-          <div className={styles.bottom_center} data-square></div>
-          <div className={styles.bottom_right} data-circle></div>
-        </div>
-      )}
     </div>
   );
 };
