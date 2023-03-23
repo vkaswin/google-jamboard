@@ -1,18 +1,24 @@
-import React, { useEffect } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { getStaticUrl } from "@/utils";
+import { ShapeDetail } from "@/types/Document";
 
 import styles from "./Resizer.module.scss";
-import { createPortal } from "react-dom";
 
-type ResizerProps = {
-  shapeId: string | null;
-};
+type ResizerProps = { shape: ShapeDetail };
 
-const Resizer = ({ shapeId }: ResizerProps) => {
-  useEffect(() => {
-    if (!shapeId) return;
-    console.log(shapeId);
-  }, [shapeId]);
+const Resizer = ({ shape }: ResizerProps) => {
+  let [property, setProperty] = useState(shape.props);
+
+  let { width, height, translateX, translateY, rotate } = property;
+
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
+    containerRef.current.style.width = `${width + 30}px`;
+    containerRef.current.style.height = `${height + 30}px`;
+    containerRef.current.style.transform = `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotate}deg)`;
+  }, []);
+
+  let containerRef = useRef<HTMLDivElement | null>(null);
 
   let handleMouseMove = (event: MouseEvent) => {
     console.log(event);
@@ -28,8 +34,8 @@ const Resizer = ({ shapeId }: ResizerProps) => {
     window.addEventListener("mouseup", handleMouseUp, { once: true });
   };
 
-  return createPortal(
-    <div className={styles.container}>
+  return (
+    <div ref={containerRef} className={styles.container}>
       <button className={styles.top_left} onMouseDown={handleMouseDown}>
         <img src={getStaticUrl("/rotate.svg")} alt="" draggable={false} />
       </button>
@@ -37,7 +43,7 @@ const Resizer = ({ shapeId }: ResizerProps) => {
         className={styles.top_center}
         onMouseDown={handleMouseDown}
       ></button>
-      <button shape-id={shapeId} className={styles.top_right}>
+      <button shape-id={shape._id} className={styles.top_right}>
         <i className="bx-dots-vertical-rounded"></i>
       </button>
       <button className={styles.left} onMouseDown={handleMouseDown}></button>
@@ -54,8 +60,7 @@ const Resizer = ({ shapeId }: ResizerProps) => {
         className={styles.bottom_right}
         onMouseDown={handleMouseDown}
       ></button>
-    </div>,
-    document.body
+    </div>
   );
 };
 

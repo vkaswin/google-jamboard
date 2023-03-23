@@ -3,6 +3,9 @@
   top: 0px;
   left: 0px;
   background-color: transparent;
+  &:is(.selected) {
+    cursor: move;
+  }
   svg {
     fill: #fff;
     stroke-width: 10;
@@ -12,8 +15,4 @@
       stroke-linejoin: round;
     }
   }
-}
-
-.container[data-selected="true"] {
-  cursor: move;
 }

@@ -1,4 +1,11 @@
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  Fragment,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useParams } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import Header from "./Header";
@@ -109,12 +116,8 @@ const DocumentPage = () => {
     }
   };
 
-  let handleFocusShape = (id: string) => {
+  let handleClickShape = (id: string) => {
     setSelectedShapeId(id);
-  };
-
-  let handleBlurShape = () => {
-    setSelectedShapeId(null);
   };
 
   let handleDuplicateShape = () => {
@@ -137,6 +140,11 @@ const DocumentPage = () => {
       console.log(error);
     }
   };
+
+  let selectedShape = useMemo(() => {
+    if (!selectedShapeId) return;
+    return documentDetail.shapes.find(({ _id }) => _id === selectedShapeId);
+  }, [selectedShapeId]);
 
   return (
     <Fragment>
@@ -167,22 +175,22 @@ const DocumentPage = () => {
             onUpdateImage={updateCanvasImage}
           />
           {documentDetail.shapes &&
-            documentDetail.shapes.length > 0 &&
             documentDetail.shapes.map((shape, index) => {
               return (
                 <Shapes
                   key={index}
-                  onFocus={handleFocusShape}
-                  onBlur={handleBlurShape}
+                  onClick={handleClickShape}
+                  selectedShapeId={selectedShapeId}
                   {...shape}
                 />
               );
             })}
+          {selectedShape && <Resizer shape={selectedShape} />}
         </div>
       </div>
-      <Resizer shapeId={selectedShapeId} />
+
       <DropDown
-        selector={`[shape-id='${selectedShapeId}']`}
+        selector={`button[shape-id='${selectedShapeId}']`}
         className={styles.shape_dropdown}
         placement="bottom"
         aria-disabled={!!selectedShapeId}

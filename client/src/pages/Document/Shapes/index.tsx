@@ -1,38 +1,17 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { ShapeDetail } from "@/types/Document";
-import { clickOutside } from "@/utils";
 
 import styles from "./Shape.module.scss";
 
 type ShapeProps = {
-  onFocus: (id: string) => void;
-  onBlur: () => void;
+  selectedShapeId: string | null;
+  onClick: (id: string) => void;
 } & ShapeDetail;
 
-const Shape = ({ _id, type, props, onFocus, onBlur }: ShapeProps) => {
+const Shapes = ({ _id, type, props, selectedShapeId, onClick }: ShapeProps) => {
   let [property, setProperty] = useState(props);
 
   let { width, height, translateX, translateY, rotate } = property;
-
-  let [isSelected, setIsSelected] = useState(false);
-
-  let shapeRef = useRef<HTMLDivElement | null>(null);
-
-  let handleClick = () => {
-    if (!shapeRef.current) return;
-
-    setIsSelected(true);
-    onFocus(_id);
-    clickOutside({
-      ref: shapeRef.current,
-      onClose: handleClickOutSide,
-    });
-  };
-
-  let handleClickOutSide = () => {
-    onBlur();
-    setIsSelected(false);
-  };
 
   let path = useMemo(() => {
     switch (type) {
@@ -84,10 +63,11 @@ const Shape = ({ _id, type, props, onFocus, onBlur }: ShapeProps) => {
 
   return (
     <div
-      ref={shapeRef}
-      className={styles.container}
-      data-selected={isSelected}
-      onClick={handleClick}
+      shape-id={_id}
+      className={`${styles.container} ${
+        _id === selectedShapeId ? styles.selected : undefined
+      } `}
+      onClick={() => onClick(_id)}
       style={{
         width: `${width}px`,
         height: `${height}px`,
@@ -105,4 +85,4 @@ const Shape = ({ _id, type, props, onFocus, onBlur }: ShapeProps) => {
   );
 };
 
-export default Shape;
+export default Shapes;

@@ -1,26 +1,29 @@
 .container {
   position: absolute;
-  inset: 20%;
-  border: 3px solid #669df6;
+  top: -15px;
+  left: -15px;
+  border: 10px solid #669df6;
   background-color: transparent;
   z-index: 1;
   button {
     position: absolute;
-    width: 15px;
-    height: 15px;
     background-color: #669df6;
-    border: 2px solid #fff;
+    border: 8px solid #fff;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    width: var(--size);
+    height: var(--size);
+    --size: 50px;
+    --align: calc(var(--size) / 2 * -1);
     &:is(:nth-child(1), :nth-child(6), :nth-child(8)) {
       border-radius: 50%;
     }
     &:nth-child(1) {
       img {
         position: absolute;
-        top: -10px;
-        left: -10px;
-        width: 30px;
-        height: 30px;
+        top: -35px;
+        left: -35px;
+        width: 100px;
+        height: 100px;
       }
     }
   }
@@ -31,10 +34,10 @@
     cursor: s-resize;
   }
   .top_center {
-    top: -7.5px;
+    top: var(--align);
   }
   .bottom_center {
-    bottom: -7.5px;
+    bottom: var(--align);
   }
   .left,
   .right {
@@ -43,44 +46,44 @@
     cursor: e-resize;
   }
   .left {
-    left: -7.5px;
+    left: var(--align);
   }
   .right {
-    right: -7.5px;
+    right: var(--align);
   }
   .top_left {
-    top: -7.5px;
-    left: -7.5px;
+    top: var(--align);
+    left: var(--align);
     cursor: crosshair;
   }
   .bottom_right,
   .bottom_left {
-    bottom: -7.5px;
+    bottom: var(--align);
   }
   .bottom_left {
-    left: -7.5px;
+    left: var(--align);
     cursor: ne-resize;
   }
   .bottom_right {
-    right: -7.5px;
+    right: var(--align);
     cursor: nw-resize;
   }
   .top_right {
     position: absolute;
-    right: -15px;
-    top: -15px;
+    right: -45px;
+    top: -45px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
     background-color: #fff;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
     border: none;
     cursor: pointer;
     i {
-      font-size: 20px;
+      font-size: 70px;
       color: #5f6368;
     }
   }
