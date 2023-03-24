@@ -1,4 +1,5 @@
 import { Fragment, useMemo } from "react";
+import DropDown from "@/components/DropDown";
 import { getStaticUrl } from "@/utils";
 import { User } from "@/types/User";
 
@@ -6,10 +7,11 @@ import styles from "./Header.module.scss";
 
 type HeaderProps = {
   user?: User;
+  logout: () => void;
   onClearFrame: () => void;
 };
 
-const Header = ({ user, onClearFrame }: HeaderProps) => {
+const Header = ({ user, logout, onClearFrame }: HeaderProps) => {
   let userInitial = useMemo(() => {
     if (!user) return "";
     let [firstName, lastName] = user.name.split(" ");
@@ -56,7 +58,11 @@ const Header = ({ user, onClearFrame }: HeaderProps) => {
             <i className="bx-chevron-right"></i>
           </button>
         </div>
-        <div className={styles.avatar} data-letter={userInitial}></div>
+        <div
+          id="user-dropdown"
+          className={styles.avatar}
+          data-letter={userInitial}
+        ></div>
       </div>
       <div className={styles.toolbar}>
         <button className={styles.redo} disabled>
@@ -79,6 +85,16 @@ const Header = ({ user, onClearFrame }: HeaderProps) => {
           Clear frame
         </button>
       </div>
+      <DropDown
+        selector="#user-dropdown"
+        placement="bottom-end"
+        className={styles.dropdown}
+      >
+        <DropDown.Item onClick={logout}>
+          <i className="bx-log-out"></i>
+          <span>Logout</span>
+        </DropDown.Item>
+      </DropDown>
     </Fragment>
   );
 };

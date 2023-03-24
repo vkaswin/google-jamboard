@@ -30,7 +30,7 @@ let canvasDimension = {
 };
 
 const DocumentPage = () => {
-  let { user } = useAuth();
+  let { user, logout } = useAuth();
 
   let [tool, setTool] = useState(2);
 
@@ -134,7 +134,7 @@ const DocumentPage = () => {
 
   return (
     <Fragment>
-      <Header user={user} onClearFrame={handleClearFrame} />
+      <Header user={user} logout={logout} onClearFrame={handleClearFrame} />
       <div ref={containerRef} className={styles.container}>
         <ToolBar
           tool={tool}

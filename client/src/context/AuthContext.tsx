@@ -34,7 +34,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       } = await signInUser(data);
       handleAuthResponse(token);
     } catch (error: any) {
-      if (error?.message === "User not exist") navigate("/auth/sing-up");
+      if (error?.message === "User not exist") navigate("/auth/sign-up");
     }
   };
 
@@ -46,6 +46,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   let logout = () => {
+    cookie.remove("auth_token");
     navigate("/");
     setUser(undefined);
   };
