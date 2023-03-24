@@ -1,19 +1,11 @@
-import {
-  Fragment,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import Header from "./Header";
 import ToolBar from "./ToolBar";
 import SketchBoard from "./SketchBoard";
 import Shapes from "./Shapes";
-import Resizer from "./Resizer";
-import { getDocumentById, updateImage } from "@/services/Document";
+import { getDocumentById, updateImage, deleteShape } from "@/services/Document";
 import { DocumentDetail } from "@/types/Document";
 
 import styles from "./Document.module.scss";
@@ -69,14 +61,10 @@ const DocumentPage = () => {
   let getDocumentDetail = async () => {
     if (!documentId) return;
 
-    try {
-      let {
-        data: { data },
-      } = await getDocumentById(documentId);
-      setDocumentDetail(data);
-    } catch (error) {
-      console.log(error);
-    }
+    let {
+      data: { data },
+    } = await getDocumentById(documentId);
+    setDocumentDetail(data);
   };
 
   let handleResize = () => {
@@ -107,13 +95,9 @@ const DocumentPage = () => {
   let updateCanvasImage = async (blob: Blob) => {
     if (!documentId) return;
 
-    try {
-      let formData = new FormData();
-      formData.append("file", blob);
-      await updateImage(documentId, formData);
-    } catch (error) {
-      console.log(error);
-    }
+    let formData = new FormData();
+    formData.append("file", blob);
+    await updateImage(documentId, formData);
   };
 
   let handleClickShape = (id: string) => {
@@ -122,29 +106,21 @@ const DocumentPage = () => {
 
   let handleDuplicateShape = () => {
     if (!selectedShapeId) return;
-    console.log(selectedShapeId);
   };
 
-  let handleDeleteShape = () => {
+  let handleDeleteShape = async () => {
     if (!selectedShapeId) return;
 
-    try {
-      let index = documentDetail.shapes.findIndex(
-        ({ _id }) => _id === selectedShapeId
-      );
-      if (index === -1) return;
-      let shapes = [...documentDetail.shapes];
-      shapes.splice(index, 1);
-      setDocumentDetail({ ...documentDetail, shapes });
-    } catch (error) {
-      console.log(error);
-    }
+    let index = documentDetail.shapes.findIndex(
+      ({ _id }) => _id === selectedShapeId
+    );
+    if (index === -1) return;
+    await deleteShape(selectedShapeId);
+    let shapes = [...documentDetail.shapes];
+    shapes.splice(index, 1);
+    setDocumentDetail({ ...documentDetail, shapes });
+    setSelectedShapeId(null);
   };
-
-  let selectedShape = useMemo(() => {
-    if (!selectedShapeId) return;
-    return documentDetail.shapes.find(({ _id }) => _id === selectedShapeId);
-  }, [selectedShapeId]);
 
   return (
     <Fragment>
@@ -162,6 +138,7 @@ const DocumentPage = () => {
         />
         <div
           ref={boardRef}
+          id="whiteboard"
           className={styles.board}
           style={{ width: dimension.width, height: dimension.height }}
         >
@@ -179,16 +156,14 @@ const DocumentPage = () => {
               return (
                 <Shapes
                   key={index}
-                  onClick={handleClickShape}
+                  shape={shape}
                   selectedShapeId={selectedShapeId}
-                  {...shape}
+                  onClick={handleClickShape}
                 />
               );
             })}
-          {selectedShape && <Resizer shape={selectedShape} />}
         </div>
       </div>
-
       <DropDown
         selector={`button[shape-id='${selectedShapeId}']`}
         className={styles.shape_dropdown}

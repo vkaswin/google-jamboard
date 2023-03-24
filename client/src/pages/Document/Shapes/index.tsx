@@ -1,20 +1,23 @@
-import { useMemo, useState } from "react";
-import { ShapeDetail } from "@/types/Document";
+import { Fragment, useMemo, useState } from "react";
+import Resizer from "../Resizer";
+import { ShapeDetail, ShapeProps } from "@/types/Document";
+import { updateShape } from "@/services/Document";
 
 import styles from "./Shape.module.scss";
 
-type ShapeProps = {
+type Shape = {
+  shape: ShapeDetail;
   selectedShapeId: string | null;
   onClick: (id: string) => void;
-} & ShapeDetail;
+};
 
-const Shapes = ({ _id, type, props, selectedShapeId, onClick }: ShapeProps) => {
-  let [property, setProperty] = useState(props);
-
-  let { width, height, translateX, translateY, rotate } = property;
+const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
+  let [property, setProperty] = useState<ShapeProps>(shape.props);
 
   let path = useMemo(() => {
-    switch (type) {
+    let { width, height } = property;
+
+    switch (shape.type) {
       case "arrow":
         return (
           <path d="M400 200 L400 200 L200 0 L200 66.66666666666666 L0 66.66666666666666 L0 333.33333333333337 L200 333.33333333333337 L200 400 Z"></path>
@@ -59,29 +62,49 @@ const Shapes = ({ _id, type, props, selectedShapeId, onClick }: ShapeProps) => {
       default:
         return null;
     }
-  }, [type, height, width]);
+  }, [shape.type, property.width, property.height]);
+
+  let handleShapeChange = (props: ShapeProps) => {
+    setProperty(props);
+  };
+
+  let handleUpdateShape = async (props: ShapeProps) => {
+    await updateShape(shape._id, { props });
+  };
+
+  let { width, height, translateX, translateY, rotate } = property;
 
   return (
-    <div
-      shape-id={_id}
-      className={`${styles.container} ${
-        _id === selectedShapeId ? styles.selected : undefined
-      } `}
-      onClick={() => onClick(_id)}
-      style={{
-        width: `${width}px`,
-        height: `${height}px`,
-        transform: `translateX(${translateX}px) translateY(${translateY}px) scale(1) rotate(${rotate}rad)`,
-      }}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="xMidYMid meet"
-        overflow="visible"
+    <Fragment>
+      <div
+        shape-id={shape._id}
+        className={`${styles.container} ${
+          shape._id === selectedShapeId ? styles.selected : ""
+        } `.trim()}
+        onClick={() => onClick(shape._id)}
+        style={{
+          width: `${width}px`,
+          height: `${height}px`,
+          transform: `translate(${translateX}px, ${translateY}px) scale(1) rotate(${rotate}rad)`,
+        }}
       >
-        {path}
-      </svg>
-    </div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid meet"
+          overflow="visible"
+        >
+          {path}
+        </svg>
+      </div>
+      {shape._id === selectedShapeId && (
+        <Resizer
+          shapeId={shape._id}
+          property={property}
+          onChange={handleShapeChange}
+          onUpdateShape={handleUpdateShape}
+        />
+      )}
+    </Fragment>
   );
 };
 

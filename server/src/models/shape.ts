@@ -21,6 +21,7 @@ const ShapeSchema = new Schema(
         rotate: Number,
       },
       required: [true, "Please add props"],
+      _id: false,
     },
   },
   { timestamps: true }

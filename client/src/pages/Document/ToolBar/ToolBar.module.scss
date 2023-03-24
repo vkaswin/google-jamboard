@@ -27,6 +27,9 @@
     &:is(.active) {
       background-color: #4c4f52;
       color: #3d4043;
+      &:hover {
+        color: #4c4f52;
+      }
       svg {
         fill: white;
       }

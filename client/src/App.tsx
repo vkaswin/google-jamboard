@@ -1,9 +1,11 @@
 import { Fragment, Suspense, useEffect } from "react";
 import { HashRouter } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import AuthProvider from "@/context/AuthContext";
 import Router from "@/router";
 import useAuth from "./hooks/useAuth";
 
+import "react-toastify/dist/ReactToastify.css";
 import "@/assets/scss/index.scss";
 
 const App = () => {
@@ -25,6 +27,12 @@ const App = () => {
           </Suspense>
         </AuthProvider>
       </HashRouter>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        pauseOnHover
+        closeButton
+      />
     </Fragment>
   );
 };

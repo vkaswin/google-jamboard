@@ -1,64 +1,147 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { getStaticUrl } from "@/utils";
-import { ShapeDetail } from "@/types/Document";
+import { ShapeDetail, ShapeProps } from "@/types/Document";
 
 import styles from "./Resizer.module.scss";
 
-type ResizerProps = { shape: ShapeDetail };
+type ResizerProps = {
+  shapeId: string;
+  property: ShapeProps;
+  onChange: (props: ShapeProps) => void;
+  onUpdateShape: (props: ShapeProps) => void;
+};
 
-const Resizer = ({ shape }: ResizerProps) => {
-  let [property, setProperty] = useState(shape.props);
+type ResizeType = "rotate" | "stretch-x" | "stretch-y" | "stretch-xy" | "move";
 
-  let { width, height, translateX, translateY, rotate } = property;
+type MouseDownEvent = {
+  type: ResizeType;
+  rect: DOMRect;
+  pageX: number;
+  pageY: number;
+};
 
-  useLayoutEffect(() => {
-    if (!containerRef.current) return;
-    containerRef.current.style.width = `${width + 30}px`;
-    containerRef.current.style.height = `${height + 30}px`;
-    containerRef.current.style.transform = `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotate}deg)`;
+const Resizer = ({
+  shapeId,
+  property,
+  onChange,
+  onUpdateShape,
+}: ResizerProps) => {
+  let containerRef = useRef<HTMLElement | null>(null);
+
+  let mouseDownEvent = useRef<MouseDownEvent | null>(null);
+
+  let shapeProps = useRef<ShapeProps | null>(null);
+
+  useEffect(() => {
+    let element = document.querySelector("#whiteboard") as HTMLElement;
+    containerRef.current = element;
   }, []);
 
-  let containerRef = useRef<HTMLDivElement | null>(null);
+  let handleMouseMove = ({ x, y }: MouseEvent) => {
+    if (!mouseDownEvent.current || !containerRef.current) return;
 
-  let handleMouseMove = (event: MouseEvent) => {
-    console.log(event);
+    let { pageX, pageY, rect, type } = mouseDownEvent.current;
+
+    let props = {
+      ...property,
+    };
+
+    let { width, height } = containerRef.current.getBoundingClientRect();
+    let { clientWidth, clientHeight } = containerRef.current;
+    // console.log(x - pageX, y - pageY, rect);
+
+    switch (type) {
+      case "move":
+        props.translateX += (x - pageX) * (clientWidth / width);
+        props.translateY += (y - pageY) * (clientHeight / height);
+        break;
+
+      default:
+        return;
+    }
+
+    if (
+      props.translateX <= 0 ||
+      props.translateX >= clientWidth - property.width ||
+      props.translateY <= 0 ||
+      props.translateY >= clientHeight - property.height
+    )
+      return;
+
+    shapeProps.current = props;
+    onChange(props);
   };
 
   let handleMouseUp = () => {
+    if (!shapeProps.current) return;
+    onUpdateShape(shapeProps.current);
+    shapeProps.current = null;
+    mouseDownEvent.current = null;
     window.removeEventListener("mousemove", handleMouseMove);
   };
 
-  let handleMouseDown = (event: React.MouseEvent) => {
-    console.log(event);
+  let handleMouseDown = (
+    { target, pageX, pageY }: React.MouseEvent,
+    type: ResizeType
+  ) => {
+    mouseDownEvent.current = {
+      type,
+      rect: (target as HTMLElement).getBoundingClientRect(),
+      pageX,
+      pageY,
+    };
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp, { once: true });
   };
 
+  let { width, height, translateX, translateY, rotate } = property;
+
   return (
-    <div ref={containerRef} className={styles.container}>
-      <button className={styles.top_left} onMouseDown={handleMouseDown}>
+    <div
+      className={styles.container}
+      onMouseDown={(e) => handleMouseDown(e, "move")}
+      style={{
+        width: `${width + 30}px`,
+        height: `${height + 30}px`,
+        transform: `translate(${translateX}px, ${translateY}px) scale(1) rotate(${rotate}deg)`,
+      }}
+    >
+      <button
+        className={styles.top_left}
+        onMouseDown={(e) => handleMouseDown(e, "rotate")}
+      >
         <img src={getStaticUrl("/rotate.svg")} alt="" draggable={false} />
       </button>
       <button
         className={styles.top_center}
-        onMouseDown={handleMouseDown}
+        onMouseDown={(e) => handleMouseDown(e, "stretch-y")}
       ></button>
-      <button shape-id={shape._id} className={styles.top_right}>
+      <button
+        shape-id={shapeId}
+        className={styles.top_right}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
         <i className="bx-dots-vertical-rounded"></i>
       </button>
-      <button className={styles.left} onMouseDown={handleMouseDown}></button>
-      <button className={styles.right} onMouseDown={handleMouseDown}></button>
+      <button
+        className={styles.left}
+        onMouseDown={(e) => handleMouseDown(e, "stretch-xy")}
+      ></button>
+      <button
+        className={styles.right}
+        onMouseDown={(e) => handleMouseDown(e, "stretch-x")}
+      ></button>
       <button
         className={styles.bottom_left}
-        onMouseDown={handleMouseDown}
+        onMouseDown={(e) => handleMouseDown(e, "stretch-xy")}
       ></button>
       <button
         className={styles.bottom_center}
-        onMouseDown={handleMouseDown}
+        onMouseDown={(e) => handleMouseDown(e, "stretch-y")}
       ></button>
       <button
         className={styles.bottom_right}
-        onMouseDown={handleMouseDown}
+        onMouseDown={(e) => handleMouseDown(e, "stretch-xy")}
       ></button>
     </div>
   );

@@ -5,6 +5,7 @@
   border: 10px solid #669df6;
   background-color: transparent;
   z-index: 1;
+  cursor: move;
   button {
     position: absolute;
     background-color: #669df6;
@@ -24,6 +25,7 @@
         left: -35px;
         width: 100px;
         height: 100px;
+        user-select: none;
       }
     }
   }

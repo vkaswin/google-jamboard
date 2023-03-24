@@ -33,24 +33,21 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         data: { token },
       } = await signInUser(data);
       handleAuthResponse(token);
-    } catch (err) {
-      console.log(err);
+    } catch (error: any) {
+      if (error?.message === "User not exist") navigate("/auth/sing-up");
     }
   };
 
   let signUp = async (data: SignUpData) => {
-    try {
-      let {
-        data: { token },
-      } = await signUpUser(data);
-      handleAuthResponse(token);
-    } catch (err) {
-      console.log(err);
-    }
+    let {
+      data: { token },
+    } = await signUpUser(data);
+    handleAuthResponse(token);
   };
 
   let logout = () => {
     navigate("/");
+    setUser(undefined);
   };
 
   let context: AuthContextType = {
