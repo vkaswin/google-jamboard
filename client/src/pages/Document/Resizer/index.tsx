@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { getStaticUrl } from "@/utils";
-import { ShapeDetail, ShapeProps } from "@/types/Document";
+import { ShapeProps } from "@/types/Document";
+import { Placement } from "@/types/Popper";
 
 import styles from "./Resizer.module.scss";
 
@@ -11,11 +12,10 @@ type ResizerProps = {
   onUpdateShape: (props: ShapeProps) => void;
 };
 
-type ResizeType = "rotate" | "stretch-x" | "stretch-y" | "stretch-xy" | "move";
+type ResizeType = Placement | "rotate" | "move";
 
 type MouseDownEvent = {
   type: ResizeType;
-  rect: DOMRect;
   pageX: number;
   pageY: number;
 };
@@ -40,7 +40,7 @@ const Resizer = ({
   let handleMouseMove = ({ x, y }: MouseEvent) => {
     if (!mouseDownEvent.current || !containerRef.current) return;
 
-    let { pageX, pageY, rect, type } = mouseDownEvent.current;
+    let { pageX, pageY, type } = mouseDownEvent.current;
 
     let props = {
       ...property,
@@ -48,12 +48,49 @@ const Resizer = ({
 
     let { width, height } = containerRef.current.getBoundingClientRect();
     let { clientWidth, clientHeight } = containerRef.current;
-    // console.log(x - pageX, y - pageY, rect);
+
+    let scaleX = clientWidth / width;
+    let scaleY = clientHeight / height;
 
     switch (type) {
       case "move":
-        props.translateX += (x - pageX) * (clientWidth / width);
-        props.translateY += (y - pageY) * (clientHeight / height);
+        props.translateX += (x - pageX) * scaleX;
+        props.translateY += (y - pageY) * scaleY;
+        break;
+
+      case "rotate":
+        break;
+
+      case "left":
+        props.translateX += (x - pageX) * scaleX;
+        props.width +=
+          x - pageX < 0 ? -(x - pageX) * scaleX : -(x - pageX) * scaleX;
+        break;
+
+      case "right":
+        props.width += (x - pageX) * scaleX;
+        break;
+
+      case "bottom":
+        props.height += (y - pageY) * scaleY;
+        break;
+
+      case "top":
+        props.translateY += (y - pageY) * scaleY;
+        props.height +=
+          y - pageY < 0 ? -(y - pageY) * scaleY : -(y - pageY) * scaleY;
+        break;
+
+      case "bottom-start":
+        props.translateX += (x - pageX) * scaleX;
+        props.width +=
+          x - pageX < 0 ? -(x - pageX) * scaleX : -(x - pageX) * scaleX;
+        props.height += (y - pageY) * scaleY;
+        break;
+
+      case "bottom-end":
+        props.width += (x - pageX) * scaleX;
+        props.height += (y - pageY) * scaleY;
         break;
 
       default:
@@ -61,6 +98,8 @@ const Resizer = ({
     }
 
     if (
+      props.width <= 125 ||
+      props.height <= 125 ||
       props.translateX <= 0 ||
       props.translateX >= clientWidth - property.width ||
       props.translateY <= 0 ||
@@ -80,18 +119,16 @@ const Resizer = ({
     window.removeEventListener("mousemove", handleMouseMove);
   };
 
-  let handleMouseDown = (
-    { target, pageX, pageY }: React.MouseEvent,
-    type: ResizeType
-  ) => {
+  let handleMouseDown = (event: React.MouseEvent, type: ResizeType) => {
+    event.stopPropagation();
+    let { pageX, pageY } = event;
     mouseDownEvent.current = {
       type,
-      rect: (target as HTMLElement).getBoundingClientRect(),
       pageX,
       pageY,
     };
-    window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp, { once: true });
+    window.addEventListener("mousemove", handleMouseMove);
   };
 
   let { width, height, translateX, translateY, rotate } = property;
@@ -107,41 +144,41 @@ const Resizer = ({
       }}
     >
       <button
-        className={styles.top_left}
+        className={styles.top_start}
         onMouseDown={(e) => handleMouseDown(e, "rotate")}
       >
         <img src={getStaticUrl("/rotate.svg")} alt="" draggable={false} />
       </button>
       <button
-        className={styles.top_center}
-        onMouseDown={(e) => handleMouseDown(e, "stretch-y")}
+        className={styles.top}
+        onMouseDown={(e) => handleMouseDown(e, "top")}
       ></button>
       <button
         shape-id={shapeId}
-        className={styles.top_right}
+        className={styles.top_end}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <i className="bx-dots-vertical-rounded"></i>
       </button>
       <button
         className={styles.left}
-        onMouseDown={(e) => handleMouseDown(e, "stretch-xy")}
+        onMouseDown={(e) => handleMouseDown(e, "left")}
       ></button>
       <button
         className={styles.right}
-        onMouseDown={(e) => handleMouseDown(e, "stretch-x")}
+        onMouseDown={(e) => handleMouseDown(e, "right")}
       ></button>
       <button
-        className={styles.bottom_left}
-        onMouseDown={(e) => handleMouseDown(e, "stretch-xy")}
+        className={styles.bottom_start}
+        onMouseDown={(e) => handleMouseDown(e, "bottom-start")}
       ></button>
       <button
-        className={styles.bottom_center}
-        onMouseDown={(e) => handleMouseDown(e, "stretch-y")}
+        className={styles.bottom}
+        onMouseDown={(e) => handleMouseDown(e, "bottom")}
       ></button>
       <button
-        className={styles.bottom_right}
-        onMouseDown={(e) => handleMouseDown(e, "stretch-xy")}
+        className={styles.bottom_end}
+        onMouseDown={(e) => handleMouseDown(e, "bottom-end")}
       ></button>
     </div>
   );

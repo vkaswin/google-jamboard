@@ -29,7 +29,13 @@ const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
         );
 
       case "diamond":
-        return <path d="M200 400 L200 400 L0 200 L200 0 L400 200 Z"></path>;
+        return (
+          <path
+            d={`M${width / 2} ${height} L${width / 2} ${height} L0 ${
+              height / 2
+            } L${width / 2} 0 L${width} ${height / 2} Z`}
+          ></path>
+        );
 
       case "rectangle":
         return (

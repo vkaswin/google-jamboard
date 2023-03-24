@@ -152,10 +152,10 @@ const DocumentPage = () => {
             onUpdateImage={updateCanvasImage}
           />
           {documentDetail.shapes &&
-            documentDetail.shapes.map((shape, index) => {
+            documentDetail.shapes.map((shape) => {
               return (
                 <Shapes
-                  key={index}
+                  key={shape._id}
                   shape={shape}
                   selectedShapeId={selectedShapeId}
                   onClick={handleClickShape}

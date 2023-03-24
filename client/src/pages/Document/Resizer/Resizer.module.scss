@@ -15,6 +15,11 @@
     height: var(--size);
     --size: 50px;
     --align: calc(var(--size) / 2 * -1);
+    --scale: 1;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    &:active {
+      --scale: 1.5;
+    }
     &:is(:nth-child(1), :nth-child(6), :nth-child(8)) {
       border-radius: 50%;
     }
@@ -29,22 +34,27 @@
       }
     }
   }
-  .top_center,
-  .bottom_center {
+  .top_start,
+  .bottom_start,
+  .bottom_end {
+    transform: scale(var(--scale));
+  }
+  .top,
+  .bottom {
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) scale(var(--scale));
     cursor: s-resize;
   }
-  .top_center {
+  .top {
     top: var(--align);
   }
-  .bottom_center {
+  .bottom {
     bottom: var(--align);
   }
   .left,
   .right {
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-50%) scale(var(--scale));
     cursor: e-resize;
   }
   .left {
@@ -53,24 +63,24 @@
   .right {
     right: var(--align);
   }
-  .top_left {
+  .top_start {
     top: var(--align);
     left: var(--align);
     cursor: crosshair;
   }
-  .bottom_right,
-  .bottom_left {
+  .bottom_end,
+  .bottom_start {
     bottom: var(--align);
   }
-  .bottom_left {
+  .bottom_start {
     left: var(--align);
     cursor: ne-resize;
   }
-  .bottom_right {
+  .bottom_end {
     right: var(--align);
     cursor: nw-resize;
   }
-  .top_right {
+  .top_end {
     position: absolute;
     right: -45px;
     top: -45px;
