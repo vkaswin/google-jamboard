@@ -1,7 +1,7 @@
 import { Fragment, useMemo, useState } from "react";
 import Resizer from "../Resizer";
 import { ShapeDetail, ShapeProps } from "@/types/Document";
-import { updateShape } from "@/services/Document";
+import { updateShape } from "@/services/Shape";
 
 import styles from "./Shape.module.scss";
 

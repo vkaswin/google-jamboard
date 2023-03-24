@@ -25,4 +25,5 @@ export const Image = {
 export const Shape = {
   update: (id: string) => `${shapeUrl}/${id}/edit`,
   delete: (id: string) => `${shapeUrl}/${id}/remove`,
+  create: `${shapeUrl}/create`,
 };

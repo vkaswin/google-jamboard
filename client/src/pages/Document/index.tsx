@@ -8,12 +8,9 @@ import Shapes from "@/components/Document/Shapes";
 import StickyNote from "@/components/Document/StickyNote";
 import TextBox from "@/components/Document/TextBox";
 import DropDown from "@/components/DropDown";
-import {
-  getDocumentById,
-  updateImage,
-  deleteShape,
-  clearDocument,
-} from "@/services/Document";
+import { getDocumentById, clearDocument } from "@/services/Document";
+import { deleteShape } from "@/services/Shape";
+import { updateImage } from "@/services/Image";
 import { DocumentDetail } from "@/types/Document";
 
 import styles from "./Document.module.scss";

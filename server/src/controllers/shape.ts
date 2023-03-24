@@ -8,9 +8,9 @@ export const updateShapeById = asyncHandler(async (req, res) => {
     body,
   } = req;
 
-  let data = ShapeSchema.parse(body);
+  ShapeSchema.partial().parse(body);
 
-  await Shape.findByIdAndUpdate(id, data);
+  await Shape.findByIdAndUpdate(id, body);
 
   res.status(200).send({ message: "Shape has been updated successfully" });
 });
@@ -28,4 +28,14 @@ export const deleteShapeById = asyncHandler(async (req, res) => {
   await Shape.findByIdAndDelete(id);
 
   res.status(200).send({ message: "Shape has been deleted successfully" });
+});
+
+export const createShape = asyncHandler(async (req, res) => {
+  let { body } = req;
+
+  ShapeSchema.parse(body);
+
+  let data = await Shape.create(body);
+
+  res.status(200).send({ data, message: "Success" });
 });
