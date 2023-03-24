@@ -154,7 +154,7 @@ export let toolBarIcons = [
     ),
   },
   {
-    label: "Sticky note (Ctrl+Shift+P)",
+    label: "Sticky note",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"

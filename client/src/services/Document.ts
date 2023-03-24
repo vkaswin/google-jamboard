@@ -34,3 +34,10 @@ export const deleteShape = (id: string) => {
     method: "delete",
   });
 };
+
+export const clearDocument = (id: string) => {
+  return axios({
+    url: Document.clear(id),
+    method: "put",
+  });
+};

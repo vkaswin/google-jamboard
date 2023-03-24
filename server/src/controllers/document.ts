@@ -45,3 +45,20 @@ export const getDocument = asyncHandler(async (req, res) => {
 
   res.status(200).send({ data, message: "Success" });
 });
+
+export const clearDocument = asyncHandler(async (req, res) => {
+  let {
+    params: { documentId },
+  } = req;
+
+  await Image.findOneAndUpdate(
+    { documentId },
+    {
+      buffer: Buffer.from(new ArrayBuffer(0)),
+    }
+  );
+
+  await Shape.deleteMany({ documentId });
+
+  res.status(200).send({ message: "Document has been cleared successfully" });
+});

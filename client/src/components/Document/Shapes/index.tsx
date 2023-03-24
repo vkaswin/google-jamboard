@@ -20,7 +20,13 @@ const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
     switch (shape.type) {
       case "arrow":
         return (
-          <path d="M400 200 L400 200 L200 0 L200 66.66666666666666 L0 66.66666666666666 L0 333.33333333333337 L200 333.33333333333337 L200 400 Z"></path>
+          <path
+            d={`M${width} ${height / 2} L${width} ${height / 2} L${
+              width / 2
+            } 0 L${width / 2} ${height / 6} L0 ${height / 6} L0 ${
+              height - height / 6
+            } L${width / 2} ${height - height / 6} L${width / 2} ${height} Z`}
+          ></path>
         );
 
       case "circle":

@@ -13,7 +13,9 @@ export type ShapeTypes =
   | "rectangle"
   | "semi-circle"
   | "square"
-  | "triangle";
+  | "triangle"
+  | "sticky-note"
+  | "text-box";
 
 export interface ShapeProps {
   width: number;

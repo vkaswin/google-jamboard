@@ -1,15 +1,22 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
-import Header from "./Header";
-import ToolBar from "./ToolBar";
-import SketchBoard from "./SketchBoard";
-import Shapes from "./Shapes";
-import { getDocumentById, updateImage, deleteShape } from "@/services/Document";
+import Header from "@/components/Document/Header";
+import ToolBar from "@/components/Document/ToolBar";
+import SketchBoard from "@/components/Document/SketchBoard";
+import Shapes from "@/components/Document/Shapes";
+import StickyNote from "@/components/Document/StickyNote";
+import TextBox from "@/components/Document/TextBox";
+import DropDown from "@/components/DropDown";
+import {
+  getDocumentById,
+  updateImage,
+  deleteShape,
+  clearDocument,
+} from "@/services/Document";
 import { DocumentDetail } from "@/types/Document";
 
 import styles from "./Document.module.scss";
-import DropDown from "@/components/DropDown";
 
 // Aspect ratio 16 / 9
 let dimension = {
@@ -80,16 +87,19 @@ const DocumentPage = () => {
     }) scaleY(${height / dimension.height}) translate(-50%, -50%)`;
   };
 
-  let clearCanvas = () => {
+  let handleClearFrame = async () => {
+    if (!documentId) return;
+
+    await clearDocument(documentId);
     let canvas = document.querySelector("canvas");
     if (!canvas) return;
     let context = canvas.getContext("2d");
     if (!context) return;
     context.clearRect(0, 0, canvasDimension.width, canvasDimension.height);
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      updateCanvasImage(blob);
-    });
+    let documentData = { ...documentDetail };
+    documentData.shapes = [];
+    documentData.image = "";
+    setDocumentDetail(documentData);
   };
 
   let updateCanvasImage = async (blob: Blob) => {
@@ -124,7 +134,7 @@ const DocumentPage = () => {
 
   return (
     <Fragment>
-      <Header user={user} onClearFrame={clearCanvas} />
+      <Header user={user} onClearFrame={handleClearFrame} />
       <div ref={containerRef} className={styles.container}>
         <ToolBar
           tool={tool}
@@ -153,14 +163,20 @@ const DocumentPage = () => {
           />
           {documentDetail.shapes &&
             documentDetail.shapes.map((shape) => {
-              return (
-                <Shapes
-                  key={shape._id}
-                  shape={shape}
-                  selectedShapeId={selectedShapeId}
-                  onClick={handleClickShape}
-                />
-              );
+              if (shape.type === "sticky-note") {
+                return <StickyNote />;
+              } else if (shape.type === "text-box") {
+                return <TextBox />;
+              } else {
+                return (
+                  <Shapes
+                    key={shape._id}
+                    shape={shape}
+                    selectedShapeId={selectedShapeId}
+                    onClick={handleClickShape}
+                  />
+                );
+              }
             })}
         </div>
       </div>

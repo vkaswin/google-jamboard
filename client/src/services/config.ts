@@ -1,5 +1,7 @@
 const baseURL =
-  process.env.NODE_ENV === "development" ? "http://localhost:8000" : "";
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:8000"
+    : "http://localhost:8000";
 
 const userUrl = `${baseURL}/api/user`;
 const documentUrl = `${baseURL}/api/document`;
@@ -13,6 +15,7 @@ export const User = {
 
 export const Document = {
   getDetail: (id: string) => `${documentUrl}/${id}/detail`,
+  clear: (id: string) => `${documentUrl}/${id}/clear`,
 };
 
 export const Image = {
