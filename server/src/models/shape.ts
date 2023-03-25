@@ -19,6 +19,8 @@ const ShapeSchema = new Schema(
         translateX: Number,
         translateY: Number,
         rotate: Number,
+        text: String,
+        backgroundColor: String,
       },
       required: [true, "Please add props"],
       _id: false,

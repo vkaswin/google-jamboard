@@ -1,15 +1,20 @@
-import { useRef } from "react";
+import { ComponentProps, useEffect, useRef } from "react";
 
 import styles from "./TextBox.module.scss";
 
-type TextBoxProps = { text: string };
+type TextBoxProps = ComponentProps<"textarea">;
 
-const TextBox = ({ text }: TextBoxProps) => {
+const TextBox = ({ readOnly, ...rest }: TextBoxProps) => {
   let inputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    if (!inputRef.current || readOnly) return;
+    inputRef.current.focus();
+  }, [readOnly]);
 
   return (
     <div className={styles.container}>
-      <textarea ref={inputRef} defaultValue={text} readOnly />
+      <textarea ref={inputRef} readOnly={readOnly} {...rest} />
     </div>
   );
 };

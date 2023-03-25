@@ -1,4 +1,11 @@
-import { Fragment, useMemo, useState } from "react";
+import {
+  Fragment,
+  useMemo,
+  useRef,
+  useState,
+  MouseEvent,
+  ChangeEvent,
+} from "react";
 import Circle from "./Circle";
 import Diamond from "./Diamond";
 import Rectangle from "./Rectangle";
@@ -13,6 +20,7 @@ import { updateShape } from "@/services/Shape";
 import { ShapeDetail, ShapeProps } from "@/types/Document";
 
 import styles from "./Shape.module.scss";
+import { debounce } from "@/utils";
 
 type Shape = {
   shape: ShapeDetail;
@@ -23,7 +31,12 @@ type Shape = {
 const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
   let [property, setProperty] = useState<ShapeProps>(shape.props);
 
-  let [isDoubleClicked, setIsDoubleClicked] = useState(false);
+  let [isEditText, setIsEditText] = useState(false);
+
+  let resizerRef = useRef<{
+    handleMouseDown: (event: MouseEvent, type: "move") => void;
+    removeMouseListeners: () => void;
+  }>();
 
   let handleShapeChange = (props: ShapeProps) => {
     setProperty(props);
@@ -33,15 +46,32 @@ const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
     await updateShape(shape._id, { props });
   };
 
+  let textChange = debounce(handleUpdateShape, 2000);
+
+  let handleChangeText = ({
+    target: { value, scrollHeight },
+  }: ChangeEvent<HTMLTextAreaElement>) => {
+    let props = { ...property, height: scrollHeight + 50, text: value };
+    console.log(property);
+    textChange(props);
+    setProperty(props);
+  };
+
   let shapeComponent = useMemo(() => {
-    let { width, height } = property;
+    let { width, height, text } = property;
 
     switch (shape.type) {
-      case "arrow":
+      case "sticky-note":
         return <StickyNote text="Hello World" />;
 
-      case "circle":
-        return <TextBox text="Hello World" />;
+      case "text-box":
+        return (
+          <TextBox
+            defaultValue={text}
+            readOnly={!isEditText}
+            onChange={handleChangeText}
+          />
+        );
 
       case "arrow":
         return <Arrow width={width} height={height} />;
@@ -67,29 +97,53 @@ const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
       default:
         return null;
     }
-  }, [shape.type, property.width, property.height]);
+  }, [shape.type, property.width, property.height, isEditText]);
 
   let { width, height, translateX, translateY, rotate } = property;
+
+  let handleMouseDown = (event: MouseEvent) => {
+    resizerRef.current?.handleMouseDown(event, "move");
+  };
+
+  let handleDoubleClick = () => {
+    if (!(shape.type === "sticky-note" || shape.type === "text-box")) return;
+    resizerRef.current?.removeMouseListeners();
+    setIsEditText(!isEditText);
+  };
+
+  let handleClickShape = () => {
+    onClick(shape._id);
+  };
 
   return (
     <Fragment>
       <div
-        shape-id={shape._id}
-        className={`${styles.container} ${
-          shape._id === selectedShapeId ? styles.selected : ""
-        } `.trim()}
-        onClick={() => onClick(shape._id)}
+        className={styles.container}
+        onClick={handleClickShape}
         style={{
           width: `${width}px`,
           height: `${height}px`,
-          transform: `translate(${translateX}px, ${translateY}px) scale(1) rotate(${rotate}rad)`,
+          transform: `translate(${translateX}px, ${translateY}px) rotate(${rotate}rad)`,
         }}
       >
         {shapeComponent}
+        {shape._id === selectedShapeId && (
+          <div
+            className={styles.overlay}
+            onDoubleClick={handleDoubleClick}
+            onMouseDown={handleMouseDown}
+            style={{
+              cursor: isEditText ? "default" : "move",
+              pointerEvents: isEditText ? "none" : "auto",
+            }}
+          ></div>
+        )}
       </div>
       {shape._id === selectedShapeId && (
         <Resizer
+          ref={resizerRef}
           shapeId={shape._id}
+          shapeType={shape.type}
           property={property}
           onChange={handleShapeChange}
           onPropertyChange={handleUpdateShape}
