@@ -5,8 +5,6 @@ import Header from "@/components/Document/Header";
 import ToolBar from "@/components/Document/ToolBar";
 import SketchBoard from "@/components/Document/SketchBoard";
 import Shapes from "@/components/Document/Shapes";
-import StickyNote from "@/components/Document/StickyNote";
-import TextBox from "@/components/Document/TextBox";
 import DropDown from "@/components/DropDown";
 import { getDocumentById, clearDocument } from "@/services/Document";
 import { deleteShape } from "@/services/Shape";
@@ -160,20 +158,14 @@ const DocumentPage = () => {
           />
           {documentDetail.shapes &&
             documentDetail.shapes.map((shape) => {
-              if (shape.type === "sticky-note") {
-                return <StickyNote />;
-              } else if (shape.type === "text-box") {
-                return <TextBox />;
-              } else {
-                return (
-                  <Shapes
-                    key={shape._id}
-                    shape={shape}
-                    selectedShapeId={selectedShapeId}
-                    onClick={handleClickShape}
-                  />
-                );
-              }
+              return (
+                <Shapes
+                  key={shape._id}
+                  shape={shape}
+                  selectedShapeId={selectedShapeId}
+                  onClick={handleClickShape}
+                />
+              );
             })}
         </div>
       </div>

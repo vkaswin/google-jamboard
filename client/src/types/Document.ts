@@ -23,6 +23,9 @@ export interface ShapeProps {
   translateX: number;
   translateY: number;
   rotate: number;
+  backgroundColor?: string;
+  color?: string;
+  text?: string;
 }
 
 export interface ShapeDetail {
