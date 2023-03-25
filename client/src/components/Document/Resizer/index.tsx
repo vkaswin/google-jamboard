@@ -9,7 +9,7 @@ type ResizerProps = {
   shapeId: string;
   property: ShapeProps;
   onChange: (props: ShapeProps) => void;
-  onUpdateShape: (props: ShapeProps) => void;
+  onPropertyChange: (props: ShapeProps) => void;
 };
 
 type ResizeType = Placement | "rotate" | "move";
@@ -24,7 +24,7 @@ const Resizer = ({
   shapeId,
   property,
   onChange,
-  onUpdateShape,
+  onPropertyChange,
 }: ResizerProps) => {
   let containerRef = useRef<HTMLElement | null>(null);
 
@@ -111,12 +111,22 @@ const Resizer = ({
     onChange(props);
   };
 
+  let removeMouseListeners = () => {
+    window.removeEventListener("mouseup", handleMouseUp);
+    window.removeEventListener("mousemove", handleMouseMove);
+  };
+
+  let addMouseListeners = () => {
+    window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("mousemove", handleMouseMove);
+  };
+
   let handleMouseUp = () => {
     if (!shapeProps.current) return;
-    onUpdateShape(shapeProps.current);
+    removeMouseListeners();
+    onPropertyChange(shapeProps.current);
     shapeProps.current = null;
     mouseDownEvent.current = null;
-    window.removeEventListener("mousemove", handleMouseMove);
   };
 
   let handleMouseDown = (event: React.MouseEvent, type: ResizeType) => {
@@ -127,8 +137,7 @@ const Resizer = ({
       pageX,
       pageY,
     };
-    window.addEventListener("mouseup", handleMouseUp, { once: true });
-    window.addEventListener("mousemove", handleMouseMove);
+    addMouseListeners();
   };
 
   let { width, height, translateX, translateY, rotate } = property;

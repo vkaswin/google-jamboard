@@ -1,6 +1,6 @@
 export let shapes = [
   {
-    label: "circle",
+    label: "Circle",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -17,7 +17,7 @@ export let shapes = [
     ),
   },
   {
-    label: "square",
+    label: "Square",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +34,7 @@ export let shapes = [
     ),
   },
   {
-    label: "triangle",
+    label: "Triangle",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -68,7 +68,7 @@ export let shapes = [
     ),
   },
   {
-    label: "rectangle",
+    label: "Rectangle",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -85,7 +85,7 @@ export let shapes = [
     ),
   },
   {
-    label: "arrow",
+    label: "Arrow",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -102,7 +102,7 @@ export let shapes = [
     ),
   },
   {
-    label: "semicircle",
+    label: "Semi Circle",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"

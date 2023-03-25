@@ -23,6 +23,16 @@ type Shape = {
 const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
   let [property, setProperty] = useState<ShapeProps>(shape.props);
 
+  let [isDoubleClicked, setIsDoubleClicked] = useState(false);
+
+  let handleShapeChange = (props: ShapeProps) => {
+    setProperty(props);
+  };
+
+  let handleUpdateShape = async (props: ShapeProps) => {
+    await updateShape(shape._id, { props });
+  };
+
   let shapeComponent = useMemo(() => {
     let { width, height } = property;
 
@@ -59,14 +69,6 @@ const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
     }
   }, [shape.type, property.width, property.height]);
 
-  let handleShapeChange = (props: ShapeProps) => {
-    setProperty(props);
-  };
-
-  let handleUpdateShape = async (props: ShapeProps) => {
-    await updateShape(shape._id, { props });
-  };
-
   let { width, height, translateX, translateY, rotate } = property;
 
   return (
@@ -90,7 +92,7 @@ const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
           shapeId={shape._id}
           property={property}
           onChange={handleShapeChange}
-          onUpdateShape={handleUpdateShape}
+          onPropertyChange={handleUpdateShape}
         />
       )}
     </Fragment>
