@@ -1,6 +1,7 @@
 export let shapes = [
   {
     label: "Circle",
+    type: "circle",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -18,6 +19,7 @@ export let shapes = [
   },
   {
     label: "Square",
+    type: "square",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -35,6 +37,7 @@ export let shapes = [
   },
   {
     label: "Triangle",
+    type: "triangle",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -52,6 +55,7 @@ export let shapes = [
   },
   {
     label: "Diamond",
+    type: "diamond",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -69,6 +73,7 @@ export let shapes = [
   },
   {
     label: "Rectangle",
+    type: "rectangle",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -86,6 +91,7 @@ export let shapes = [
   },
   {
     label: "Arrow",
+    type: "arrow",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -103,6 +109,7 @@ export let shapes = [
   },
   {
     label: "Semi Circle",
+    type: "semi-circle",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -163,20 +170,6 @@ export let toolBarIcons = [
         viewBox="0 0 24 24"
       >
         <path d="M20,16V4H4v16h12v-2c0-1.1,0.9-2,2-2H20z M4,2h16c1.1,0,2,0.9,2,2v13l-5,5H4c-1.1,0-2-0.9-2-2V4 C2,2.9,2.9,2,4,2z M7,8h10v2H7V8z M7,12h6v2H7V12z"></path>
-      </svg>
-    ),
-  },
-  {
-    label: "Add Image",
-    svg: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24px"
-        height="24px"
-        viewBox="0 0 24 24"
-      >
-        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"></path>
-        <path d="M0 0h24v24H0z" fill="none"></path>
       </svg>
     ),
   },

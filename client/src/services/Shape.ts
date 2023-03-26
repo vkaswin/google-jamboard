@@ -7,7 +7,7 @@ export const createShape = (data: {
   props: ShapeProps;
   documentId: string;
 }) => {
-  return axios({
+  return axios<{ message: string; data: ShapeDetail }>({
     method: "post",
     url: Shape.create,
     data,

@@ -39,7 +39,10 @@ export const getDocument = asyncHandler(async (req, res) => {
 
   let data = {
     ...document.toObject(),
-    image: `data:image/png;base64,${image.buffer.toString("base64")}`,
+    image:
+      image.buffer.length > 0
+        ? `data:image/png;base64,${image.buffer.toString("base64")}`
+        : null,
     shapes,
   };
 

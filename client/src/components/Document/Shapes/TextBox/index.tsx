@@ -13,9 +13,12 @@ const TextBox = ({ readOnly, ...rest }: TextBoxProps) => {
   }, [readOnly]);
 
   return (
-    <div className={styles.container}>
-      <textarea ref={inputRef} readOnly={readOnly} {...rest} />
-    </div>
+    <textarea
+      ref={inputRef}
+      className={styles.field}
+      readOnly={readOnly}
+      {...rest}
+    />
   );
 };
 

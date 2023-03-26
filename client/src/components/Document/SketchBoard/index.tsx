@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
-import { getStaticUrl } from "@/utils";
+import React, { useEffect, useRef } from "react";
 
 import styles from "./SketchBoard.module.scss";
+import { colors } from "@/constants";
 
 type SketchBoardProps = {
   tool: number;
@@ -34,7 +34,7 @@ const SketchBoard = ({
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    if (tool === 0 || tool === 1 || tool === 7) {
+    if (tool === 0 || tool === 1 || tool === 6) {
       canvasRef.current.addEventListener("mousedown", handleMouseDown);
     } else {
       canvasRef.current.removeEventListener("mousedown", handleMouseDown);
@@ -46,56 +46,57 @@ const SketchBoard = ({
   }, [tool]);
 
   useEffect(() => {
+    if (!image) return;
     drawImageInCanvas();
   }, [image]);
 
   useEffect(() => {
-    if (!contextRef.current) return;
-
-    let img = new Image();
-    img.src = getStaticUrl(`/sketch-5.png`);
-    img.onload = () => {
-      let dot = contextRef.current!.createPattern(img, "repeat");
-      if (!dot) return;
-      contextRef.current!.fillStyle = dot;
-      contextRef.current!.lineWidth = 2;
-    };
-  }, [sketch, contextRef.current]);
-
-  useEffect(() => {
-    if (!contextRef.current) return;
-  }, [sketchColor, contextRef.current]);
+    contextRef.current!.strokeStyle =
+      tool === 6 ? "#FF3131" : colors[sketchColor].colorCode;
+    contextRef.current!.lineWidth = 5;
+    contextRef.current!.lineCap = "round";
+    contextRef.current!.lineJoin = "round";
+  }, [sketchColor, tool]);
 
   let handleMouseDown = ({ x, y }: MouseEvent) => {
     if (!canvasRef.current || !contextRef.current) return;
-    let { left, top, width } = canvasRef.current.getBoundingClientRect();
-    let num = dimension.width / width;
+    let { left, top, width, height } =
+      canvasRef.current.getBoundingClientRect();
+    let scaleX = dimension.width / width;
+    let scaleY = dimension.height / height;
+
+    x = (x - left) * scaleX;
+    y = (y - top) * scaleY;
+
+    contextRef.current.beginPath();
+    contextRef.current.moveTo(x, y);
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp, {
       once: true,
     });
-    contextRef.current.beginPath();
-    contextRef.current.moveTo((x - left) * num, (y - top) * num);
   };
 
   let handleMouseMove = ({ x, y }: MouseEvent) => {
     if (!canvasRef.current || !contextRef.current) return;
-    let { left, top, width } = canvasRef.current.getBoundingClientRect();
-    let num = dimension.width / width;
-    x = (x - left) * num;
-    y = (y - top) * num;
+    let { left, top, width, height } =
+      canvasRef.current.getBoundingClientRect();
+    let scaleX = dimension.width / width;
+    let scaleY = dimension.height / height;
 
-    if (tool === 0 || tool == 7) {
+    x = (x - left) * scaleX;
+    y = (y - top) * scaleY;
+
+    if (tool === 0 || tool == 6) {
       contextRef.current.lineTo(x, y);
       contextRef.current.stroke();
-      // Laser
-      if (tool === 7) {
-        setTimeout(() => {
-          if (!contextRef.current) return;
-          contextRef.current.clearRect(x, y, 2, 2);
-        }, 1000);
-      }
+
+      //   if (tool === 6) {
+      //     setTimeout(() => {
+      //       if (!contextRef.current) return;
+      //       contextRef.current.clearRect(x, y, 5, 5);
+      //     }, 1000);
+      //   }
     } else if (tool === 1) {
       contextRef.current.clearRect(x, y, 20, 20);
     }
@@ -123,13 +124,18 @@ const SketchBoard = ({
     };
   };
 
+  let handleContextMenu = (event: React.MouseEvent) => {
+    if (tool === 0 || tool === 1 || tool === 6) event.preventDefault();
+  };
+
   return (
     <canvas
       className={styles.sketch_board}
       ref={canvasRef}
       width={dimension.width}
       height={dimension.height}
-      style={{ pointerEvents: [0, 1, 7].includes(tool) ? "auto" : "none" }}
+      style={{ pointerEvents: [0, 1, 6].includes(tool) ? "auto" : "none" }}
+      onContextMenu={handleContextMenu}
     />
   );
 };

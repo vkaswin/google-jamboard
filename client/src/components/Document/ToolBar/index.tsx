@@ -1,7 +1,7 @@
-import { Fragment, useState } from "react";
+import { CSSProperties, Fragment, useState } from "react";
 import SketchOptions from "./SketchOptions";
 import ShapeOptions from "./ShapeOptions";
-import { toolBarIcons, shapes, sketches } from "@/constants";
+import { toolBarIcons, shapes, sketches, colors } from "@/constants";
 
 import styles from "./ToolBar.module.scss";
 import ToolTip from "@/components/ToolTip";
@@ -75,12 +75,16 @@ const ToolBar = ({
               ? "sketches"
               : `toolbar-${index}`;
 
+          let background =
+            label === "sketch" ? colors[sketchColor].colorCode : undefined;
+
           return (
             <Fragment key={index}>
               <button
                 id={id}
                 className={className}
                 onClick={() => handleToolBar(index, label)}
+                style={{ "--bgColor": background } as CSSProperties}
               >
                 {icon}
                 {(label === "shape" || label === "sketch") && (

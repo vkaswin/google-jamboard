@@ -1,4 +1,11 @@
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  Fragment,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useParams } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import Header from "@/components/Document/Header";
@@ -7,11 +14,13 @@ import SketchBoard from "@/components/Document/SketchBoard";
 import Shapes from "@/components/Document/Shapes";
 import DropDown from "@/components/DropDown";
 import { getDocumentById, clearDocument } from "@/services/Document";
-import { deleteShape } from "@/services/Shape";
+import { createShape, deleteShape } from "@/services/Shape";
 import { updateImage } from "@/services/Image";
-import { DocumentDetail } from "@/types/Document";
+import { getStaticUrl } from "@/utils";
+import { DocumentDetail, ShapeDetail } from "@/types/Document";
 
 import styles from "./Document.module.scss";
+import { shapes } from "@/constants";
 
 // Aspect ratio 16 / 9
 let dimension = {
@@ -29,7 +38,7 @@ const DocumentPage = () => {
 
   let [tool, setTool] = useState(2);
 
-  let [shape, setShape] = useState(0);
+  let [shape, setShape] = useState(1);
 
   let [sketch, setSketch] = useState(0);
 
@@ -42,6 +51,13 @@ const DocumentPage = () => {
   let boardRef = useRef<HTMLDivElement | null>(null);
 
   let [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
+
+  let [tempShape, setTempShape] = useState<ShapeDetail | null>(null);
+
+  let mouseDownEvent = useRef({
+    pageX: 0,
+    pageY: 0,
+  });
 
   let { documentId } = useParams();
 
@@ -109,6 +125,10 @@ const DocumentPage = () => {
     setSelectedShapeId(id);
   };
 
+  let clearSelectedShapeId = () => {
+    setSelectedShapeId(null);
+  };
+
   let handleDuplicateShape = () => {
     if (!selectedShapeId) return;
   };
@@ -125,6 +145,98 @@ const DocumentPage = () => {
     shapes.splice(index, 1);
     setDocumentDetail({ ...documentDetail, shapes });
     setSelectedShapeId(null);
+  };
+
+  let cursor = useMemo(() => {
+    let path = "";
+    if (tool === 0) {
+      path = `/cursor/color-${sketchColor}.png`;
+    } else if (tool === 1) {
+      path = "/cursor/color-3.png";
+    } else if (tool === 6) {
+      path = "/cursor/color-5.png";
+    }
+
+    return path
+      ? `url(${getStaticUrl(path)}), auto`
+      : tool === 4
+      ? "crosshair"
+      : "default";
+  }, [tool, sketchColor]);
+
+  let handleMouseMove = ({ pageX, pageY }: MouseEvent) => {
+    setTempShape((tempShape) => {
+      if (!tempShape || !boardRef.current) return tempShape;
+
+      let { width, height } = boardRef.current.getBoundingClientRect();
+      let { clientWidth, clientHeight } = boardRef.current;
+
+      let scaleX = clientWidth / width;
+      let scaleY = clientHeight / height;
+
+      let shape = { ...tempShape };
+      shape.props.width = (pageX - mouseDownEvent.current.pageX) * scaleX;
+      shape.props.height = (pageY - mouseDownEvent.current.pageY) * scaleY;
+
+      return shape;
+    });
+  };
+
+  let handleMouseUp = (event: MouseEvent) => {
+    window.removeEventListener("mousemove", handleMouseMove);
+    setTempShape((tempShape) => {
+      if (tempShape) handleAddShape(tempShape);
+      return tempShape;
+    });
+  };
+
+  let handleAddShape = async (shapeDetail: ShapeDetail) => {
+    if (!documentId) return;
+
+    let body = {
+      type: shapeDetail.type,
+      props: shapeDetail.props,
+      documentId,
+    };
+
+    let {
+      data: { data },
+    } = await createShape(body);
+    let documentData = { ...documentDetail };
+    documentData.shapes.push(data);
+    setTool(2);
+    setDocumentDetail(documentData);
+    setSelectedShapeId(data._id);
+    setTempShape(null);
+  };
+
+  let handleMouseDown = ({ pageX, pageY }: React.MouseEvent) => {
+    if (!boardRef.current) return;
+
+    let { width, height, left, top } = boardRef.current.getBoundingClientRect();
+    let { clientWidth, clientHeight } = boardRef.current;
+
+    let scaleX = clientWidth / width;
+    let scaleY = clientHeight / height;
+
+    let shapeDetail: ShapeDetail = {
+      _id: crypto.randomUUID(),
+      type: shapes[shape].type,
+      props: {
+        width: 1,
+        height: 1,
+        rotate: 0,
+        translateX: (pageX - left) * scaleX,
+        translateY: (pageY - top) * scaleY,
+      },
+    };
+    mouseDownEvent.current = {
+      pageX,
+      pageY,
+    };
+    setTempShape(shapeDetail);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp, { once: true });
   };
 
   return (
@@ -145,7 +257,12 @@ const DocumentPage = () => {
           ref={boardRef}
           id="whiteboard"
           className={styles.board}
-          style={{ width: dimension.width, height: dimension.height }}
+          style={{
+            cursor,
+            width: dimension.width,
+            height: dimension.height,
+          }}
+          {...(tool === 4 && { onMouseDown: handleMouseDown })}
         >
           <SketchBoard
             tool={tool}
@@ -164,9 +281,11 @@ const DocumentPage = () => {
                   shape={shape}
                   selectedShapeId={selectedShapeId}
                   onClick={handleClickShape}
+                  onBlur={clearSelectedShapeId}
                 />
               );
             })}
+          {tempShape && <Shapes shape={tempShape} />}
         </div>
       </div>
       <DropDown

@@ -25,7 +25,7 @@
     border-radius: 50%;
     color: #3d4043;
     &:is(.active) {
-      background-color: #4c4f52;
+      background-color: var(--bgColor, #4c4f52);
       color: #3d4043;
       &:hover {
         color: #4c4f52;

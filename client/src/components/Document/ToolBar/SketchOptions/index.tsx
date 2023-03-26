@@ -39,7 +39,7 @@ const SketchOptions = ({
       selector="#sketches"
       toggle={toggle}
     >
-      <div className={styles.sketch}>
+      {/* <div className={styles.sketch}>
         {sketches.map(({ label, svg }, index) => {
           let className = index === sketch ? styles.active : undefined;
 
@@ -64,7 +64,7 @@ const SketchOptions = ({
             </Fragment>
           );
         })}
-      </div>
+      </div> */}
       <div className={styles.color}>
         {colors.map(({ label, colorCode }, index) => {
           let className = index === sketchColor ? styles.active : undefined;

@@ -44,20 +44,24 @@ export const clickOutside = <T extends HTMLElement>({
   doNotClose = () => false,
 }: {
   ref: T;
-  onClose: () => void;
-  doNotClose?: (element: T) => boolean;
-}) => {
-  if (!ref) return;
+  onClose?: () => void;
+  doNotClose?: (element: T) => boolean | undefined;
+}): Function => {
+  const removeEventListener = () => {
+    document.removeEventListener("click", handleClickOutside);
+  };
 
   const handleClickOutside = (event: MouseEvent) => {
     let { target } = event;
     if (ref.contains(target as T) || doNotClose(target as T)) return;
 
-    onClose();
-    document.removeEventListener("click", handleClickOutside);
+    onClose?.();
+    removeEventListener();
   };
 
   document.addEventListener("click", handleClickOutside);
+
+  return removeEventListener;
 };
 
 export const getStaticUrl = (path: string) => {

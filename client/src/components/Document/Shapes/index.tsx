@@ -17,26 +17,32 @@ import StickyNote from "./StickyNote";
 import TextBox from "./TextBox";
 import Resizer from "../Resizer";
 import { updateShape } from "@/services/Shape";
+import { debounce } from "@/utils";
 import { ShapeDetail, ShapeProps } from "@/types/Document";
 
 import styles from "./Shape.module.scss";
-import { debounce } from "@/utils";
 
 type Shape = {
   shape: ShapeDetail;
-  selectedShapeId: string | null;
-  onClick: (id: string) => void;
+  selectedShapeId?: string | null;
+  onClick?: (id: string) => void;
+  onBlur?: () => void;
 };
 
-const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
+type ResizerRef = {
+  containerRef: HTMLDivElement | null;
+  handleMouseDown: (event: MouseEvent, type: "move") => void;
+  removeMouseListeners: () => void;
+};
+
+const Shapes = ({ shape, selectedShapeId, onClick, onBlur }: Shape) => {
   let [property, setProperty] = useState<ShapeProps>(shape.props);
 
-  let [isEditText, setIsEditText] = useState(false);
+  let [isReadOnly, setIsReadOnly] = useState(true);
 
-  let resizerRef = useRef<{
-    handleMouseDown: (event: MouseEvent, type: "move") => void;
-    removeMouseListeners: () => void;
-  }>();
+  let resizerRef = useRef<ResizerRef>();
+
+  let shapeRef = useRef<HTMLDivElement | null>(null);
 
   let handleShapeChange = (props: ShapeProps) => {
     setProperty(props);
@@ -51,8 +57,7 @@ const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
   let handleChangeText = ({
     target: { value, scrollHeight },
   }: ChangeEvent<HTMLTextAreaElement>) => {
-    let props = { ...property, height: scrollHeight + 50, text: value };
-    console.log(property);
+    let props = { ...property, height: scrollHeight, text: value };
     textChange(props);
     setProperty(props);
   };
@@ -68,7 +73,7 @@ const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
         return (
           <TextBox
             defaultValue={text}
-            readOnly={!isEditText}
+            readOnly={isReadOnly}
             onChange={handleChangeText}
           />
         );
@@ -97,7 +102,7 @@ const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
       default:
         return null;
     }
-  }, [shape.type, property.width, property.height, isEditText]);
+  }, [shape.type, property.width, property.height, isReadOnly]);
 
   let { width, height, translateX, translateY, rotate } = property;
 
@@ -108,16 +113,21 @@ const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
   let handleDoubleClick = () => {
     if (!(shape.type === "sticky-note" || shape.type === "text-box")) return;
     resizerRef.current?.removeMouseListeners();
-    setIsEditText(!isEditText);
+    setIsReadOnly(false);
   };
 
   let handleClickShape = () => {
-    onClick(shape._id);
+    onClick?.(shape._id);
+  };
+
+  let resetEditText = () => {
+    if (!isReadOnly) setIsReadOnly(true);
   };
 
   return (
     <Fragment>
       <div
+        ref={shapeRef}
         className={styles.container}
         onClick={handleClickShape}
         style={{
@@ -133,8 +143,8 @@ const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
             onDoubleClick={handleDoubleClick}
             onMouseDown={handleMouseDown}
             style={{
-              cursor: isEditText ? "default" : "move",
-              pointerEvents: isEditText ? "none" : "auto",
+              cursor: isReadOnly ? "move" : "default",
+              pointerEvents: isReadOnly ? "auto" : "none",
             }}
           ></div>
         )}
@@ -145,6 +155,9 @@ const Shapes = ({ shape, selectedShapeId, onClick }: Shape) => {
           shapeId={shape._id}
           shapeType={shape.type}
           property={property}
+          shapeRef={shapeRef.current}
+          onClose={onBlur}
+          resetEditText={resetEditText}
           onChange={handleShapeChange}
           onPropertyChange={handleUpdateShape}
         />

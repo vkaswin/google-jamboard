@@ -4,7 +4,7 @@ import React, {
   useImperativeHandle,
   forwardRef,
 } from "react";
-import { getStaticUrl } from "@/utils";
+import { getStaticUrl, clickOutside } from "@/utils";
 import { ShapeProps, ShapeTypes } from "@/types/Document";
 import { Placement } from "@/types/Popper";
 
@@ -14,7 +14,10 @@ type ResizerProps = {
   shapeId: string;
   shapeType: ShapeTypes;
   property: ShapeProps;
+  shapeRef: HTMLDivElement | null;
   onChange: (props: ShapeProps) => void;
+  onClose?: () => void;
+  resetEditText: () => void;
   onPropertyChange: (props: ShapeProps) => void;
 };
 
@@ -28,10 +31,21 @@ type MouseDownEvent = {
 
 const Resizer = forwardRef(
   (
-    { shapeId, property, shapeType, onChange, onPropertyChange }: ResizerProps,
+    {
+      shapeId,
+      property,
+      shapeType,
+      shapeRef,
+      onChange,
+      onClose,
+      onPropertyChange,
+      resetEditText,
+    }: ResizerProps,
     ref
   ) => {
-    let containerRef = useRef<HTMLElement | null>(null);
+    let whiteBoard = useRef<HTMLElement | null>(null);
+
+    let resizerRef = useRef<HTMLDivElement | null>(null);
 
     let mouseDownEvent = useRef<MouseDownEvent | null>(null);
 
@@ -39,11 +53,27 @@ const Resizer = forwardRef(
 
     useEffect(() => {
       let element = document.querySelector("#whiteboard") as HTMLElement;
-      containerRef.current = element;
+      whiteBoard.current = element;
+
+      if (!shapeRef) return;
+
+      let unRegister = clickOutside({
+        ref: shapeRef,
+        onClose: onClose,
+        doNotClose: (ele) => {
+          if (!resizerRef.current || !shapeRef) return;
+          return resizerRef.current.contains(ele) || shapeRef.contains(ele);
+        },
+      });
+
+      return () => {
+        unRegister();
+        resetEditText();
+      };
     }, []);
 
     let handleMouseMove = ({ x, y }: MouseEvent) => {
-      if (!mouseDownEvent.current || !containerRef.current) return;
+      if (!mouseDownEvent.current || !whiteBoard.current) return;
 
       let { pageX, pageY, type } = mouseDownEvent.current;
 
@@ -51,8 +81,8 @@ const Resizer = forwardRef(
         ...property,
       };
 
-      let { width, height } = containerRef.current.getBoundingClientRect();
-      let { clientWidth, clientHeight } = containerRef.current;
+      let { width, height } = whiteBoard.current.getBoundingClientRect();
+      let { clientWidth, clientHeight } = whiteBoard.current;
 
       let scaleX = clientWidth / width;
       let scaleY = clientHeight / height;
@@ -68,8 +98,7 @@ const Resizer = forwardRef(
 
         case "left":
           props.translateX += (x - pageX) * scaleX;
-          props.width +=
-            x - pageX < 0 ? -(x - pageX) * scaleX : -(x - pageX) * scaleX;
+          props.width += -(x - pageX) * scaleX;
           break;
 
         case "right":
@@ -82,14 +111,12 @@ const Resizer = forwardRef(
 
         case "top":
           props.translateY += (y - pageY) * scaleY;
-          props.height +=
-            y - pageY < 0 ? -(y - pageY) * scaleY : -(y - pageY) * scaleY;
+          props.height += -(y - pageY) * scaleY;
           break;
 
         case "bottom-start":
           props.translateX += (x - pageX) * scaleX;
-          props.width +=
-            x - pageX < 0 ? -(x - pageX) * scaleX : -(x - pageX) * scaleX;
+          props.width += -(x - pageX) * scaleX;
           props.height += (y - pageY) * scaleY;
           break;
 
@@ -102,16 +129,26 @@ const Resizer = forwardRef(
           return;
       }
 
-      if (
-        props.width <= 125 ||
-        props.height <= 125 ||
-        props.translateX <= 0 ||
-        props.translateX >= clientWidth - property.width ||
-        props.translateY <= 0 ||
-        props.translateY >= clientHeight - property.height
-      )
-        return;
+      if (type === "move") {
+        props.translateX = Math.max(
+          0,
+          Math.min(clientWidth - props.width, props.translateX)
+        );
+        props.translateY = Math.max(
+          0,
+          Math.min(clientHeight - props.height, props.translateY)
+        );
+      } else {
+        props.width = Math.min(
+          clientWidth - props.translateX,
+          Math.max(125, props.width)
+        );
 
+        props.height = Math.min(
+          clientHeight - props.translateY,
+          Math.max(125, props.height)
+        );
+      }
       shapeProps.current = props;
       onChange(props);
     };
@@ -147,7 +184,10 @@ const Resizer = forwardRef(
 
     useImperativeHandle(
       ref,
-      () => ({ handleMouseDown, removeMouseListeners }),
+      () => ({
+        handleMouseDown,
+        removeMouseListeners,
+      }),
       []
     );
 
@@ -155,6 +195,7 @@ const Resizer = forwardRef(
 
     return (
       <div
+        ref={resizerRef}
         className={styles.container}
         style={{
           width: `${width + 30}px`,
