@@ -7,6 +7,7 @@ const userUrl = `${baseURL}/api/user`;
 const documentUrl = `${baseURL}/api/document`;
 const canvasUrl = `${baseURL}/api/canvas`;
 const shapeUrl = `${baseURL}/api/shape`;
+const slideUrl = `${baseURL}/api/slide`;
 
 export const User = {
   signIn: `${userUrl}/sign-in`,
@@ -25,5 +26,9 @@ export const Canvas = {
 export const Shape = {
   update: (shapeId: string) => `${shapeUrl}/${shapeId}/edit`,
   delete: (documentId: string) => `${shapeUrl}/${documentId}/remove`,
-  create: `${shapeUrl}/create`,
+  create: (documentId: string) => `${shapeUrl}/${documentId}/create`,
+};
+
+export const Slide = {
+  clear: (documentId: string) => `${slideUrl}/${documentId}/clear`,
 };

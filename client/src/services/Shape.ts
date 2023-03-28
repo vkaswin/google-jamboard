@@ -1,15 +1,16 @@
 import axios from "./axios";
 import { Shape } from "./config";
-import { ShapeProps, ShapeTypes, ShapeDetail } from "@/types/Document";
+import { ShapeDetail } from "@/types/Document";
 
-export const createShape = (data: {
-  type: ShapeTypes;
-  props: ShapeProps;
-  documentId: string;
-}) => {
+export const createShape = (
+  documentId: string,
+  params: { slideId: string },
+  data: Omit<ShapeDetail, "_id">
+) => {
   return axios<{ message: string; data: ShapeDetail }>({
     method: "post",
-    url: Shape.create,
+    url: Shape.create(documentId),
+    params,
     data,
   });
 };

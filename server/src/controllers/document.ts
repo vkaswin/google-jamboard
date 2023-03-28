@@ -54,3 +54,13 @@ export const clearDocument = asyncHandler(async (req, res) => {
 
   res.status(200).send({ message: "Document has been cleared successfully" });
 });
+
+export const deleteDocument = asyncHandler(async (req, res) => {
+  let {
+    params: { documentId },
+  } = req;
+
+  console.log(documentId);
+
+  res.status(200).send({ message: "Document has been deleted successfully" });
+});

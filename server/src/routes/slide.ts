@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createSlide, deleteSlide } from "../controllers/slide";
+import { clearSlide, createSlide, deleteSlide } from "../controllers/slide";
 import verifyToken from "../middlewares/verifyToken";
 
 const router = Router();
@@ -7,6 +7,8 @@ const router = Router();
 router.use(verifyToken);
 
 router.post("/:documentId/create", createSlide);
+
+router.put("/:documentId/clear", clearSlide);
 
 router.delete("/:documentId/remove", deleteSlide);
 

@@ -9,10 +9,10 @@ type HeaderProps = {
   user?: User;
   children: ReactNode;
   logout: () => void;
-  onClearFrame: () => void;
+  onClearSlide: () => void;
 };
 
-const Header = ({ user, children, logout, onClearFrame }: HeaderProps) => {
+const Header = ({ user, children, logout, onClearSlide }: HeaderProps) => {
   let userInitial = useMemo(() => {
     if (!user) return "";
     let [firstName, lastName] = user.name.split(" ");
@@ -50,7 +50,7 @@ const Header = ({ user, children, logout, onClearFrame }: HeaderProps) => {
         <div className={styles.separator}></div>
         <button className={styles.background_btn}>Set background</button>
         <div className={styles.separator}></div>
-        <button className={styles.clear_btn} onClick={onClearFrame}>
+        <button className={styles.clear_btn} onClick={onClearSlide}>
           Clear frame
         </button>
       </div>

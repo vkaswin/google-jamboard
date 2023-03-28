@@ -15,7 +15,8 @@ import Shapes from "@/components/Shapes";
 import DropDown from "@/components/DropDown";
 import Slides from "@/components/Slides";
 import Portal from "@/components/Portal";
-import { getDocumentById, clearDocument } from "@/services/Document";
+import { getDocumentById } from "@/services/Document";
+import { clearSlide } from "@/services/Slide";
 import { createShape, deleteShape, updateShape } from "@/services/Shape";
 import { updateCanvas } from "@/services/Canvas";
 import { getStaticUrl } from "@/utils";
@@ -58,7 +59,10 @@ const DocumentPage = () => {
 
   let [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
 
-  let [tempShape, setTempShape] = useState<ShapeDetail | null>(null);
+  let [newShape, setNewShape] = useState<{
+    slideId: string;
+    shape: ShapeDetail;
+  } | null>(null);
 
   let [scale, setScale] = useState({ x: 1, y: 1 });
 
@@ -123,19 +127,22 @@ const DocumentPage = () => {
     });
   };
 
-  let handleClearFrame = async () => {
-    if (!documentId) return;
+  let handleClearSlide = async () => {
+    if (!documentId || !activeSlideId) return;
 
-    // await clearDocument(documentId);
-    // let canvas = document.querySelector("canvas");
-    // if (!canvas) return;
-    // let context = canvas.getContext("2d");
-    // if (!context) return;
-    // context.clearRect(0, 0, canvasDimension.width, canvasDimension.height);
-    // let documentData = { ...documentDetail };
-    // documentData.shapes = [];
-    // documentData.image = "";
-    // setDocumentDetail(documentData);
+    await clearSlide(documentId, { slideId: activeSlideId });
+    let canvas = (
+      document.querySelector(`[slide-id='${activeSlideId}']`) as HTMLElement
+    ).querySelector("canvas") as HTMLCanvasElement;
+    let context = canvas.getContext("2d");
+    if (context) {
+      context.clearRect(0, 0, canvasDimension.width, canvasDimension.height);
+    }
+    let documentData = { ...documentDetail };
+    let slide = documentData.slides[activeSlide];
+    slide.shapes = [];
+    slide.canvas.image = null;
+    setDocumentDetail(documentData);
   };
 
   let handleUpdateCanvas = async (canvasId: string, blob: Blob) => {
@@ -157,7 +164,6 @@ const DocumentPage = () => {
   };
 
   let handleDeleteShape = async () => {
-    debugger;
     if (
       !documentId ||
       !activeSlideId ||
@@ -201,8 +207,8 @@ const DocumentPage = () => {
   }, [tool, sketchColor]);
 
   let handleMouseMove = ({ pageX, pageY }: MouseEvent) => {
-    setTempShape((tempShape) => {
-      if (!tempShape || !slideRef.current) return tempShape;
+    setNewShape((newShape) => {
+      if (!newShape || !slideRef.current) return newShape;
 
       let { width, height } = slideRef.current.getBoundingClientRect();
       let { clientWidth, clientHeight } = slideRef.current;
@@ -210,19 +216,21 @@ const DocumentPage = () => {
       let scaleX = clientWidth / width;
       let scaleY = clientHeight / height;
 
-      let shape = { ...tempShape };
-      shape.props.width = (pageX - mouseDownEvent.current.pageX) * scaleX;
-      shape.props.height = (pageY - mouseDownEvent.current.pageY) * scaleY;
+      let shapeDetail = { ...newShape };
+      shapeDetail.shape.props.width =
+        (pageX - mouseDownEvent.current.pageX) * scaleX;
+      shapeDetail.shape.props.height =
+        (pageY - mouseDownEvent.current.pageY) * scaleY;
 
-      return shape;
+      return shapeDetail;
     });
   };
 
-  let handleMouseUp = (event: MouseEvent) => {
+  let handleMouseUp = () => {
     window.removeEventListener("mousemove", handleMouseMove);
-    setTempShape((tempShape) => {
-      if (tempShape) handleAddShape(tempShape);
-      return tempShape;
+    setNewShape((newShape) => {
+      if (newShape) handleAddShape(newShape.shape);
+      return newShape;
     });
   };
 
@@ -230,28 +238,28 @@ const DocumentPage = () => {
     await updateShape(shape._id, shape);
   };
 
-  let handleAddShape = async (shapeDetail: ShapeDetail) => {
-    if (!documentId) return;
+  let handleAddShape = async (shape: ShapeDetail) => {
+    if (!documentId || !activeSlideId) return;
 
-    // let body = {
-    //   type: shapeDetail.type,
-    //   props: shapeDetail.props,
-    //   documentId,
-    // };
+    let body = {
+      type: shape.type,
+      props: shape.props,
+    };
 
-    // let {
-    //   data: { data },
-    // } = await createShape(body);
-    // let documentData = { ...documentDetail };
-    // documentData.shapes.push(data);
-    // setTool(2);
-    // setDocumentDetail(documentData);
-    // setSelectedShapeId(data._id);
-    // setTempShape(null);
+    let {
+      data: { data },
+    } = await createShape(documentId, { slideId: activeSlideId }, body);
+
+    let documentData = { ...documentDetail };
+    documentData.slides[activeSlide].shapes.push(data);
+    setDocumentDetail(documentData);
+    setSelectedShapeId(data._id);
+    setNewShape(null);
+    setTool(2);
   };
 
   let handleMouseDown = ({ pageX, pageY }: React.MouseEvent) => {
-    if (!slideRef.current) return;
+    if (!slideRef.current || !activeSlideId) return;
 
     let { width, height, left, top } = slideRef.current.getBoundingClientRect();
     let { clientWidth, clientHeight } = slideRef.current;
@@ -261,29 +269,32 @@ const DocumentPage = () => {
 
     let isTextBox = tool == 5;
 
-    let shapeDetail: ShapeDetail = {
-      _id: crypto.randomUUID(),
-      type: isTextBox ? "text-box" : shapes[shape].type,
-      props: {
-        width: isTextBox ? 250 : 1,
-        height: isTextBox ? 150 : 1,
-        rotate: 0,
-        translateX: (pageX - left) * scaleX,
-        translateY: (pageY - top) * scaleY,
+    let shapeDetail: { slideId: string; shape: ShapeDetail } = {
+      slideId: activeSlideId,
+      shape: {
+        _id: crypto.randomUUID(),
+        type: isTextBox ? "text-box" : shapes[shape].type,
+        props: {
+          width: isTextBox ? 250 : 1,
+          height: isTextBox ? 150 : 1,
+          rotate: 0,
+          translateX: (pageX - left) * scaleX,
+          translateY: (pageY - top) * scaleY,
+        },
       },
     };
     mouseDownEvent.current = {
       pageX,
       pageY,
     };
-    setTempShape(shapeDetail);
+    setNewShape(shapeDetail);
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp, { once: true });
   };
 
   return (
     <Fragment>
-      <Header user={user} logout={logout} onClearFrame={handleClearFrame}>
+      <Header user={user} logout={logout} onClearSlide={handleClearSlide}>
         <Slides
           totalSlides={slides?.length || 0}
           activeSlide={activeSlide}
@@ -341,7 +352,9 @@ const DocumentPage = () => {
                         />
                       );
                     })}
-                  {/* {tempShape && <Shapes shape={tempShape} />} */}
+                  {newShape && newShape.slideId === slide._id && (
+                    <Shapes shape={newShape.shape} slideId={slide._id} />
+                  )}
                 </div>
               </div>
             );

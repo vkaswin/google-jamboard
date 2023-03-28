@@ -25,7 +25,7 @@ type Shape = {
   shape: ShapeDetail;
   selectedShapeId?: string | null;
   slideId: string;
-  onUpdateShape: (shape: Omit<ShapeDetail, "type">) => void;
+  onUpdateShape?: (shape: Omit<ShapeDetail, "type">) => void;
   onClick?: (id: string) => void;
   onBlur?: () => void;
 };
@@ -56,7 +56,10 @@ const Shapes = ({
     setProperty(props);
   };
 
-  let textChange = debounce(onUpdateShape, 1000);
+  let textChange = debounce<Omit<ShapeDetail, "type">>(
+    (props) => onUpdateShape?.(props),
+    1000
+  );
 
   let handleChangeText = ({
     target: { value, scrollHeight },
@@ -129,7 +132,7 @@ const Shapes = ({
   };
 
   let handlePropertyChange = (props: ShapeProps) => {
-    onUpdateShape({ _id: shape._id, props });
+    onUpdateShape?.({ _id: shape._id, props });
   };
 
   return (
