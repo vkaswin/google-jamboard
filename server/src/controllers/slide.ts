@@ -27,12 +27,7 @@ export const createSlide = asyncHandler(async (req, res) => {
     .send({ message: "Slide has been created successfully", document });
 });
 
-export const deleteSlide = asyncHandler(async (req, res) => {
-  let {
-    params: { documentId },
-    query: { slideId },
-  } = req;
-
+const getSlideById = async (documentId: string, slideId: string) => {
   let [{ slide = null } = {}] = await Document.aggregate([
     {
       $match: {
@@ -61,6 +56,20 @@ export const deleteSlide = asyncHandler(async (req, res) => {
 
   if (!slide)
     throw new CustomError({ message: "Slide not found", status: 400 });
+
+  return slide;
+};
+
+export const deleteSlide = asyncHandler(async (req, res) => {
+  let {
+    params: { documentId },
+    query: { slideId },
+  } = req;
+
+  if (!slideId)
+    throw new CustomError({ message: "Slide id is required", status: 400 });
+
+  let slide = await getSlideById(documentId, slideId as string);
 
   await Canvas.findByIdAndDelete(slide.canvas._id);
 
@@ -79,34 +88,10 @@ export const clearSlide = asyncHandler(async (req, res) => {
     query: { slideId },
   } = req;
 
-  let [{ slide = null } = {}] = await Document.aggregate([
-    {
-      $match: {
-        _id: new mongoose.Types.ObjectId(documentId),
-      },
-    },
-    {
-      $project: {
-        slide: {
-          $first: {
-            $filter: {
-              input: "$slides",
-              cond: {
-                $eq: [
-                  "$$slide._id",
-                  new mongoose.Types.ObjectId(slideId as string),
-                ],
-              },
-              as: "slide",
-            },
-          },
-        },
-      },
-    },
-  ]);
+  if (!slideId)
+    throw new CustomError({ message: "Slide id is required", status: 400 });
 
-  if (!slide)
-    throw new CustomError({ message: "Slide not found", status: 400 });
+  let slide = await getSlideById(documentId, slideId as string);
 
   await Canvas.findByIdAndUpdate(slide.canvas._id, {
     image: Buffer.from(new ArrayBuffer(0)),

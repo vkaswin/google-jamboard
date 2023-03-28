@@ -2,10 +2,10 @@ export interface DocumentDetail {
   _id: string;
   title: string;
   creatorId: string;
-  slides: Slides[];
+  slides: SlideDetail[];
 }
 
-export interface Slides {
+export interface SlideDetail {
   _id: string;
   canvas: CanvasDetail;
   shapes: ShapeDetail[];

@@ -235,7 +235,16 @@ const DocumentPage = () => {
   };
 
   let handleUpdateShape = async (shape: Omit<ShapeDetail, "type">) => {
+    let shapeIndex = slides[activeSlide].shapes.findIndex(
+      ({ _id }) => _id === shape._id
+    );
+
+    if (shapeIndex === -1) return;
+
     await updateShape(shape._id, shape);
+    let documentData = { ...documentDetail };
+    documentData.slides[activeSlide].shapes[shapeIndex].props = shape.props;
+    setDocumentDetail(documentData);
   };
 
   let handleAddShape = async (shape: ShapeDetail) => {
@@ -292,13 +301,24 @@ const DocumentPage = () => {
     window.addEventListener("mouseup", handleMouseUp, { once: true });
   };
 
+  let handleAddSlide = () => {
+    console.log("add slide");
+  };
+
+  let handleDeleteSlide = (slideId: string) => {
+    console.log(slideId);
+  };
+
   return (
     <Fragment>
       <Header user={user} logout={logout} onClearSlide={handleClearSlide}>
         <Slides
-          totalSlides={slides?.length || 0}
+          slides={slides}
           activeSlide={activeSlide}
-          onChange={setActiveSlide}
+          activeSlideId={activeSlideId}
+          onSlideChange={setActiveSlide}
+          onAddSlide={handleAddSlide}
+          onDeleteSlide={handleDeleteSlide}
         />
       </Header>
       <div ref={containerRef} className={styles.container}>
@@ -360,23 +380,21 @@ const DocumentPage = () => {
             );
           })}
       </div>
-      <Portal>
-        <DropDown
-          selector={`button[shape-id='${selectedShapeId}']`}
-          className={styles.shape_dropdown}
-          placement="bottom"
-          aria-disabled={!!selectedShapeId}
-        >
-          <DropDown.Item onClick={handleDuplicateShape}>
-            <i className="bx-duplicate"></i>
-            <span>Duplicate</span>
-          </DropDown.Item>
-          <DropDown.Item onClick={handleDeleteShape}>
-            <i className="bx-trash"></i>
-            <span>Delete</span>
-          </DropDown.Item>
-        </DropDown>
-      </Portal>
+      <DropDown
+        selector={`button[shape-id='${selectedShapeId}']`}
+        className={styles.shape_dropdown}
+        placement="bottom"
+        aria-disabled={!!selectedShapeId}
+      >
+        <DropDown.Item onClick={handleDuplicateShape}>
+          <i className="bx-duplicate"></i>
+          <span>Duplicate</span>
+        </DropDown.Item>
+        <DropDown.Item onClick={handleDeleteShape}>
+          <i className="bx-trash"></i>
+          <span>Delete</span>
+        </DropDown.Item>
+      </DropDown>
     </Fragment>
   );
 };

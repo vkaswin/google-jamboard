@@ -24,7 +24,7 @@ import styles from "./Shape.module.scss";
 type Shape = {
   shape: ShapeDetail;
   selectedShapeId?: string | null;
-  slideId: string;
+  slideId?: string;
   onUpdateShape?: (shape: Omit<ShapeDetail, "type">) => void;
   onClick?: (id: string) => void;
   onBlur?: () => void;

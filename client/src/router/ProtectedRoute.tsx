@@ -18,7 +18,7 @@ const ProtectedRoute = ({
   const { pathname } = useLocation();
 
   if (authToken && authPages.includes(pathname))
-    return <Navigate replace to="/document/64106505659e51ce8d788753" />;
+    return <Navigate replace to="/document/6422c4dd76c7ef0eaa9aca75" />;
 
   if (requireAuth && !authToken) return <Navigate replace to="/auth/sign-in" />;
 

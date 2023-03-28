@@ -16,7 +16,7 @@ type ResizerProps = {
   shapeType: ShapeTypes;
   property: ShapeProps;
   shapeRef: HTMLDivElement | null;
-  slideId: string;
+  slideId?: string;
   onChange: (props: ShapeProps) => void;
   onClose?: () => void;
   resetEditText: () => void;
@@ -55,6 +55,7 @@ const Resizer = forwardRef(
     let shapeProps = useRef<ShapeProps | null>(null);
 
     useEffect(() => {
+      if (!slideId) return;
       slideRef.current = document.querySelector(
         `[slide-id='${slideId}']`
       ) as HTMLElement;

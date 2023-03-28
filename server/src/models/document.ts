@@ -8,6 +8,7 @@ const DocumentSchema = new Schema(
     },
     creatorId: {
       type: Schema.Types.ObjectId,
+      required: [true, "Please add creator id"],
       ref: "User",
     },
     slides: {
