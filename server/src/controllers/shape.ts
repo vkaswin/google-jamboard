@@ -10,8 +10,6 @@ export const createShape = asyncHandler(async (req, res) => {
     query: { slideId },
   } = req;
 
-  console.log(documentId, slideId);
-
   if (!slideId)
     throw new CustomError({ message: "Slide id is required", status: 400 });
 
