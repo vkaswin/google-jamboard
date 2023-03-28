@@ -14,17 +14,21 @@ export const createShape = (data: {
   });
 };
 
-export const updateShape = (id: string, data: Partial<ShapeDetail>) => {
+export const updateShape = (shapeId: string, data: Partial<ShapeDetail>) => {
   return axios({
-    url: Shape.update(id),
+    url: Shape.update(shapeId),
     method: "put",
     data,
   });
 };
 
-export const deleteShape = (id: string) => {
+export const deleteShape = (
+  documentId: string,
+  params: { shapeId: string; slideId: string }
+) => {
   return axios({
-    url: Shape.delete(id),
+    url: Shape.delete(documentId),
     method: "delete",
+    params,
   });
 };

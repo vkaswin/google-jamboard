@@ -1,19 +1,15 @@
 import { Router } from "express";
 import verifyToken from "../middlewares/verifyToken";
-import {
-  createShape,
-  deleteShapeById,
-  updateShapeById,
-} from "../controllers/shape";
+import { createShape, deleteShape, updateShape } from "../controllers/shape";
 
 const router = Router();
 
 router.use(verifyToken);
 
-router.post("/create", createShape);
+router.post("/:documentId/create", createShape);
 
-router.put("/:id/edit", updateShapeById);
+router.put("/:shapeId/edit", updateShape);
 
-router.delete("/:id/remove", deleteShapeById);
+router.delete("/:documentId/remove", deleteShape);
 
 export default router;

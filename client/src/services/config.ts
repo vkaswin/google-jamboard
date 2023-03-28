@@ -5,7 +5,7 @@ const baseURL =
 
 const userUrl = `${baseURL}/api/user`;
 const documentUrl = `${baseURL}/api/document`;
-const imageUrl = `${baseURL}/api/image`;
+const canvasUrl = `${baseURL}/api/canvas`;
 const shapeUrl = `${baseURL}/api/shape`;
 
 export const User = {
@@ -14,16 +14,16 @@ export const User = {
 };
 
 export const Document = {
-  getDetail: (id: string) => `${documentUrl}/${id}/detail`,
-  clear: (id: string) => `${documentUrl}/${id}/clear`,
+  getDetail: (documentId: string) => `${documentUrl}/${documentId}/detail`,
+  clear: (documentId: string) => `${documentUrl}/${documentId}/clear`,
 };
 
-export const Image = {
-  update: (id: string) => `${imageUrl}/${id}/edit`,
+export const Canvas = {
+  update: (canvasId: string) => `${canvasUrl}/${canvasId}/edit`,
 };
 
 export const Shape = {
-  update: (id: string) => `${shapeUrl}/${id}/edit`,
-  delete: (id: string) => `${shapeUrl}/${id}/remove`,
+  update: (shapeId: string) => `${shapeUrl}/${shapeId}/edit`,
+  delete: (documentId: string) => `${shapeUrl}/${documentId}/remove`,
   create: `${shapeUrl}/create`,
 };

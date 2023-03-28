@@ -1,21 +1,24 @@
-import Image from "../models/image";
+import mongoose from "mongoose";
+import Canvas from "../models/canvas";
 import Document from "../models/document";
 import { asyncHandler, CustomError } from "../utils/asyncHandler";
 import Shape from "../models/shape";
 
 export const createDocument = asyncHandler(async (req, res) => {
-  let data = await Document.create({
-    title: "Demo",
-    creatorId: "6410632eed1b8da26018876c",
+  let canvas = await Canvas.create({
+    buffer: Buffer.from(new ArrayBuffer(0)),
   });
 
-  await Image.create({
-    buffer: Buffer.from(new ArrayBuffer(0)),
-    documentId: data._id,
+  let document = await Document.create({
+    title: "Demo",
+    creatorId: "6410632eed1b8da26018876c",
+    slides: [{ canvas: canvas._id, shapes: [] }],
   });
 
   res.status(200).send({
-    data,
+    data: {
+      documentId: document._id,
+    },
     message: "Document has been created successfully",
   });
 });
@@ -25,28 +28,14 @@ export const getDocument = asyncHandler(async (req, res) => {
     params: { documentId },
   } = req;
 
-  let document = await Document.findById(documentId);
+  let document = await Document.findById(documentId)
+    .populate("slides.shapes")
+    .populate("slides.canvas");
 
   if (!document)
     throw new CustomError({ status: 400, message: "Document not found" });
 
-  let image = await Image.findOne({ documentId });
-
-  if (!image || !image.buffer)
-    throw new CustomError({ status: 400, message: "Image not found" });
-
-  let shapes = await Shape.find({ documentId });
-
-  let data = {
-    ...document.toObject(),
-    image:
-      image.buffer.length > 0
-        ? `data:image/png;base64,${image.buffer.toString("base64")}`
-        : null,
-    shapes,
-  };
-
-  res.status(200).send({ data, message: "Success" });
+  res.status(200).send({ data: document.toObject(), message: "Success" });
 });
 
 export const clearDocument = asyncHandler(async (req, res) => {
@@ -54,7 +43,7 @@ export const clearDocument = asyncHandler(async (req, res) => {
     params: { documentId },
   } = req;
 
-  await Image.findOneAndUpdate(
+  await Canvas.findOneAndUpdate(
     { documentId },
     {
       buffer: Buffer.from(new ArrayBuffer(0)),

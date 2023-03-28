@@ -1,7 +1,7 @@
 import { ComponentProps, ReactNode, useLayoutEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { usePopper } from "react-popper";
 import { CSSTransition } from "react-transition-group";
+import Portal from "@/components/Portal";
 import { clickOutside } from "@/utils";
 
 import styles from "./Popper.module.scss";
@@ -60,29 +60,30 @@ const Popper = ({
     });
   };
 
-  return createPortal(
-    <CSSTransition
-      in={isOpen}
-      timeout={200}
-      unmountOnExit
-      classNames={{
-        enterActive: styles.enter,
-        exitActive: styles.exit,
-      }}
-      onEntered={onEntered}
-    >
-      <div
-        ref={setPopperElement}
-        style={{
-          ...style.popper,
+  return (
+    <Portal>
+      <CSSTransition
+        in={isOpen}
+        timeout={200}
+        unmountOnExit
+        classNames={{
+          enterActive: styles.enter,
+          exitActive: styles.exit,
         }}
-        {...attributes.popper}
-        {...rest}
+        onEntered={onEntered}
       >
-        {children}
-      </div>
-    </CSSTransition>,
-    document.body
+        <div
+          ref={setPopperElement}
+          style={{
+            ...style.popper,
+          }}
+          {...attributes.popper}
+          {...rest}
+        >
+          {children}
+        </div>
+      </CSSTransition>
+    </Portal>
   );
 };
 

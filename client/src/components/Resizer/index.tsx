@@ -3,6 +3,7 @@ import React, {
   useRef,
   useImperativeHandle,
   forwardRef,
+  useMemo,
 } from "react";
 import { getStaticUrl, clickOutside } from "@/utils";
 import { ShapeProps, ShapeTypes } from "@/types/Document";
@@ -15,6 +16,7 @@ type ResizerProps = {
   shapeType: ShapeTypes;
   property: ShapeProps;
   shapeRef: HTMLDivElement | null;
+  slideId: string;
   onChange: (props: ShapeProps) => void;
   onClose?: () => void;
   resetEditText: () => void;
@@ -36,6 +38,7 @@ const Resizer = forwardRef(
       property,
       shapeType,
       shapeRef,
+      slideId,
       onChange,
       onClose,
       onPropertyChange,
@@ -43,7 +46,7 @@ const Resizer = forwardRef(
     }: ResizerProps,
     ref
   ) => {
-    let whiteBoard = useRef<HTMLElement | null>(null);
+    let slideRef = useRef<HTMLElement | null>(null);
 
     let resizerRef = useRef<HTMLDivElement | null>(null);
 
@@ -52,8 +55,9 @@ const Resizer = forwardRef(
     let shapeProps = useRef<ShapeProps | null>(null);
 
     useEffect(() => {
-      let element = document.querySelector("#whiteboard") as HTMLElement;
-      whiteBoard.current = element;
+      slideRef.current = document.querySelector(
+        `[slide-id='${slideId}']`
+      ) as HTMLElement;
 
       if (!shapeRef) return;
 
@@ -73,7 +77,7 @@ const Resizer = forwardRef(
     }, []);
 
     let handleMouseMove = ({ x, y }: MouseEvent) => {
-      if (!mouseDownEvent.current || !whiteBoard.current) return;
+      if (!mouseDownEvent.current || !slideRef.current) return;
 
       let { pageX, pageY, type } = mouseDownEvent.current;
 
@@ -81,8 +85,8 @@ const Resizer = forwardRef(
         ...property,
       };
 
-      let { width, height } = whiteBoard.current.getBoundingClientRect();
-      let { clientWidth, clientHeight } = whiteBoard.current;
+      let { width, height } = slideRef.current.getBoundingClientRect();
+      let { clientWidth, clientHeight } = slideRef.current;
 
       let scaleX = clientWidth / width;
       let scaleY = clientHeight / height;
@@ -209,12 +213,10 @@ const Resizer = forwardRef(
         >
           <img src={getStaticUrl("/rotate.svg")} alt="" draggable={false} />
         </button>
-        {!(shapeType === "sticky-note" || shapeType === "text-box") && (
-          <button
-            className={styles.top}
-            onMouseDown={(e) => handleMouseDown(e, "top")}
-          ></button>
-        )}
+        <button
+          className={styles.top}
+          onMouseDown={(e) => handleMouseDown(e, "top")}
+        ></button>
         <button shape-id={shapeId} className={styles.top_end}>
           <i className="bx-dots-vertical-rounded"></i>
         </button>
@@ -230,12 +232,10 @@ const Resizer = forwardRef(
           className={styles.bottom_start}
           onMouseDown={(e) => handleMouseDown(e, "bottom-start")}
         ></button>
-        {!(shapeType === "sticky-note" || shapeType === "text-box") && (
-          <button
-            className={styles.bottom}
-            onMouseDown={(e) => handleMouseDown(e, "bottom")}
-          ></button>
-        )}
+        <button
+          className={styles.bottom}
+          onMouseDown={(e) => handleMouseDown(e, "bottom")}
+        ></button>
         <button
           className={styles.bottom_end}
           onMouseDown={(e) => handleMouseDown(e, "bottom-end")}

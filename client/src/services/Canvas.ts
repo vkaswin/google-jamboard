@@ -1,9 +1,9 @@
 import axios from "./axios";
-import { Image } from "./config";
+import { Canvas } from "./config";
 
-export const updateImage = (id: string, data: FormData) => {
+export const updateCanvas = (canvasId: string, data: FormData) => {
   return axios({
-    url: Image.update(id),
+    url: Canvas.update(canvasId),
     method: "put",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",

@@ -16,7 +16,6 @@ import Arrow from "./Arrow";
 import StickyNote from "./StickyNote";
 import TextBox from "./TextBox";
 import Resizer from "../Resizer";
-import { updateShape } from "@/services/Shape";
 import { debounce } from "@/utils";
 import { ShapeDetail, ShapeProps } from "@/types/Document";
 
@@ -25,6 +24,8 @@ import styles from "./Shape.module.scss";
 type Shape = {
   shape: ShapeDetail;
   selectedShapeId?: string | null;
+  slideId: string;
+  onUpdateShape: (shape: Omit<ShapeDetail, "type">) => void;
   onClick?: (id: string) => void;
   onBlur?: () => void;
 };
@@ -35,7 +36,14 @@ type ResizerRef = {
   removeMouseListeners: () => void;
 };
 
-const Shapes = ({ shape, selectedShapeId, onClick, onBlur }: Shape) => {
+const Shapes = ({
+  shape,
+  slideId,
+  selectedShapeId,
+  onClick,
+  onBlur,
+  onUpdateShape,
+}: Shape) => {
   let [property, setProperty] = useState<ShapeProps>(shape.props);
 
   let [isReadOnly, setIsReadOnly] = useState(true);
@@ -48,17 +56,13 @@ const Shapes = ({ shape, selectedShapeId, onClick, onBlur }: Shape) => {
     setProperty(props);
   };
 
-  let handleUpdateShape = async (props: ShapeProps) => {
-    await updateShape(shape._id, { props });
-  };
-
-  let textChange = debounce(handleUpdateShape, 2000);
+  let textChange = debounce(onUpdateShape, 1000);
 
   let handleChangeText = ({
     target: { value, scrollHeight },
   }: ChangeEvent<HTMLTextAreaElement>) => {
     let props = { ...property, height: scrollHeight, text: value };
-    textChange(props);
+    textChange({ _id: shape._id, props });
     setProperty(props);
   };
 
@@ -124,6 +128,10 @@ const Shapes = ({ shape, selectedShapeId, onClick, onBlur }: Shape) => {
     if (!isReadOnly) setIsReadOnly(true);
   };
 
+  let handlePropertyChange = (props: ShapeProps) => {
+    onUpdateShape({ _id: shape._id, props });
+  };
+
   return (
     <Fragment>
       <div
@@ -155,11 +163,12 @@ const Shapes = ({ shape, selectedShapeId, onClick, onBlur }: Shape) => {
           shapeId={shape._id}
           shapeType={shape.type}
           property={property}
+          slideId={slideId}
           shapeRef={shapeRef.current}
           onClose={onBlur}
           resetEditText={resetEditText}
           onChange={handleShapeChange}
-          onPropertyChange={handleUpdateShape}
+          onPropertyChange={handlePropertyChange}
         />
       )}
     </Fragment>

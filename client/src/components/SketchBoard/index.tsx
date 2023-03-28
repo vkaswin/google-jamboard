@@ -1,26 +1,25 @@
 import React, { useEffect, useRef } from "react";
+import { colors } from "@/constants";
+import { CanvasDetail } from "@/types/Document";
 
 import styles from "./SketchBoard.module.scss";
-import { colors } from "@/constants";
 
 type SketchBoardProps = {
   tool: number;
   sketch: number;
   sketchColor: number;
-  image: string;
-  documentId?: string;
+  canvas: CanvasDetail;
   dimension: { width: number; height: number };
-  onUpdateImage: (blob: Blob) => void;
+  onUpdateCanvas: (canvasId: string, blob: Blob) => void;
 };
 
 const SketchBoard = ({
   tool,
   sketch,
   sketchColor,
-  image,
-  documentId,
+  canvas,
   dimension,
-  onUpdateImage,
+  onUpdateCanvas,
 }: SketchBoardProps) => {
   let canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -34,7 +33,7 @@ const SketchBoard = ({
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    if (tool === 0 || tool === 1 || tool === 6) {
+    if ([0, 1, 6].includes(tool)) {
       canvasRef.current.addEventListener("mousedown", handleMouseDown);
     } else {
       canvasRef.current.removeEventListener("mousedown", handleMouseDown);
@@ -46,9 +45,9 @@ const SketchBoard = ({
   }, [tool]);
 
   useEffect(() => {
-    if (!image) return;
+    if (!canvas.image) return;
     drawImageInCanvas();
-  }, [image]);
+  }, [canvas.image]);
 
   useEffect(() => {
     contextRef.current!.strokeStyle =
@@ -90,13 +89,6 @@ const SketchBoard = ({
     if (tool === 0 || tool == 6) {
       contextRef.current.lineTo(x, y);
       contextRef.current.stroke();
-
-      //   if (tool === 6) {
-      //     setTimeout(() => {
-      //       if (!contextRef.current) return;
-      //       contextRef.current.clearRect(x, y, 5, 5);
-      //     }, 1000);
-      //   }
     } else if (tool === 1) {
       contextRef.current.clearRect(x, y, 20, 20);
     }
@@ -111,21 +103,21 @@ const SketchBoard = ({
 
   let handleCanvasImage = async (blob: Blob | null) => {
     if (!blob) return;
-    onUpdateImage(blob);
+    onUpdateCanvas(canvas._id, blob);
   };
 
   let drawImageInCanvas = () => {
-    if (!canvasRef.current || !contextRef.current) return;
+    if (!canvasRef.current || !contextRef.current || !canvas.image) return;
 
-    let img = new Image();
-    img.src = image;
-    img.onload = () => {
-      contextRef.current!.drawImage(img, 0, 0);
+    let image = new Image();
+    image.src = `data:image/png;base64,${canvas.image}`;
+    image.onload = () => {
+      contextRef.current!.drawImage(image, 0, 0);
     };
   };
 
   let handleContextMenu = (event: React.MouseEvent) => {
-    if (tool === 0 || tool === 1 || tool === 6) event.preventDefault();
+    if ([0, 1, 6].includes(tool)) event.preventDefault();
   };
 
   return (

@@ -21,55 +21,6 @@
       font-size: 18px;
     }
   }
-  .slides {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    .slide_count {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      width: 62px;
-      height: 40px;
-      cursor: pointer;
-      span {
-        position: absolute;
-        top: 45%;
-        left: 45%;
-        transform: translate(-50%, -50%);
-        color: #3c4043;
-        font-family: "Poppins-Medium", sans-serif;
-        font-size: 9px;
-        text-align: center;
-      }
-    }
-    button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: transparent;
-      border-radius: 50%;
-      width: 35px;
-      height: 35px;
-      color: #000;
-      border: none;
-      transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      i {
-        font-size: 24px;
-      }
-      &:disabled {
-        opacity: 0.38;
-        color: #5f6368;
-      }
-      &:hover:not(:disabled) {
-        background-color: #f5f5f5;
-      }
-    }
-  }
   .avatar {
     position: relative;
     background-color: #4d8ff7;

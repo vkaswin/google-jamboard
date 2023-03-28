@@ -21,7 +21,7 @@ let SignUp = lazy(
 let routes: RouteObject[] = [
   {
     path: "/",
-    element: <Navigate to="/document/64106505659e51ce8d788753" replace />,
+    element: <Navigate to="/document/6421bc561215daaca356ee26" replace />,
   },
   {
     path: "/auth",

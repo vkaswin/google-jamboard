@@ -1,9 +1,19 @@
 export interface DocumentDetail {
   _id: string;
-  creatorId: string;
-  image: string;
   title: string;
+  creatorId: string;
+  slides: Slides[];
+}
+
+export interface Slides {
+  _id: string;
+  canvas: CanvasDetail;
   shapes: ShapeDetail[];
+}
+
+export interface CanvasDetail {
+  _id: string;
+  image: string | null;
 }
 
 export type ShapeTypes =

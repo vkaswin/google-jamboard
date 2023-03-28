@@ -1,7 +1,7 @@
 import { ComponentProps, ReactNode, useEffect, useState } from "react";
 import { usePopper } from "react-popper";
-import { createPortal } from "react-dom";
 import { CSSTransition } from "react-transition-group";
+import Portal from "@/components/Portal";
 import { Placement } from "@/types/Popper";
 
 import styles from "./ToolTip.module.scss";
@@ -63,29 +63,30 @@ const ToolTip = ({
     setReferenceElement(element);
   }, [selector]);
 
-  return createPortal(
-    <CSSTransition
-      in={isOpen}
-      timeout={300}
-      classNames={{
-        enterActive: styles.enter,
-        exitActive: styles.exit,
-      }}
-      unmountOnExit
-    >
-      <div
-        ref={setPopperElement}
-        className={`${styles.container} ${className || ""}`.trim()}
-        style={{
-          ...style.popper,
+  return (
+    <Portal>
+      <CSSTransition
+        in={isOpen}
+        timeout={300}
+        classNames={{
+          enterActive: styles.enter,
+          exitActive: styles.exit,
         }}
-        {...attributes.popper}
-        {...props}
+        unmountOnExit
       >
-        <div className={styles.menu}>{children}</div>
-      </div>
-    </CSSTransition>,
-    document.body
+        <div
+          ref={setPopperElement}
+          className={`${styles.container} ${className || ""}`.trim()}
+          style={{
+            ...style.popper,
+          }}
+          {...attributes.popper}
+          {...props}
+        >
+          <div className={styles.menu}>{children}</div>
+        </div>
+      </CSSTransition>
+    </Portal>
   );
 };
 

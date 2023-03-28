@@ -10,6 +10,21 @@ const DocumentSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    slides: {
+      type: [
+        {
+          canvas: {
+            type: Schema.Types.ObjectId,
+            ref: "Canvas",
+            required: true,
+          },
+          shapes: {
+            type: [Schema.Types.ObjectId],
+            ref: "Shape",
+          },
+        },
+      ],
+    },
   },
   { timestamps: true }
 );

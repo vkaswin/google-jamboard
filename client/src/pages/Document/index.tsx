@@ -8,19 +8,21 @@ import React, {
 } from "react";
 import { useParams } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
-import Header from "@/components/Document/Header";
-import ToolBar from "@/components/Document/ToolBar";
-import SketchBoard from "@/components/Document/SketchBoard";
-import Shapes from "@/components/Document/Shapes";
+import Header from "@/components/Header";
+import ToolBar from "@/components/ToolBar";
+import SketchBoard from "@/components/SketchBoard";
+import Shapes from "@/components/Shapes";
 import DropDown from "@/components/DropDown";
+import Slides from "@/components/Slides";
+import Portal from "@/components/Portal";
 import { getDocumentById, clearDocument } from "@/services/Document";
-import { createShape, deleteShape } from "@/services/Shape";
-import { updateImage } from "@/services/Image";
+import { createShape, deleteShape, updateShape } from "@/services/Shape";
+import { updateCanvas } from "@/services/Canvas";
 import { getStaticUrl } from "@/utils";
+import { shapes } from "@/constants";
 import { DocumentDetail, ShapeDetail } from "@/types/Document";
 
 import styles from "./Document.module.scss";
-import { shapes } from "@/constants";
 
 // Aspect ratio 16 / 9
 let dimension = {
@@ -46,13 +48,19 @@ const DocumentPage = () => {
 
   let [documentDetail, setDocumentDetail] = useState({} as DocumentDetail);
 
+  let { slides } = documentDetail;
+
   let containerRef = useRef<HTMLDivElement | null>(null);
 
-  let boardRef = useRef<HTMLDivElement | null>(null);
+  let slideRef = useRef<HTMLElement | null>(null);
+
+  let [activeSlide, setActiveSlide] = useState<number>(0);
 
   let [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
 
   let [tempShape, setTempShape] = useState<ShapeDetail | null>(null);
+
+  let [scale, setScale] = useState({ x: 1, y: 1 });
 
   let mouseDownEvent = useRef({
     pageX: 0,
@@ -64,6 +72,21 @@ const DocumentPage = () => {
   useLayoutEffect(() => {
     handleResize();
   }, []);
+
+  let activeSlideId = useMemo(() => {
+    if (!slides || slides.length === 0) return;
+    let slide = slides.find((_, index) => index === activeSlide);
+    if (!slide) return;
+    return slide._id;
+  }, [activeSlide, slides]);
+
+  useEffect(() => {
+    if (!activeSlideId) return;
+    slideRef.current = document.querySelector(
+      `[slide-id='${activeSlideId}']`
+    ) as HTMLElement;
+    slideRef.current.scrollIntoView({ behavior: "smooth", inline: "center" });
+  }, [activeSlideId]);
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
@@ -86,39 +109,39 @@ const DocumentPage = () => {
   };
 
   let handleResize = () => {
-    if (!containerRef.current || !boardRef.current) return;
+    if (!containerRef.current) return;
 
     let { clientHeight } = containerRef.current;
 
     let height = clientHeight - 30;
     let width = (height / 9) * 16;
 
-    boardRef.current.style.transform = `scaleX(${
-      width / dimension.width
-    }) scaleY(${height / dimension.height}) translate(-50%, -50%)`;
+    setScale({
+      ...scale,
+      x: width / dimension.width,
+      y: height / dimension.height,
+    });
   };
 
   let handleClearFrame = async () => {
     if (!documentId) return;
 
-    await clearDocument(documentId);
-    let canvas = document.querySelector("canvas");
-    if (!canvas) return;
-    let context = canvas.getContext("2d");
-    if (!context) return;
-    context.clearRect(0, 0, canvasDimension.width, canvasDimension.height);
-    let documentData = { ...documentDetail };
-    documentData.shapes = [];
-    documentData.image = "";
-    setDocumentDetail(documentData);
+    // await clearDocument(documentId);
+    // let canvas = document.querySelector("canvas");
+    // if (!canvas) return;
+    // let context = canvas.getContext("2d");
+    // if (!context) return;
+    // context.clearRect(0, 0, canvasDimension.width, canvasDimension.height);
+    // let documentData = { ...documentDetail };
+    // documentData.shapes = [];
+    // documentData.image = "";
+    // setDocumentDetail(documentData);
   };
 
-  let updateCanvasImage = async (blob: Blob) => {
-    if (!documentId) return;
-
+  let handleUpdateCanvas = async (canvasId: string, blob: Blob) => {
     let formData = new FormData();
     formData.append("file", blob);
-    await updateImage(documentId, formData);
+    await updateCanvas(canvasId, formData);
   };
 
   let handleClickShape = (id: string) => {
@@ -134,16 +157,29 @@ const DocumentPage = () => {
   };
 
   let handleDeleteShape = async () => {
-    if (!selectedShapeId) return;
+    debugger;
+    if (
+      !documentId ||
+      !activeSlideId ||
+      !selectedShapeId ||
+      !slides ||
+      slides.length === 0
+    )
+      return;
 
-    let index = documentDetail.shapes.findIndex(
+    let shapeIndex = slides[activeSlide].shapes.findIndex(
       ({ _id }) => _id === selectedShapeId
     );
-    if (index === -1) return;
-    await deleteShape(selectedShapeId);
-    let shapes = [...documentDetail.shapes];
-    shapes.splice(index, 1);
-    setDocumentDetail({ ...documentDetail, shapes });
+    if (shapeIndex === -1) return;
+
+    await deleteShape(documentId, {
+      slideId: activeSlideId,
+      shapeId: selectedShapeId,
+    });
+
+    let doucmentData = { ...documentDetail };
+    doucmentData.slides[activeSlide].shapes.splice(shapeIndex, 1);
+    setDocumentDetail(doucmentData);
     setSelectedShapeId(null);
   };
 
@@ -166,10 +202,10 @@ const DocumentPage = () => {
 
   let handleMouseMove = ({ pageX, pageY }: MouseEvent) => {
     setTempShape((tempShape) => {
-      if (!tempShape || !boardRef.current) return tempShape;
+      if (!tempShape || !slideRef.current) return tempShape;
 
-      let { width, height } = boardRef.current.getBoundingClientRect();
-      let { clientWidth, clientHeight } = boardRef.current;
+      let { width, height } = slideRef.current.getBoundingClientRect();
+      let { clientWidth, clientHeight } = slideRef.current;
 
       let scaleX = clientWidth / width;
       let scaleY = clientHeight / height;
@@ -190,41 +226,47 @@ const DocumentPage = () => {
     });
   };
 
+  let handleUpdateShape = async (shape: Omit<ShapeDetail, "type">) => {
+    await updateShape(shape._id, shape);
+  };
+
   let handleAddShape = async (shapeDetail: ShapeDetail) => {
     if (!documentId) return;
 
-    let body = {
-      type: shapeDetail.type,
-      props: shapeDetail.props,
-      documentId,
-    };
+    // let body = {
+    //   type: shapeDetail.type,
+    //   props: shapeDetail.props,
+    //   documentId,
+    // };
 
-    let {
-      data: { data },
-    } = await createShape(body);
-    let documentData = { ...documentDetail };
-    documentData.shapes.push(data);
-    setTool(2);
-    setDocumentDetail(documentData);
-    setSelectedShapeId(data._id);
-    setTempShape(null);
+    // let {
+    //   data: { data },
+    // } = await createShape(body);
+    // let documentData = { ...documentDetail };
+    // documentData.shapes.push(data);
+    // setTool(2);
+    // setDocumentDetail(documentData);
+    // setSelectedShapeId(data._id);
+    // setTempShape(null);
   };
 
   let handleMouseDown = ({ pageX, pageY }: React.MouseEvent) => {
-    if (!boardRef.current) return;
+    if (!slideRef.current) return;
 
-    let { width, height, left, top } = boardRef.current.getBoundingClientRect();
-    let { clientWidth, clientHeight } = boardRef.current;
+    let { width, height, left, top } = slideRef.current.getBoundingClientRect();
+    let { clientWidth, clientHeight } = slideRef.current;
 
     let scaleX = clientWidth / width;
     let scaleY = clientHeight / height;
 
+    let isTextBox = tool == 5;
+
     let shapeDetail: ShapeDetail = {
       _id: crypto.randomUUID(),
-      type: shapes[shape].type,
+      type: isTextBox ? "text-box" : shapes[shape].type,
       props: {
-        width: 1,
-        height: 1,
+        width: isTextBox ? 250 : 1,
+        height: isTextBox ? 150 : 1,
         rotate: 0,
         translateX: (pageX - left) * scaleX,
         translateY: (pageY - top) * scaleY,
@@ -241,7 +283,13 @@ const DocumentPage = () => {
 
   return (
     <Fragment>
-      <Header user={user} logout={logout} onClearFrame={handleClearFrame} />
+      <Header user={user} logout={logout} onClearFrame={handleClearFrame}>
+        <Slides
+          totalSlides={slides?.length || 0}
+          activeSlide={activeSlide}
+          onChange={setActiveSlide}
+        />
+      </Header>
       <div ref={containerRef} className={styles.container}>
         <ToolBar
           tool={tool}
@@ -253,56 +301,69 @@ const DocumentPage = () => {
           onSelectSketch={setSketch}
           onSelectSketchColor={setSketchColor}
         />
-        <div
-          ref={boardRef}
-          id="whiteboard"
-          className={styles.board}
-          style={{
-            cursor,
-            width: dimension.width,
-            height: dimension.height,
-          }}
-          {...(tool === 4 && { onMouseDown: handleMouseDown })}
-        >
-          <SketchBoard
-            tool={tool}
-            sketch={sketch}
-            sketchColor={sketchColor}
-            documentId={documentId}
-            image={documentDetail.image}
-            dimension={canvasDimension}
-            onUpdateImage={updateCanvasImage}
-          />
-          {documentDetail.shapes &&
-            documentDetail.shapes.map((shape) => {
-              return (
-                <Shapes
-                  key={shape._id}
-                  shape={shape}
-                  selectedShapeId={selectedShapeId}
-                  onClick={handleClickShape}
-                  onBlur={clearSelectedShapeId}
-                />
-              );
-            })}
-          {tempShape && <Shapes shape={tempShape} />}
-        </div>
+        {slides &&
+          slides.length > 0 &&
+          slides.map((slide) => {
+            return (
+              <div key={slide._id} className={styles.slide}>
+                <div
+                  slide-id={slide._id}
+                  className={styles.board}
+                  style={{
+                    cursor,
+                    width: dimension.width,
+                    height: dimension.height,
+                    transform: `scale(${scale.x},${scale.y}) translate(-50%, -50%)`,
+                  }}
+                  {...([4, 5].includes(tool) && {
+                    onMouseDown: handleMouseDown,
+                  })}
+                >
+                  <SketchBoard
+                    tool={tool}
+                    sketch={sketch}
+                    sketchColor={sketchColor}
+                    canvas={slide.canvas}
+                    dimension={canvasDimension}
+                    onUpdateCanvas={handleUpdateCanvas}
+                  />
+                  {slide.shapes &&
+                    slide.shapes.map((shape) => {
+                      return (
+                        <Shapes
+                          key={shape._id}
+                          shape={shape}
+                          slideId={slide._id}
+                          selectedShapeId={selectedShapeId}
+                          onClick={handleClickShape}
+                          onBlur={clearSelectedShapeId}
+                          onUpdateShape={handleUpdateShape}
+                        />
+                      );
+                    })}
+                  {/* {tempShape && <Shapes shape={tempShape} />} */}
+                </div>
+              </div>
+            );
+          })}
       </div>
-      <DropDown
-        selector={`button[shape-id='${selectedShapeId}']`}
-        className={styles.shape_dropdown}
-        placement="bottom"
-        aria-disabled={!!selectedShapeId}
-      >
-        <DropDown.Item onClick={handleDuplicateShape}>
-          <i className="bx-duplicate"></i>
-          <span>Duplicate</span>
-        </DropDown.Item>
-        <DropDown.Item onClick={handleDeleteShape}>
-          <i className="bx-trash"></i>
-          <span>Delete</span>
-        </DropDown.Item>
-      </DropDown>
+      <Portal>
+        <DropDown
+          selector={`button[shape-id='${selectedShapeId}']`}
+          className={styles.shape_dropdown}
+          placement="bottom"
+          aria-disabled={!!selectedShapeId}
+        >
+          <DropDown.Item onClick={handleDuplicateShape}>
+            <i className="bx-duplicate"></i>
+            <span>Duplicate</span>
+          </DropDown.Item>
+          <DropDown.Item onClick={handleDeleteShape}>
+            <i className="bx-trash"></i>
+            <span>Delete</span>
+          </DropDown.Item>
+        </DropDown>
+      </Portal>
     </Fragment>
   );
 };

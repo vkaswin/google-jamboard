@@ -7,9 +7,9 @@ import {
   ComponentProps,
   MouseEvent,
 } from "react";
-import { createPortal } from "react-dom";
 import { CSSTransition } from "react-transition-group";
 import { usePopper } from "react-popper";
+import Portal from "@/components/Portal";
 import { clickOutside } from "@/utils";
 import { Placement } from "@/types/Popper";
 
@@ -96,32 +96,33 @@ const DropDown = ({
     });
   };
 
-  return createPortal(
-    <CSSTransition
-      in={show}
-      timeout={200}
-      unmountOnExit
-      classNames={{
-        enterActive: styles.enter,
-        exitActive: styles.exit,
-      }}
-      onEntered={onEntered}
-    >
-      <DropDownContext.Provider value={{ close: close }}>
-        <div
-          ref={setPopperElement}
-          className={`${styles.container} ${className || ""}`.trim()}
-          style={{
-            ...style.popper,
-          }}
-          {...attributes.popper}
-          {...props}
-        >
-          <div className={styles.menu}>{children}</div>
-        </div>
-      </DropDownContext.Provider>
-    </CSSTransition>,
-    document.body
+  return (
+    <Portal>
+      <CSSTransition
+        in={show}
+        timeout={200}
+        unmountOnExit
+        classNames={{
+          enterActive: styles.enter,
+          exitActive: styles.exit,
+        }}
+        onEntered={onEntered}
+      >
+        <DropDownContext.Provider value={{ close: close }}>
+          <div
+            ref={setPopperElement}
+            className={`${styles.container} ${className || ""}`.trim()}
+            style={{
+              ...style.popper,
+            }}
+            {...attributes.popper}
+            {...props}
+          >
+            <div className={styles.menu}>{children}</div>
+          </div>
+        </DropDownContext.Provider>
+      </CSSTransition>
+    </Portal>
   );
 };
 

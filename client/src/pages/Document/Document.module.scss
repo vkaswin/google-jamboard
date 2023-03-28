@@ -1,16 +1,21 @@
 .container {
-  position: relative;
+  display: flex;
   height: calc(100% - 108px);
   background-color: #f1f3f4;
-  .board {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    background-color: #fff;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-    transform-origin: top left;
-    user-select: none;
-    overflow: hidden;
+  overflow: hidden;
+  .slide {
+    position: relative;
+    min-width: 100%;
+    height: 100%;
+    .board {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      background-color: #fff;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      transform-origin: top left;
+      user-select: none;
+    }
   }
 }
 
