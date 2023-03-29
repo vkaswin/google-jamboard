@@ -17,6 +17,7 @@ export const User = {
 export const Document = {
   getDetail: (documentId: string) => `${documentUrl}/${documentId}/detail`,
   clear: (documentId: string) => `${documentUrl}/${documentId}/clear`,
+  delete: (documentId: string) => `${documentUrl}/${documentId}/remove`,
 };
 
 export const Canvas = {
@@ -30,5 +31,7 @@ export const Shape = {
 };
 
 export const Slide = {
+  create: (documentId: string) => `${slideUrl}/${documentId}/create`,
+  delete: (documentId: string) => `${slideUrl}/${documentId}/remove`,
   clear: (documentId: string) => `${slideUrl}/${documentId}/clear`,
 };

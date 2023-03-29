@@ -1,5 +1,4 @@
 import Axios from "axios";
-import { toast } from "react-toastify";
 import { cookie } from "@/utils";
 
 const axios = Axios.create({});
@@ -22,12 +21,6 @@ axios.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error?.response?.data?.message) {
-      toast(error.response.data.message, {
-        type: "error",
-      });
-    }
-
     if (error?.response?.status === 401) {
       document.dispatchEvent(new CustomEvent("unauthorized"));
     }

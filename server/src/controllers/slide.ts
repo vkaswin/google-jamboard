@@ -7,24 +7,52 @@ import { asyncHandler, CustomError } from "../utils/asyncHandler";
 export const createSlide = asyncHandler(async (req, res) => {
   let {
     params: { documentId },
+    query: { position },
   } = req;
 
   let canvas = await Canvas.create({
-    buffer: Buffer.from(new ArrayBuffer(0)),
+    image: Buffer.from(new ArrayBuffer(0)),
   });
 
-  let document = await Document.updateOne(
+  await Document.updateOne(
     { _id: documentId },
     {
       $push: {
-        slides: { canvas: canvas._id, shapes: [] },
+        slides: {
+          $each: [{ canvas: canvas._id, shapes: [] }],
+          $position: position,
+        },
       },
     }
   );
 
+  let [slide] = await Document.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(documentId) } },
+    {
+      $project: {
+        slide: { $last: "$slides" },
+      },
+    },
+    {
+      $lookup: {
+        from: "canvas",
+        localField: "slide.canvas",
+        foreignField: "_id",
+        as: "canvas",
+      },
+    },
+    {
+      $project: {
+        _id: "$slide._id",
+        shapes: "$slide.shapes",
+        canvas: { $first: "$canvas" },
+      },
+    },
+  ]);
+
   res
     .status(200)
-    .send({ message: "Slide has been created successfully", document });
+    .send({ data: slide, message: "Slide has been created successfully" });
 });
 
 const getSlideById = async (documentId: string, slideId: string) => {

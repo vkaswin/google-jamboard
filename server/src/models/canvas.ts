@@ -4,7 +4,6 @@ const CanvasSchema = new Schema(
   {
     image: {
       type: Buffer,
-      required: [true, "Please add image"],
     },
   },
   { timestamps: true }

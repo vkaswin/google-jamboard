@@ -98,12 +98,10 @@ const SketchBoard = ({
     if (!canvasRef.current) return;
 
     window.removeEventListener("mousemove", handleMouseMove);
-    canvasRef.current.toBlob(handleCanvasImage, "image/png");
-  };
-
-  let handleCanvasImage = async (blob: Blob | null) => {
-    if (!blob) return;
-    onUpdateCanvas(canvas._id, blob);
+    canvasRef.current.toBlob((blob) => {
+      if (!blob) return;
+      onUpdateCanvas(canvas._id, blob);
+    }, "image/png");
   };
 
   let drawImageInCanvas = () => {

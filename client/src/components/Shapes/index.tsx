@@ -1,10 +1,10 @@
-import {
+import React, {
   Fragment,
   useMemo,
   useRef,
   useState,
-  MouseEvent,
   ChangeEvent,
+  useEffect,
 } from "react";
 import Circle from "./Circle";
 import Diamond from "./Diamond";
@@ -17,7 +17,7 @@ import StickyNote from "./StickyNote";
 import TextBox from "./TextBox";
 import Resizer from "../Resizer";
 import { debounce } from "@/utils";
-import { ShapeDetail, ShapeProps } from "@/types/Document";
+import { ShapeDetail, ShapeProps, ResizeType } from "@/types/Document";
 
 import styles from "./Shape.module.scss";
 
@@ -36,15 +36,20 @@ type ResizerRef = {
   removeMouseListeners: () => void;
 };
 
+type MouseDownEvent = {
+  type: ResizeType;
+  pageX: number;
+  pageY: number;
+};
+
 const Shapes = ({
   shape,
-  slideId,
   selectedShapeId,
   onClick,
   onBlur,
   onUpdateShape,
 }: Shape) => {
-  let [property, setProperty] = useState<ShapeProps>(shape.props);
+  let [shapeProps, setShapeProps] = useState<ShapeProps | null>(null);
 
   let [isReadOnly, setIsReadOnly] = useState(true);
 
@@ -52,25 +57,30 @@ const Shapes = ({
 
   let shapeRef = useRef<HTMLDivElement | null>(null);
 
-  let handleShapeChange = (props: ShapeProps) => {
-    setProperty(props);
-  };
+  let mouseDownEvent = useRef<MouseDownEvent | null>(null);
 
   let textChange = debounce<Omit<ShapeDetail, "type">>(
     (props) => onUpdateShape?.(props),
     1000
   );
 
+  useEffect(() => {
+    setShapeProps(shape.props);
+  }, [shape.props]);
+
   let handleChangeText = ({
     target: { value, scrollHeight },
   }: ChangeEvent<HTMLTextAreaElement>) => {
-    let props = { ...property, height: scrollHeight, text: value };
+    if (!shapeProps) return;
+    let props = { ...shapeProps, height: scrollHeight, text: value };
     textChange({ _id: shape._id, props });
-    setProperty(props);
+    setShapeProps(props);
   };
 
   let shapeComponent = useMemo(() => {
-    let { width, height, text } = property;
+    if (!shapeProps) return null;
+
+    let { width, height, text } = shapeProps;
 
     switch (shape.type) {
       case "sticky-note":
@@ -109,12 +119,119 @@ const Shapes = ({
       default:
         return null;
     }
-  }, [shape.type, property.width, property.height, isReadOnly]);
+  }, [shape.type, shapeProps?.width, shapeProps?.height, isReadOnly]);
 
-  let { width, height, translateX, translateY, rotate } = property;
+  let handleMouseMove = ({ x, y }: MouseEvent) => {
+    if (!shapeProps || !mouseDownEvent.current || !shapeRef.current) return;
 
-  let handleMouseDown = (event: MouseEvent) => {
-    resizerRef.current?.handleMouseDown(event, "move");
+    let { pageX, pageY, type } = mouseDownEvent.current;
+
+    let props = {
+      ...shapeProps,
+    };
+
+    let { width, height } =
+      shapeRef.current.parentElement!.getBoundingClientRect();
+    let { clientWidth, clientHeight } = shapeRef.current.parentElement!;
+
+    let scaleX = clientWidth / width;
+    let scaleY = clientHeight / height;
+
+    switch (type) {
+      case "move":
+        props.translateX += (x - pageX) * scaleX;
+        props.translateY += (y - pageY) * scaleY;
+        break;
+
+      case "rotate":
+        break;
+
+      case "left":
+        props.translateX += (x - pageX) * scaleX;
+        props.width += -(x - pageX) * scaleX;
+        break;
+
+      case "right":
+        props.width += (x - pageX) * scaleX;
+        break;
+
+      case "bottom":
+        props.height += (y - pageY) * scaleY;
+        break;
+
+      case "top":
+        props.translateY += (y - pageY) * scaleY;
+        props.height += -(y - pageY) * scaleY;
+        break;
+
+      case "bottom-start":
+        props.translateX += (x - pageX) * scaleX;
+        props.width += -(x - pageX) * scaleX;
+        props.height += (y - pageY) * scaleY;
+        break;
+
+      case "bottom-end":
+        props.width += (x - pageX) * scaleX;
+        props.height += (y - pageY) * scaleY;
+        break;
+
+      default:
+        return;
+    }
+
+    if (type === "move") {
+      props.translateX = Math.max(
+        0,
+        Math.min(clientWidth - props.width, props.translateX)
+      );
+      props.translateY = Math.max(
+        0,
+        Math.min(clientHeight - props.height, props.translateY)
+      );
+    } else {
+      props.width = Math.min(
+        clientWidth - props.translateX,
+        Math.max(125, props.width)
+      );
+
+      props.height = Math.min(
+        clientHeight - props.translateY,
+        Math.max(125, props.height)
+      );
+    }
+
+    setShapeProps(props);
+  };
+
+  let removeMouseListeners = () => {
+    window.removeEventListener("mouseup", handleMouseUp);
+    window.removeEventListener("mousemove", handleMouseMove);
+  };
+
+  let addMouseListeners = () => {
+    window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("mousemove", handleMouseMove);
+  };
+
+  let handleMouseUp = () => {
+    removeMouseListeners();
+    mouseDownEvent.current = null;
+
+    setShapeProps((props) => {
+      if (props) onUpdateShape?.({ _id: shape._id, props });
+      return props;
+    });
+  };
+
+  let handleMouseDown = (event: React.MouseEvent, type: ResizeType) => {
+    event.stopPropagation();
+    let { pageX, pageY } = event;
+    mouseDownEvent.current = {
+      type,
+      pageX,
+      pageY,
+    };
+    addMouseListeners();
   };
 
   let handleDoubleClick = () => {
@@ -131,9 +248,7 @@ const Shapes = ({
     if (!isReadOnly) setIsReadOnly(true);
   };
 
-  let handlePropertyChange = (props: ShapeProps) => {
-    onUpdateShape?.({ _id: shape._id, props });
-  };
+  if (!shapeProps) return null;
 
   return (
     <Fragment>
@@ -142,9 +257,9 @@ const Shapes = ({
         className={styles.container}
         onClick={handleClickShape}
         style={{
-          width: `${width}px`,
-          height: `${height}px`,
-          transform: `translate(${translateX}px, ${translateY}px) rotate(${rotate}rad)`,
+          width: `${shapeProps.width}px`,
+          height: `${shapeProps.height}px`,
+          transform: `translate(${shapeProps.translateX}px, ${shapeProps.translateY}px) rotate(${shapeProps.rotate}deg)`,
         }}
       >
         {shapeComponent}
@@ -152,7 +267,7 @@ const Shapes = ({
           <div
             className={styles.overlay}
             onDoubleClick={handleDoubleClick}
-            onMouseDown={handleMouseDown}
+            onMouseDown={(e) => handleMouseDown(e, "move")}
             style={{
               cursor: isReadOnly ? "move" : "default",
               pointerEvents: isReadOnly ? "auto" : "none",
@@ -162,16 +277,12 @@ const Shapes = ({
       </div>
       {shape._id === selectedShapeId && (
         <Resizer
-          ref={resizerRef}
           shapeId={shape._id}
-          shapeType={shape.type}
-          property={property}
-          slideId={slideId}
+          shapeProps={shapeProps}
           shapeRef={shapeRef.current}
           onClose={onBlur}
-          resetEditText={resetEditText}
-          onChange={handleShapeChange}
-          onPropertyChange={handlePropertyChange}
+          onMouseDown={handleMouseDown}
+          onReset={resetEditText}
         />
       )}
     </Fragment>

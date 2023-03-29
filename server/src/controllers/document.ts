@@ -1,12 +1,11 @@
-import mongoose from "mongoose";
-import Canvas from "../models/canvas";
 import Document from "../models/document";
-import { asyncHandler, CustomError } from "../utils/asyncHandler";
 import Shape from "../models/shape";
+import Canvas from "../models/canvas";
+import { asyncHandler, CustomError } from "../utils/asyncHandler";
 
 export const createDocument = asyncHandler(async (req, res) => {
   let canvas = await Canvas.create({
-    buffer: Buffer.from(new ArrayBuffer(0)),
+    image: Buffer.from(new ArrayBuffer(0)),
   });
 
   let document = await Document.create({
@@ -38,29 +37,36 @@ export const getDocument = asyncHandler(async (req, res) => {
   res.status(200).send({ data: document.toObject(), message: "Success" });
 });
 
-export const clearDocument = asyncHandler(async (req, res) => {
-  let {
-    params: { documentId },
-  } = req;
-
-  await Canvas.findOneAndUpdate(
-    { documentId },
-    {
-      buffer: Buffer.from(new ArrayBuffer(0)),
-    }
-  );
-
-  await Shape.deleteMany({ documentId });
-
-  res.status(200).send({ message: "Document has been cleared successfully" });
-});
-
 export const deleteDocument = asyncHandler(async (req, res) => {
   let {
     params: { documentId },
   } = req;
 
-  console.log(documentId);
+  let document = await Document.findById(documentId);
 
-  res.status(200).send({ message: "Document has been deleted successfully" });
+  if (!document)
+    throw new CustomError({ message: "Document not found", status: 400 });
+
+  let { canvas, shapes } = document.slides.reduce<{
+    canvas: string[];
+    shapes: string[];
+  }>(
+    (data, slide) => {
+      data.canvas.push(slide.canvas._id.toString());
+      let shapeIds = slide.shapes.map(({ _id }) => _id.toString());
+      data.shapes.push(...shapeIds);
+      return data;
+    },
+    { canvas: [], shapes: [] }
+  );
+
+  await Shape.deleteMany({ _id: { $in: shapes } });
+
+  await Canvas.deleteMany({ _id: canvas });
+
+  res.status(200).send({
+    message: "Document has been deleted successfully",
+    canvas,
+    shapes,
+  });
 });

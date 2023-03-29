@@ -1,3 +1,4 @@
+import { Placement } from "./Popper";
 export interface DocumentDetail {
   _id: string;
   title: string;
@@ -43,3 +44,5 @@ export interface ShapeDetail {
   type: ShapeTypes;
   props: ShapeProps;
 }
+
+export type ResizeType = Placement | "rotate" | "move";

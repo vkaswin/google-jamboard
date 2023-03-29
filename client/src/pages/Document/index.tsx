@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import useAuth from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import ToolBar from "@/components/ToolBar";
@@ -14,9 +15,8 @@ import SketchBoard from "@/components/SketchBoard";
 import Shapes from "@/components/Shapes";
 import DropDown from "@/components/DropDown";
 import Slides from "@/components/Slides";
-import Portal from "@/components/Portal";
 import { getDocumentById } from "@/services/Document";
-import { clearSlide } from "@/services/Slide";
+import { clearSlide, createSlide, deleteSlide } from "@/services/Slide";
 import { createShape, deleteShape, updateShape } from "@/services/Shape";
 import { updateCanvas } from "@/services/Canvas";
 import { getStaticUrl } from "@/utils";
@@ -86,9 +86,16 @@ const DocumentPage = () => {
 
   useEffect(() => {
     if (!activeSlideId) return;
+
     slideRef.current = document.querySelector(
-      `[slide-id='${activeSlideId}']`
+      `[data-slide='${activeSlideId}']`
     ) as HTMLElement;
+
+    let miniSlideRef = document.querySelector(
+      `[data-mini-slide='${activeSlideId}']`
+    ) as HTMLElement;
+
+    miniSlideRef.scrollIntoView({ behavior: "smooth", inline: "center" });
     slideRef.current.scrollIntoView({ behavior: "smooth", inline: "center" });
   }, [activeSlideId]);
 
@@ -106,10 +113,14 @@ const DocumentPage = () => {
   let getDocumentDetail = async () => {
     if (!documentId) return;
 
-    let {
-      data: { data },
-    } = await getDocumentById(documentId);
-    setDocumentDetail(data);
+    try {
+      let {
+        data: { data },
+      } = await getDocumentById(documentId);
+      setDocumentDetail(data);
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
   };
 
   let handleResize = () => {
@@ -130,25 +141,33 @@ const DocumentPage = () => {
   let handleClearSlide = async () => {
     if (!documentId || !activeSlideId) return;
 
-    await clearSlide(documentId, { slideId: activeSlideId });
-    let canvas = (
-      document.querySelector(`[slide-id='${activeSlideId}']`) as HTMLElement
-    ).querySelector("canvas") as HTMLCanvasElement;
-    let context = canvas.getContext("2d");
-    if (context) {
-      context.clearRect(0, 0, canvasDimension.width, canvasDimension.height);
+    try {
+      await clearSlide(documentId, { slideId: activeSlideId });
+      let canvas = (
+        document.querySelector(`[data-slide='${activeSlideId}']`) as HTMLElement
+      ).querySelector("canvas") as HTMLCanvasElement;
+      let context = canvas.getContext("2d");
+      if (context) {
+        context.clearRect(0, 0, canvasDimension.width, canvasDimension.height);
+      }
+      let documentData = { ...documentDetail };
+      let slide = documentData.slides[activeSlide];
+      slide.shapes = [];
+      slide.canvas.image = null;
+      setDocumentDetail(documentData);
+    } catch (err: any) {
+      toast.error(err?.message);
     }
-    let documentData = { ...documentDetail };
-    let slide = documentData.slides[activeSlide];
-    slide.shapes = [];
-    slide.canvas.image = null;
-    setDocumentDetail(documentData);
   };
 
   let handleUpdateCanvas = async (canvasId: string, blob: Blob) => {
-    let formData = new FormData();
-    formData.append("file", blob);
-    await updateCanvas(canvasId, formData);
+    try {
+      let formData = new FormData();
+      formData.append("file", blob);
+      await updateCanvas(canvasId, formData);
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
   };
 
   let handleClickShape = (id: string) => {
@@ -173,20 +192,24 @@ const DocumentPage = () => {
     )
       return;
 
-    let shapeIndex = slides[activeSlide].shapes.findIndex(
-      ({ _id }) => _id === selectedShapeId
-    );
-    if (shapeIndex === -1) return;
+    try {
+      let shapeIndex = slides[activeSlide].shapes.findIndex(
+        ({ _id }) => _id === selectedShapeId
+      );
+      if (shapeIndex === -1) return;
 
-    await deleteShape(documentId, {
-      slideId: activeSlideId,
-      shapeId: selectedShapeId,
-    });
+      await deleteShape(documentId, {
+        slideId: activeSlideId,
+        shapeId: selectedShapeId,
+      });
 
-    let doucmentData = { ...documentDetail };
-    doucmentData.slides[activeSlide].shapes.splice(shapeIndex, 1);
-    setDocumentDetail(doucmentData);
-    setSelectedShapeId(null);
+      let doucmentData = { ...documentDetail };
+      doucmentData.slides[activeSlide].shapes.splice(shapeIndex, 1);
+      setDocumentDetail(doucmentData);
+      setSelectedShapeId(null);
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
   };
 
   let cursor = useMemo(() => {
@@ -235,16 +258,20 @@ const DocumentPage = () => {
   };
 
   let handleUpdateShape = async (shape: Omit<ShapeDetail, "type">) => {
-    let shapeIndex = slides[activeSlide].shapes.findIndex(
-      ({ _id }) => _id === shape._id
-    );
+    try {
+      let shapeIndex = slides[activeSlide].shapes.findIndex(
+        ({ _id }) => _id === shape._id
+      );
 
-    if (shapeIndex === -1) return;
+      if (shapeIndex === -1) return;
 
-    await updateShape(shape._id, shape);
-    let documentData = { ...documentDetail };
-    documentData.slides[activeSlide].shapes[shapeIndex].props = shape.props;
-    setDocumentDetail(documentData);
+      await updateShape(shape._id, shape);
+      let documentData = { ...documentDetail };
+      documentData.slides[activeSlide].shapes[shapeIndex].props = shape.props;
+      setDocumentDetail(documentData);
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
   };
 
   let handleAddShape = async (shape: ShapeDetail) => {
@@ -255,16 +282,20 @@ const DocumentPage = () => {
       props: shape.props,
     };
 
-    let {
-      data: { data },
-    } = await createShape(documentId, { slideId: activeSlideId }, body);
+    try {
+      let {
+        data: { data },
+      } = await createShape(documentId, { slideId: activeSlideId }, body);
 
-    let documentData = { ...documentDetail };
-    documentData.slides[activeSlide].shapes.push(data);
-    setDocumentDetail(documentData);
-    setSelectedShapeId(data._id);
-    setNewShape(null);
-    setTool(2);
+      let documentData = { ...documentDetail };
+      documentData.slides[activeSlide].shapes.push(data);
+      setDocumentDetail(documentData);
+      setSelectedShapeId(data._id);
+      setNewShape(null);
+      setTool(2);
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
   };
 
   let handleMouseDown = ({ pageX, pageY }: React.MouseEvent) => {
@@ -301,12 +332,37 @@ const DocumentPage = () => {
     window.addEventListener("mouseup", handleMouseUp, { once: true });
   };
 
-  let handleAddSlide = () => {
-    console.log("add slide");
+  let handleAddSlide = async (position: number) => {
+    if (!documentId) return;
+
+    try {
+      let {
+        data: { data, message },
+      } = await createSlide(documentId, { position });
+      let documentData = { ...documentDetail };
+      documentData.slides.splice(position, 0, data);
+      setDocumentDetail(documentData);
+      setActiveSlide(position);
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
   };
 
-  let handleDeleteSlide = (slideId: string) => {
-    console.log(slideId);
+  let handleDeleteSlide = async (slideId: string) => {
+    if (!documentId) return;
+
+    try {
+      let slideIndex = slides.findIndex(({ _id }) => _id === slideId);
+      if (slideIndex === -1) return;
+      let {
+        data: { message },
+      } = await deleteSlide(documentId, { slideId });
+      let documentData = { ...documentDetail };
+      documentData.slides.splice(slideIndex, 1);
+      setDocumentDetail(documentData);
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
   };
 
   return (
@@ -319,6 +375,7 @@ const DocumentPage = () => {
           onSlideChange={setActiveSlide}
           onAddSlide={handleAddSlide}
           onDeleteSlide={handleDeleteSlide}
+          dimension={dimension}
         />
       </Header>
       <div ref={containerRef} className={styles.container}>
@@ -338,7 +395,7 @@ const DocumentPage = () => {
             return (
               <div key={slide._id} className={styles.slide}>
                 <div
-                  slide-id={slide._id}
+                  data-slide={slide._id}
                   className={styles.board}
                   style={{
                     cursor,
@@ -364,7 +421,6 @@ const DocumentPage = () => {
                         <Shapes
                           key={shape._id}
                           shape={shape}
-                          slideId={slide._id}
                           selectedShapeId={selectedShapeId}
                           onClick={handleClickShape}
                           onBlur={clearSelectedShapeId}

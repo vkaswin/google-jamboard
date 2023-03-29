@@ -1,31 +1,67 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import Shapes from "@/components/Shapes";
+import DropDown from "@/components/DropDown";
 import { SlideDetail } from "@/types/Document";
 
 import styles from "./Slides.module.scss";
-import DropDown from "../DropDown";
 
 type SlidesProps = {
   slides: SlideDetail[];
   activeSlide: number;
   activeSlideId?: string;
+  dimension: { width: number; height: number };
   onSlideChange: (slide: number) => void;
-  onAddSlide: () => void;
+  onAddSlide: (position: number) => void;
   onDeleteSlide: (slideId: string) => void;
+};
+
+// aspect ratio 16 / 9
+let slideDimension = {
+  width: 224,
+  height: 126,
 };
 
 const Slides = ({
   slides,
   activeSlide,
   activeSlideId,
+  dimension,
   onSlideChange,
   onAddSlide,
   onDeleteSlide,
 }: SlidesProps) => {
+  let [isOpen, setIsOpen] = useState(false);
+
+  let containerRef = useRef<HTMLDivElement | null>(null);
+
   let totalSlides = slides ? slides.length : 1;
 
+  useEffect(() => {
+    if (!containerRef.current) return;
+    setTimeout(() => {
+      isOpen
+        ? window.addEventListener("click", handleSlidePopup)
+        : window.removeEventListener("click", handleSlidePopup);
+    }, 0);
+
+    return () => {
+      window.removeEventListener("click", handleSlidePopup);
+    };
+  }, [isOpen]);
+
+  let handleSlidePopup = (event: MouseEvent) => {
+    if (!containerRef.current) return;
+    let el = event.target as HTMLElement;
+    if (containerRef.current.contains(el)) return;
+    toggle();
+  };
+
+  let toggle = () => {
+    setIsOpen(!isOpen);
+  };
+
   let handlePrevious = () => {
-    if (activeSlide === 1) return;
+    if (activeSlide === 0) return;
     onSlideChange(activeSlide - 1);
   };
 
@@ -34,19 +70,17 @@ const Slides = ({
     onSlideChange(activeSlide + 1);
   };
 
-  console.log(slides);
-
   return (
     <Fragment>
       <div className={styles.container}>
         <button
           className={styles.navigate_btn}
-          disabled={activeSlide === 1}
+          disabled={activeSlide === 0}
           onClick={handlePrevious}
         >
           <i className="bx-chevron-left"></i>
         </button>
-        <div className={styles.slide_icon}>
+        <div className={styles.slide_icon} onClick={toggle}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="46"
@@ -70,7 +104,7 @@ const Slides = ({
             </g>
           </svg>
           <span>
-            {activeSlide} / {totalSlides}
+            {activeSlide + 1} / {totalSlides}
           </span>
         </div>
         <button
@@ -81,35 +115,62 @@ const Slides = ({
           <i className="bx-chevron-right"></i>
         </button>
       </div>
-      <div className={styles.slides}>
+      <div ref={containerRef} className={styles.slides} aria-expanded={isOpen}>
         <button
           className={styles.navigate_btn}
-          disabled={activeSlide === 1}
+          disabled={activeSlide === 0}
           onClick={handlePrevious}
         >
           <i className="bx-chevron-left"></i>
         </button>
         <div className={styles.slide_list}>
+          <button className={styles.add_btn} onClick={() => onAddSlide(0)}>
+            <i className="bx-plus"></i>
+          </button>
           {slides &&
             slides.length > 0 &&
-            slides.map((slide) => {
+            slides.map((slide, index) => {
               return (
                 <Fragment key={slide._id}>
                   <div
                     className={`${styles.slide} ${
-                      slide._id === activeSlideId ? styles.active : undefined
-                    }`}
+                      slide._id === activeSlideId ? styles.active : ""
+                    }`.trim()}
+                    style={{
+                      width: `${slideDimension.width + 4}px`,
+                      height: `${slideDimension.height + 4}px`,
+                    }}
+                    data-mini-slide={slide._id}
+                    onClick={() => onSlideChange(index)}
                   >
-                    <div className={styles.board}>
+                    <div
+                      className={styles.board}
+                      style={{
+                        width: `${dimension.width}px`,
+                        height: `${dimension.height}px`,
+                        transform: `scale(${
+                          slideDimension.width / dimension.width
+                        },${slideDimension.height / dimension.height})`,
+                      }}
+                    >
                       {slide.shapes &&
                         slide.shapes.map((shape) => {
                           return <Shapes key={shape._id} shape={shape} />;
                         })}
                     </div>
-                    <button id={`slide-dropdown-${slide._id}`}>
+                    <button
+                      id={`slide-dropdown-${slide._id}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <i className="bx-dots-vertical-rounded"></i>
                     </button>
                   </div>
+                  <button
+                    className={styles.add_btn}
+                    onClick={() => onAddSlide(index + 1)}
+                  >
+                    <i className="bx-plus"></i>
+                  </button>
                   <DropDown
                     selector={`#slide-dropdown-${slide._id}`}
                     className={styles.slide_dropdown}
@@ -127,9 +188,6 @@ const Slides = ({
                 </Fragment>
               );
             })}
-          <button className={styles.add_btn} onClick={onAddSlide}>
-            <i className="bx-plus"></i>
-          </button>
         </div>
         <button
           className={styles.navigate_btn}

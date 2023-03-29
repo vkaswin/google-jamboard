@@ -4,6 +4,7 @@ import jwtDecode from "jwt-decode";
 import { signInUser, signUpUser } from "@/services/User";
 import { cookie } from "@/utils";
 import { AuthContextType, SignInData, SignUpData, User } from "@/types/User";
+import { toast } from "react-toastify";
 
 export const AuthContext = createContext({} as AuthContextType);
 
@@ -33,16 +34,21 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         data: { token },
       } = await signInUser(data);
       handleAuthResponse(token);
-    } catch (error: any) {
-      if (error?.message === "User not exist") navigate("/auth/sign-up");
+    } catch (err: any) {
+      toast.error(err?.message);
+      if (err?.message === "User not exist") navigate("/auth/sign-up");
     }
   };
 
   let signUp = async (data: SignUpData) => {
-    let {
-      data: { token },
-    } = await signUpUser(data);
-    handleAuthResponse(token);
+    try {
+      let {
+        data: { token },
+      } = await signUpUser(data);
+      handleAuthResponse(token);
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
   };
 
   let logout = () => {

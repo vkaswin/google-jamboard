@@ -59,7 +59,9 @@ export const clickOutside = <T extends HTMLElement>({
     removeEventListener();
   };
 
-  document.addEventListener("click", handleClickOutside);
+  setTimeout(() => {
+    document.addEventListener("click", handleClickOutside);
+  }, 0);
 
   return removeEventListener;
 };

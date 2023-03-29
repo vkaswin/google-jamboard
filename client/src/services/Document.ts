@@ -2,16 +2,23 @@ import axios from "./axios";
 import { Document } from "./config";
 import { DocumentDetail } from "@/types/Document";
 
-export const getDocumentById = (id: string) => {
+export const getDocumentById = (documentId: string) => {
   return axios<{ data: DocumentDetail; message: string }>({
-    url: Document.getDetail(id),
+    url: Document.getDetail(documentId),
     method: "get",
   });
 };
 
-export const clearDocument = (id: string) => {
+export const clearDocument = (documentId: string) => {
   return axios({
-    url: Document.clear(id),
+    url: Document.clear(documentId),
     method: "put",
+  });
+};
+
+export const deleteDocument = (documentId: string) => {
+  return axios({
+    url: Document.delete(documentId),
+    method: "delete",
   });
 };
