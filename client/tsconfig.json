@@ -21,6 +21,6 @@
       "@/*": ["./src/*"],
     },
   },
-  "include": ["src"],
+  "include": ["src", "src/components/Slides/.tsx", "src/components/Slides/.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

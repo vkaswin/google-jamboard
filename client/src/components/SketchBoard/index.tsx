@@ -5,18 +5,18 @@ import { CanvasDetail } from "@/types/Document";
 import styles from "./SketchBoard.module.scss";
 
 type SketchBoardProps = {
-  tool: number;
-  sketch: number;
-  sketchColor: number;
+  tool?: number;
+  sketch?: number;
+  sketchColor?: number;
   canvas: CanvasDetail;
   dimension: { width: number; height: number };
-  onUpdateCanvas: (canvasId: string, blob: Blob) => void;
+  onUpdateCanvas?: (canvasId: string, blob: Blob) => void;
 };
 
 const SketchBoard = ({
-  tool,
+  tool = NaN,
   sketch,
-  sketchColor,
+  sketchColor = NaN,
   canvas,
   dimension,
   onUpdateCanvas,
@@ -31,7 +31,7 @@ const SketchBoard = ({
   }, []);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current || isNaN(tool)) return;
 
     if ([0, 1, 6].includes(tool)) {
       canvasRef.current.addEventListener("mousedown", handleMouseDown);
@@ -50,6 +50,8 @@ const SketchBoard = ({
   }, [canvas.image]);
 
   useEffect(() => {
+    if (isNaN(sketchColor)) return;
+
     contextRef.current!.strokeStyle =
       tool === 6 ? "#FF3131" : colors[sketchColor].colorCode;
     contextRef.current!.lineWidth = 5;
@@ -100,7 +102,7 @@ const SketchBoard = ({
     window.removeEventListener("mousemove", handleMouseMove);
     canvasRef.current.toBlob((blob) => {
       if (!blob) return;
-      onUpdateCanvas(canvas._id, blob);
+      onUpdateCanvas?.(canvas._id, blob);
     }, "image/png");
   };
 

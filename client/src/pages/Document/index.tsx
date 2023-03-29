@@ -162,9 +162,22 @@ const DocumentPage = () => {
 
   let handleUpdateCanvas = async (canvasId: string, blob: Blob) => {
     try {
+      let slide = activeSlide;
       let formData = new FormData();
       formData.append("file", blob);
       await updateCanvas(canvasId, formData);
+      let fileReader = new FileReader();
+      fileReader.readAsDataURL(blob);
+      fileReader.onloadend = () => {
+        let base64 = fileReader.result;
+        if (typeof base64 !== "string") return;
+        let documentData = { ...documentDetail };
+        documentData.slides[slide].canvas.image = base64.replace(
+          "data:image/png;base64,",
+          ""
+        );
+        setDocumentDetail(documentData);
+      };
     } catch (err: any) {
       toast.error(err?.message);
     }

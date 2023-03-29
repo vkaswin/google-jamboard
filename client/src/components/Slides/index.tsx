@@ -4,6 +4,7 @@ import DropDown from "@/components/DropDown";
 import { SlideDetail } from "@/types/Document";
 
 import styles from "./Slides.module.scss";
+import SketchBoard from "../SketchBoard";
 
 type SlidesProps = {
   slides: SlideDetail[];
@@ -35,6 +36,11 @@ const Slides = ({
   let containerRef = useRef<HTMLDivElement | null>(null);
 
   let totalSlides = slides ? slides.length : 1;
+
+  let canvasDimension = {
+    width: dimension.width / 2,
+    height: dimension.height / 2,
+  };
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -153,6 +159,10 @@ const Slides = ({
                         },${slideDimension.height / dimension.height})`,
                       }}
                     >
+                      <SketchBoard
+                        canvas={slide.canvas}
+                        dimension={canvasDimension}
+                      />
                       {slide.shapes &&
                         slide.shapes.map((shape) => {
                           return <Shapes key={shape._id} shape={shape} />;
