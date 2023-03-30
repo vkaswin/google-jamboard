@@ -141,15 +141,41 @@ const DocumentPage = () => {
   let handleClearSlide = async () => {
     if (!documentId || !activeSlideId) return;
 
+    let slideIndex = activeSlide;
     try {
       await clearSlide(documentId, { slideId: activeSlideId });
-      let canvas = (
-        document.querySelector(`[data-slide='${activeSlideId}']`) as HTMLElement
-      ).querySelector("canvas") as HTMLCanvasElement;
-      let context = canvas.getContext("2d");
-      if (context) {
-        context.clearRect(0, 0, canvasDimension.width, canvasDimension.height);
+      let canvasId = slides[slideIndex].canvas._id;
+
+      let canvas = document.querySelector<HTMLCanvasElement>(
+        `[data-canvas='${canvasId}']`
+      );
+      if (canvas) {
+        let context = canvas.getContext("2d");
+        if (context) {
+          context.clearRect(
+            0,
+            0,
+            canvasDimension.width,
+            canvasDimension.height
+          );
+        }
       }
+
+      let miniCanvas = document.querySelector<HTMLCanvasElement>(
+        `[mini-canvas='${canvasId}']`
+      );
+      if (miniCanvas) {
+        let context = miniCanvas.getContext("2d");
+        if (context) {
+          context.clearRect(
+            0,
+            0,
+            canvasDimension.width,
+            canvasDimension.height
+          );
+        }
+      }
+
       let documentData = { ...documentDetail };
       let slide = documentData.slides[activeSlide];
       slide.shapes = [];

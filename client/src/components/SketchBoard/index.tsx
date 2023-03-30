@@ -131,10 +131,11 @@ const SketchBoard = ({
 
   return (
     <canvas
-      className={styles.sketch_board}
       ref={canvasRef}
+      className={styles.sketch_board}
       width={dimension.width}
       height={dimension.height}
+      data-canvas={canvas._id}
       style={{ pointerEvents: [0, 1, 6].includes(tool) ? "auto" : "none" }}
       onContextMenu={handleContextMenu}
       {...([0, 1, 6].includes(tool) &&

@@ -125,7 +125,7 @@ export const clearSlide = asyncHandler(async (req, res) => {
     image: Buffer.from(new ArrayBuffer(0)),
   });
 
-  await Shape.deleteMany({ $in: slide.shapes });
+  await Shape.deleteMany({ _id: { $in: slide.shapes } });
 
   await Document.updateOne(
     { _id: documentId, "slides._id": slideId },
