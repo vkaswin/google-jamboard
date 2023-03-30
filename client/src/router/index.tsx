@@ -2,21 +2,10 @@ import { lazy } from "react";
 import { RouteObject, Navigate, useRoutes } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 
-let Document = lazy(
-  () => import(/* webpackChunkName: "[Document]" */ "@/pages/Document")
-);
-
-let AuthLayout = lazy(
-  () => import(/* webpackChunkName: "[AuthLayout]" */ `@/layouts/AuthLayout`)
-);
-
-let SignIn = lazy(
-  () => import(/* webpackChunkName: "[SignIn]" */ "@/pages/SignIn")
-);
-
-let SignUp = lazy(
-  () => import(/* webpackChunkName: "[SignUp]" */ "@/pages/SignUp")
-);
+let Document = lazy(() => import("@/pages/Document"));
+let AuthLayout = lazy(() => import(`@/layouts/AuthLayout`));
+let SignIn = lazy(() => import("@/pages/SignIn"));
+let SignUp = lazy(() => import("@/pages/SignUp"));
 
 let routes: RouteObject[] = [
   {

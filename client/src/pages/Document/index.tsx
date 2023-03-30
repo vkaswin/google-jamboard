@@ -12,7 +12,7 @@ import useAuth from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import ToolBar from "@/components/ToolBar";
 import SketchBoard from "@/components/SketchBoard";
-import Shapes from "@/components/Shapes";
+import Shapes, { InactiveShapes } from "@/components/Shapes";
 import DropDown from "@/components/DropDown";
 import Slides from "@/components/Slides";
 import { getDocumentById } from "@/services/Document";
@@ -39,7 +39,7 @@ let canvasDimension = {
 const DocumentPage = () => {
   let { user, logout } = useAuth();
 
-  let [tool, setTool] = useState(0);
+  let [tool, setTool] = useState(2);
 
   let [shape, setShape] = useState(1);
 
@@ -443,7 +443,7 @@ const DocumentPage = () => {
                       );
                     })}
                   {newShape && newShape.slideId === slide._id && (
-                    <Shapes shape={newShape.shape} slideId={slide._id} />
+                    <InactiveShapes shape={newShape.shape} />
                   )}
                 </div>
               </div>

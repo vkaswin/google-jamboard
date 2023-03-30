@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from "react";
-import { MiniShapes } from "@/components/Shapes";
+import { InactiveShapes } from "@/components/Shapes";
 import DropDown from "@/components/DropDown";
 import { SlideDetail } from "@/types/Document";
 
@@ -30,7 +30,7 @@ const Slides = ({
   onAddSlide,
   onDeleteSlide,
 }: SlidesProps) => {
-  let [isOpen, setIsOpen] = useState(true);
+  let [isOpen, setIsOpen] = useState(false);
 
   let containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -165,7 +165,9 @@ const Slides = ({
                       />
                       {slide.shapes &&
                         slide.shapes.map((shape) => {
-                          return <MiniShapes key={shape._id} shape={shape} />;
+                          return (
+                            <InactiveShapes key={shape._id} shape={shape} />
+                          );
                         })}
                     </div>
                     <button

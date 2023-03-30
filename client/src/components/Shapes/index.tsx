@@ -29,7 +29,6 @@ import styles from "./Shape.module.scss";
 type ShapesPropsType = {
   shape: ShapeDetail;
   selectedShapeId: string | null;
-  slideId: string;
   onUpdateShape: (shape: Omit<ShapeDetail, "type">) => void;
   onClick: (id: string) => void;
   onBlur: () => void;
@@ -281,7 +280,7 @@ const Shapes = ({
 
 export default Shapes;
 
-export const MiniShapes = ({ shape }: { shape: ShapeDetail }) => {
+export const InactiveShapes = ({ shape }: { shape: ShapeDetail }) => {
   let [shapeProps, setShapeProps] = useState<ShapeProps | null>(null);
 
   useEffect(() => {
