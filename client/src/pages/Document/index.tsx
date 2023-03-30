@@ -272,17 +272,32 @@ const DocumentPage = () => {
     setNewShape((newShape) => {
       if (!newShape || !slideRef.current) return newShape;
 
-      let { width, height } = slideRef.current.getBoundingClientRect();
+      let { width, height, left, top } =
+        slideRef.current.getBoundingClientRect();
       let { clientWidth, clientHeight } = slideRef.current;
 
       let scaleX = clientWidth / width;
       let scaleY = clientHeight / height;
 
       let shapeDetail = { ...newShape };
-      shapeDetail.shape.props.width =
-        (pageX - mouseDownEvent.current.pageX) * scaleX;
-      shapeDetail.shape.props.height =
-        (pageY - mouseDownEvent.current.pageY) * scaleY;
+      let {
+        shape: { props },
+      } = shapeDetail;
+
+      let x = pageX - mouseDownEvent.current.pageX;
+      let y = pageY - mouseDownEvent.current.pageY;
+
+      props.width = Math.abs(x) * scaleX;
+      props.height = Math.abs(y) * scaleY;
+
+      if (x < 0) {
+        props.translateX =
+          scaleX * (mouseDownEvent.current.pageX - left) - props.width;
+      }
+      if (y < 0) {
+        props.translateY =
+          scaleX * (mouseDownEvent.current.pageY - top) - props.height;
+      }
 
       return shapeDetail;
     });
