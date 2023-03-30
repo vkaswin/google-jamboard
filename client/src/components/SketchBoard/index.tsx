@@ -114,14 +114,13 @@ const SketchBoard = ({
   };
 
   let drawImageInCanvas = () => {
-    if (!canvasRef.current || !contextRef.current) return;
-
-    let canasImage = new Image();
-    canasImage.src = `data:image/png;base64,${canvas.image}`;
-    canasImage.onload = () => {
-      contextRef.current!.drawImage(canasImage, 0, 0);
+    let image = new Image();
+    image.src = `data:image/png;base64,${canvas.image}`;
+    image.onload = () => {
+      if (!contextRef.current) return;
+      contextRef.current.drawImage(image, 0, 0);
       if (miniContextRef.current) {
-        miniContextRef.current.drawImage(canasImage, 0, 0);
+        miniContextRef.current.drawImage(image, 0, 0);
       }
     };
   };
