@@ -1,0 +1,128 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  .dialog {
+    position: relative;
+    display: flex;
+    .content {
+      width: 100%;
+      background-color: white;
+      padding: 30px 20px;
+      margin: 15px 0px;
+      border-radius: 4px;
+    }
+  }
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  animation: fadeOut 0.3s linear forwards;
+  &:is(.show) {
+    animation: fadeIn 0.3s linear forwards;
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  .enter {
+    .dialog {
+      animation: show_modal 0.3s ease-in-out forwards;
+    }
+  }
+  .exit {
+    .dialog {
+      animation: show_modal 0.3s ease-in-out forwards reverse;
+    }
+  }
+  .container {
+    overflow-y: auto;
+    .dialog {
+      min-height: 100vh;
+      justify-content: center;
+      align-items: center;
+    }
+    .content[data-size="md"] {
+      max-width: 550px;
+    }
+    .content[data-size="sm"] {
+      max-width: 400px;
+    }
+    .content[data-size="lg"] {
+      max-width: 650px;
+    }
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .enter {
+    .dialog {
+      animation: slideInBottom 0.3s linear forwards;
+    }
+  }
+  .exit {
+    .dialog {
+      animation: slideInBottom 0.3s linear forwards reverse;
+    }
+  }
+  .container {
+    overflow-y: hidden;
+    .dialog {
+      height: 100%;
+      justify-content: center;
+      align-items: flex-end;
+      .content {
+        max-height: 80vh;
+        overflow-y: auto;
+        margin: 0px;
+        border-radius: 10px 10px 0px 0px;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes show_modal {
+  from {
+    transform: translateY(-150px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInBottom {
+  from {
+    transform: translateY(100vh);
+  }
+  to {
+    transform: translateY(0px);
+  }
+}

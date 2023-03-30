@@ -5,6 +5,7 @@ const DocumentSchema = new Schema(
     title: {
       type: String,
       required: [true, "Please add title"],
+      default: "Untitled Jam",
     },
     creatorId: {
       type: Schema.Types.ObjectId,

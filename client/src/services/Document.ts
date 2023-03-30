@@ -22,3 +22,10 @@ export const deleteDocument = (documentId: string) => {
     method: "delete",
   });
 };
+
+export const updateDocument = (
+  documentId: string,
+  data: Partial<DocumentDetail>
+) => {
+  return axios({ url: Document.update(documentId), method: "put", data });
+};

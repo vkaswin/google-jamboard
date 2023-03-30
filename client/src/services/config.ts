@@ -18,6 +18,7 @@ export const Document = {
   getDetail: (documentId: string) => `${documentUrl}/${documentId}/detail`,
   clear: (documentId: string) => `${documentUrl}/${documentId}/clear`,
   delete: (documentId: string) => `${documentUrl}/${documentId}/remove`,
+  update: (documentId: string) => `${documentUrl}/${documentId}/edit`,
 };
 
 export const Canvas = {

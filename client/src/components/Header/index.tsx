@@ -7,12 +7,21 @@ import styles from "./Header.module.scss";
 
 type HeaderProps = {
   user?: User;
+  title?: string;
   children: ReactNode;
   logout: () => void;
   onClearSlide: () => void;
+  toggleTitle: () => void;
 };
 
-const Header = ({ user, children, logout, onClearSlide }: HeaderProps) => {
+const Header = ({
+  user,
+  title,
+  children,
+  logout,
+  onClearSlide,
+  toggleTitle,
+}: HeaderProps) => {
   let userInitial = useMemo(() => {
     if (!user) return "";
     let [firstName, lastName] = user.name.split(" ");
@@ -24,7 +33,7 @@ const Header = ({ user, children, logout, onClearSlide }: HeaderProps) => {
       <div className={styles.header}>
         <div className={styles.logo}>
           <img src={getStaticUrl("/logo.png")} />
-          <span>Google Jamboard</span>
+          <span onClick={toggleTitle}>{title}</span>
         </div>
         {children}
         <div

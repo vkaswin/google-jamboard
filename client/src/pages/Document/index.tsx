@@ -9,13 +9,15 @@ import React, {
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import useAuth from "@/hooks/useAuth";
+import useTitle from "@/hooks/useTitle";
 import Header from "@/components/Header";
 import ToolBar from "@/components/ToolBar";
 import SketchBoard from "@/components/SketchBoard";
 import Shapes, { InactiveShapes } from "@/components/Shapes";
 import DropDown from "@/components/DropDown";
 import Slides from "@/components/Slides";
-import { getDocumentById } from "@/services/Document";
+import TitlePopup from "@/components/TitlePopup";
+import { getDocumentById, updateDocument } from "@/services/Document";
 import { clearSlide, createSlide, deleteSlide } from "@/services/Slide";
 import { createShape, deleteShape, updateShape } from "@/services/Shape";
 import { updateCanvas } from "@/services/Canvas";
@@ -49,7 +51,7 @@ const DocumentPage = () => {
 
   let [documentDetail, setDocumentDetail] = useState({} as DocumentDetail);
 
-  let { slides } = documentDetail;
+  let { slides, title } = documentDetail;
 
   let containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -64,6 +66,8 @@ const DocumentPage = () => {
     shape: ShapeDetail;
   } | null>(null);
 
+  let [showTitle, setShowTitle] = useState(false);
+
   let [scale, setScale] = useState({ x: 1, y: 1 });
 
   let mouseDownEvent = useRef({
@@ -72,6 +76,8 @@ const DocumentPage = () => {
   });
 
   let { documentId } = useParams();
+
+  useTitle(title);
 
   useLayoutEffect(() => {
     handleResize();
@@ -268,6 +274,40 @@ const DocumentPage = () => {
       : "default";
   }, [tool, sketchColor]);
 
+  let handleMouseDown = ({ pageX, pageY }: React.MouseEvent) => {
+    if (!slideRef.current || !activeSlideId) return;
+
+    let { width, height, left, top } = slideRef.current.getBoundingClientRect();
+    let { clientWidth, clientHeight } = slideRef.current;
+
+    let scaleX = clientWidth / width;
+    let scaleY = clientHeight / height;
+
+    let isTextBox = tool == 5;
+
+    let shapeDetail: { slideId: string; shape: ShapeDetail } = {
+      slideId: activeSlideId,
+      shape: {
+        _id: crypto.randomUUID(),
+        type: isTextBox ? "text-box" : shapes[shape].type,
+        props: {
+          width: isTextBox ? 250 : 1,
+          height: isTextBox ? 150 : 1,
+          rotate: 0,
+          translateX: (pageX - left) * scaleX,
+          translateY: (pageY - top) * scaleY,
+        },
+      },
+    };
+    mouseDownEvent.current = {
+      pageX,
+      pageY,
+    };
+    setNewShape(shapeDetail);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp, { once: true });
+  };
+
   let handleMouseMove = ({ pageX, pageY }: MouseEvent) => {
     setNewShape((newShape) => {
       if (!newShape || !slideRef.current) return newShape;
@@ -352,46 +392,12 @@ const DocumentPage = () => {
     }
   };
 
-  let handleMouseDown = ({ pageX, pageY }: React.MouseEvent) => {
-    if (!slideRef.current || !activeSlideId) return;
-
-    let { width, height, left, top } = slideRef.current.getBoundingClientRect();
-    let { clientWidth, clientHeight } = slideRef.current;
-
-    let scaleX = clientWidth / width;
-    let scaleY = clientHeight / height;
-
-    let isTextBox = tool == 5;
-
-    let shapeDetail: { slideId: string; shape: ShapeDetail } = {
-      slideId: activeSlideId,
-      shape: {
-        _id: crypto.randomUUID(),
-        type: isTextBox ? "text-box" : shapes[shape].type,
-        props: {
-          width: isTextBox ? 250 : 1,
-          height: isTextBox ? 150 : 1,
-          rotate: 0,
-          translateX: (pageX - left) * scaleX,
-          translateY: (pageY - top) * scaleY,
-        },
-      },
-    };
-    mouseDownEvent.current = {
-      pageX,
-      pageY,
-    };
-    setNewShape(shapeDetail);
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp, { once: true });
-  };
-
   let handleAddSlide = async (position: number) => {
     if (!documentId) return;
 
     try {
       let {
-        data: { data, message },
+        data: { data },
       } = await createSlide(documentId, { position });
       let documentData = { ...documentDetail };
       documentData.slides.splice(position, 0, data);
@@ -408,9 +414,7 @@ const DocumentPage = () => {
     try {
       let slideIndex = slides.findIndex(({ _id }) => _id === slideId);
       if (slideIndex === -1) return;
-      let {
-        data: { message },
-      } = await deleteSlide(documentId, { slideId });
+      await deleteSlide(documentId, { slideId });
       let documentData = { ...documentDetail };
       documentData.slides.splice(slideIndex, 1);
       setDocumentDetail(documentData);
@@ -419,17 +423,39 @@ const DocumentPage = () => {
     }
   };
 
+  let handleUpdateTitle = async (title: string) => {
+    if (!documentId) return;
+
+    try {
+      await updateDocument(documentId, { title });
+      toggleTitle();
+      setDocumentDetail({ ...documentDetail, title });
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
+  };
+
+  let toggleTitle = () => {
+    setShowTitle(!showTitle);
+  };
+
   return (
     <Fragment>
-      <Header user={user} logout={logout} onClearSlide={handleClearSlide}>
+      <Header
+        user={user}
+        title={title}
+        logout={logout}
+        onClearSlide={handleClearSlide}
+        toggleTitle={toggleTitle}
+      >
         <Slides
           slides={slides}
           activeSlide={activeSlide}
           activeSlideId={activeSlideId}
+          dimension={dimension}
           onSlideChange={setActiveSlide}
           onAddSlide={handleAddSlide}
           onDeleteSlide={handleDeleteSlide}
-          dimension={dimension}
         />
       </Header>
       <div ref={containerRef} className={styles.container}>
@@ -506,6 +532,12 @@ const DocumentPage = () => {
           <span>Delete</span>
         </DropDown.Item>
       </DropDown>
+      <TitlePopup
+        title={title}
+        isOpen={showTitle}
+        toggle={toggleTitle}
+        onSubmit={handleUpdateTitle}
+      />
     </Fragment>
   );
 };

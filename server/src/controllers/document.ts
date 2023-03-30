@@ -4,13 +4,14 @@ import Canvas from "../models/canvas";
 import { asyncHandler, CustomError } from "../utils/asyncHandler";
 
 export const createDocument = asyncHandler(async (req, res) => {
+  let { user } = req;
+
   let canvas = await Canvas.create({
     image: Buffer.from(new ArrayBuffer(0)),
   });
 
   let document = await Document.create({
-    title: "Demo",
-    creatorId: "6410632eed1b8da26018876c",
+    creatorId: user._id,
     slides: [{ canvas: canvas._id, shapes: [] }],
   });
 
@@ -69,4 +70,20 @@ export const deleteDocument = asyncHandler(async (req, res) => {
     canvas,
     shapes,
   });
+});
+
+export const updateDocument = asyncHandler(async (req, res) => {
+  let {
+    body,
+    params: { documentId },
+  } = req;
+
+  let document = await Document.findById(documentId);
+
+  if (!document)
+    throw new CustomError({ message: "Document not found", status: 400 });
+
+  await Document.findByIdAndUpdate(documentId, body);
+
+  res.status(200).send({ message: "Document has been updated successfully" });
 });
