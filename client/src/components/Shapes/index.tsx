@@ -17,29 +17,22 @@ import StickyNote from "./StickyNote";
 import TextBox from "./TextBox";
 import Resizer from "../Resizer";
 import { debounce } from "@/utils";
-import { ShapeDetail, ShapeProps, ResizeType } from "@/types/Document";
+import {
+  ShapeDetail,
+  ShapeProps,
+  ResizeType,
+  MouseDownEvent,
+} from "@/types/Document";
 
 import styles from "./Shape.module.scss";
 
-type Shape = {
+type ShapesPropsType = {
   shape: ShapeDetail;
-  selectedShapeId?: string | null;
-  slideId?: string;
-  onUpdateShape?: (shape: Omit<ShapeDetail, "type">) => void;
-  onClick?: (id: string) => void;
-  onBlur?: () => void;
-};
-
-type ResizerRef = {
-  containerRef: HTMLDivElement | null;
-  handleMouseDown: (event: MouseEvent, type: "move") => void;
-  removeMouseListeners: () => void;
-};
-
-type MouseDownEvent = {
-  type: ResizeType;
-  pageX: number;
-  pageY: number;
+  selectedShapeId: string | null;
+  slideId: string;
+  onUpdateShape: (shape: Omit<ShapeDetail, "type">) => void;
+  onClick: (id: string) => void;
+  onBlur: () => void;
 };
 
 const Shapes = ({
@@ -48,19 +41,17 @@ const Shapes = ({
   onClick,
   onBlur,
   onUpdateShape,
-}: Shape) => {
+}: ShapesPropsType) => {
   let [shapeProps, setShapeProps] = useState<ShapeProps | null>(null);
 
   let [isReadOnly, setIsReadOnly] = useState(true);
-
-  let resizerRef = useRef<ResizerRef>();
 
   let shapeRef = useRef<HTMLDivElement | null>(null);
 
   let mouseDownEvent = useRef<MouseDownEvent | null>(null);
 
   let textChange = debounce<Omit<ShapeDetail, "type">>(
-    (props) => onUpdateShape?.(props),
+    (props) => onUpdateShape(props),
     1000
   );
 
@@ -218,7 +209,7 @@ const Shapes = ({
     mouseDownEvent.current = null;
 
     setShapeProps((props) => {
-      if (props) onUpdateShape?.({ _id: shape._id, props });
+      if (props) onUpdateShape({ _id: shape._id, props });
       return props;
     });
   };
@@ -236,12 +227,11 @@ const Shapes = ({
 
   let handleDoubleClick = () => {
     if (!(shape.type === "sticky-note" || shape.type === "text-box")) return;
-    resizerRef.current?.removeMouseListeners();
     setIsReadOnly(false);
   };
 
   let handleClickShape = () => {
-    onClick?.(shape._id);
+    onClick(shape._id);
   };
 
   let resetEditText = () => {
@@ -290,3 +280,64 @@ const Shapes = ({
 };
 
 export default Shapes;
+
+export const MiniShapes = ({ shape }: { shape: ShapeDetail }) => {
+  let [shapeProps, setShapeProps] = useState<ShapeProps | null>(null);
+
+  useEffect(() => {
+    setShapeProps(shape.props);
+  }, [shape.props]);
+
+  let shapeComponent = useMemo(() => {
+    if (!shapeProps) return null;
+
+    let { width, height, text } = shapeProps;
+
+    switch (shape.type) {
+      case "sticky-note":
+        return <StickyNote text="Hello World" />;
+
+      case "text-box":
+        return <TextBox defaultValue={text} readOnly />;
+
+      case "arrow":
+        return <Arrow width={width} height={height} />;
+
+      case "circle":
+        return <Circle width={width} height={height} />;
+
+      case "diamond":
+        return <Diamond width={width} height={height} />;
+
+      case "rectangle":
+        return <Rectangle width={width} height={height} />;
+
+      case "semi-circle":
+        return <SemiCircle width={width} height={height} />;
+
+      case "square":
+        return <Square width={width} height={height} />;
+
+      case "triangle":
+        return <Triangle width={width} height={height} />;
+
+      default:
+        return null;
+    }
+  }, [shape.type, shapeProps?.width, shapeProps?.height]);
+
+  if (!shapeProps) return null;
+
+  return (
+    <div
+      className={styles.container}
+      style={{
+        width: `${shapeProps.width}px`,
+        height: `${shapeProps.height}px`,
+        transform: `translate(${shapeProps.translateX}px, ${shapeProps.translateY}px) rotate(${shapeProps.rotate}deg)`,
+      }}
+    >
+      {shapeComponent}
+    </div>
+  );
+};

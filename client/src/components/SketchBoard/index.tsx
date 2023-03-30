@@ -5,53 +5,46 @@ import { CanvasDetail } from "@/types/Document";
 import styles from "./SketchBoard.module.scss";
 
 type SketchBoardProps = {
-  tool?: number;
-  sketch?: number;
-  sketchColor?: number;
+  tool: number;
+  sketch: number;
+  sketchColor: number;
   canvas: CanvasDetail;
   dimension: { width: number; height: number };
-  onUpdateCanvas?: (canvasId: string, blob: Blob) => void;
+  isActiveSlide: boolean;
+  onUpdateCanvas: (canvasId: string, blob: Blob) => void;
 };
 
 const SketchBoard = ({
-  tool = NaN,
+  tool,
   sketch,
-  sketchColor = NaN,
+  sketchColor,
   canvas,
   dimension,
+  isActiveSlide = false,
   onUpdateCanvas,
 }: SketchBoardProps) => {
   let canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   let contextRef = useRef<CanvasRenderingContext2D | null>(null);
 
-  useEffect(() => {
-    if (!canvasRef.current) return;
-    contextRef.current = canvasRef.current.getContext("2d");
-  }, []);
-
-  useEffect(() => {
-    if (!canvasRef.current || isNaN(tool)) return;
-
-    if ([0, 1, 6].includes(tool)) {
-      canvasRef.current.addEventListener("mousedown", handleMouseDown);
-    } else {
-      canvasRef.current.removeEventListener("mousedown", handleMouseDown);
-    }
-    return () => {
-      if (!canvasRef.current) return;
-      canvasRef.current.removeEventListener("mousedown", handleMouseDown);
-    };
-  }, [tool]);
+  let miniContextRef = useRef<CanvasRenderingContext2D | null>(null);
 
   useEffect(() => {
     if (!canvas.image) return;
     drawImageInCanvas();
-  }, [canvas.image]);
+  }, []);
 
   useEffect(() => {
-    if (isNaN(sketchColor)) return;
+    if (!canvasRef.current) return;
+    contextRef.current = canvasRef.current.getContext("2d");
+    let miniCanvas = document.querySelector<HTMLCanvasElement>(
+      `[mini-canvas='${canvas._id}']`
+    );
+    if (!miniCanvas) return;
+    miniContextRef.current = miniCanvas.getContext("2d");
+  }, []);
 
+  useEffect(() => {
     contextRef.current!.strokeStyle =
       tool === 6 ? "#FF3131" : colors[sketchColor].colorCode;
     contextRef.current!.lineWidth = 5;
@@ -59,18 +52,23 @@ const SketchBoard = ({
     contextRef.current!.lineJoin = "round";
   }, [sketchColor, tool]);
 
-  let handleMouseDown = ({ x, y }: MouseEvent) => {
+  let handleMouseDown = ({ pageX, pageY }: React.MouseEvent) => {
     if (!canvasRef.current || !contextRef.current) return;
     let { left, top, width, height } =
       canvasRef.current.getBoundingClientRect();
     let scaleX = dimension.width / width;
     let scaleY = dimension.height / height;
 
-    x = (x - left) * scaleX;
-    y = (y - top) * scaleY;
+    let x = (pageX - left) * scaleX;
+    let y = (pageY - top) * scaleY;
 
     contextRef.current.beginPath();
     contextRef.current.moveTo(x, y);
+
+    if (miniContextRef.current) {
+      miniContextRef.current.beginPath();
+      miniContextRef.current.moveTo(x, y);
+    }
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp, {
@@ -78,21 +76,30 @@ const SketchBoard = ({
     });
   };
 
-  let handleMouseMove = ({ x, y }: MouseEvent) => {
+  let handleMouseMove = ({ x: pageX, y: pageY }: MouseEvent) => {
     if (!canvasRef.current || !contextRef.current) return;
+
     let { left, top, width, height } =
       canvasRef.current.getBoundingClientRect();
     let scaleX = dimension.width / width;
     let scaleY = dimension.height / height;
 
-    x = (x - left) * scaleX;
-    y = (y - top) * scaleY;
+    let x = (pageX - left) * scaleX;
+    let y = (pageY - top) * scaleY;
 
     if (tool === 0 || tool == 6) {
       contextRef.current.lineTo(x, y);
       contextRef.current.stroke();
+
+      if (miniContextRef.current) {
+        miniContextRef.current.lineTo(x, y);
+        miniContextRef.current.stroke();
+      }
     } else if (tool === 1) {
       contextRef.current.clearRect(x, y, 20, 20);
+      if (miniContextRef.current) {
+        miniContextRef.current.clearRect(x, y, 20, 20);
+      }
     }
   };
 
@@ -102,17 +109,20 @@ const SketchBoard = ({
     window.removeEventListener("mousemove", handleMouseMove);
     canvasRef.current.toBlob((blob) => {
       if (!blob) return;
-      onUpdateCanvas?.(canvas._id, blob);
+      onUpdateCanvas(canvas._id, blob);
     }, "image/png");
   };
 
   let drawImageInCanvas = () => {
-    if (!canvasRef.current || !contextRef.current || !canvas.image) return;
+    if (!canvasRef.current || !contextRef.current) return;
 
-    let image = new Image();
-    image.src = `data:image/png;base64,${canvas.image}`;
-    image.onload = () => {
-      contextRef.current!.drawImage(image, 0, 0);
+    let canasImage = new Image();
+    canasImage.src = `data:image/png;base64,${canvas.image}`;
+    canasImage.onload = () => {
+      contextRef.current!.drawImage(canasImage, 0, 0);
+      if (miniContextRef.current) {
+        miniContextRef.current.drawImage(canasImage, 0, 0);
+      }
     };
   };
 
@@ -128,6 +138,8 @@ const SketchBoard = ({
       height={dimension.height}
       style={{ pointerEvents: [0, 1, 6].includes(tool) ? "auto" : "none" }}
       onContextMenu={handleContextMenu}
+      {...([0, 1, 6].includes(tool) &&
+        isActiveSlide && { onMouseDown: handleMouseDown })}
     />
   );
 };

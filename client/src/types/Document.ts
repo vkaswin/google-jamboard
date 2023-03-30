@@ -46,3 +46,9 @@ export interface ShapeDetail {
 }
 
 export type ResizeType = Placement | "rotate" | "move";
+
+export type MouseDownEvent = {
+  type: ResizeType;
+  pageX: number;
+  pageY: number;
+};

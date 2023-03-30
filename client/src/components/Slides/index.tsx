@@ -1,10 +1,9 @@
 import { Fragment, useEffect, useRef, useState } from "react";
-import Shapes from "@/components/Shapes";
+import { MiniShapes } from "@/components/Shapes";
 import DropDown from "@/components/DropDown";
 import { SlideDetail } from "@/types/Document";
 
 import styles from "./Slides.module.scss";
-import SketchBoard from "../SketchBoard";
 
 type SlidesProps = {
   slides: SlideDetail[];
@@ -31,7 +30,7 @@ const Slides = ({
   onAddSlide,
   onDeleteSlide,
 }: SlidesProps) => {
-  let [isOpen, setIsOpen] = useState(false);
+  let [isOpen, setIsOpen] = useState(true);
 
   let containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -59,7 +58,7 @@ const Slides = ({
     if (!containerRef.current) return;
     let el = event.target as HTMLElement;
     if (containerRef.current.contains(el)) return;
-    toggle();
+    // toggle();
   };
 
   let toggle = () => {
@@ -159,13 +158,14 @@ const Slides = ({
                         },${slideDimension.height / dimension.height})`,
                       }}
                     >
-                      <SketchBoard
-                        canvas={slide.canvas}
-                        dimension={canvasDimension}
+                      <canvas
+                        width={canvasDimension.width}
+                        height={canvasDimension.height}
+                        mini-canvas={slide.canvas._id}
                       />
                       {slide.shapes &&
                         slide.shapes.map((shape) => {
-                          return <Shapes key={shape._id} shape={shape} />;
+                          return <MiniShapes key={shape._id} shape={shape} />;
                         })}
                     </div>
                     <button

@@ -39,7 +39,7 @@ let canvasDimension = {
 const DocumentPage = () => {
   let { user, logout } = useAuth();
 
-  let [tool, setTool] = useState(2);
+  let [tool, setTool] = useState(0);
 
   let [shape, setShape] = useState(1);
 
@@ -427,6 +427,7 @@ const DocumentPage = () => {
                     canvas={slide.canvas}
                     dimension={canvasDimension}
                     onUpdateCanvas={handleUpdateCanvas}
+                    isActiveSlide={slide._id === activeSlideId}
                   />
                   {slide.shapes &&
                     slide.shapes.map((shape) => {
