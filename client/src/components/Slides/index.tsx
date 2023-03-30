@@ -58,7 +58,7 @@ const Slides = ({
     if (!containerRef.current) return;
     let el = event.target as HTMLElement;
     if (containerRef.current.contains(el)) return;
-    // toggle();
+    toggle();
   };
 
   let toggle = () => {
