@@ -520,6 +520,7 @@ const DocumentPage = () => {
       let documentData = { ...documentDetail };
       documentData.slides[slideIndex].shapes[shapeIndex] = body;
       setDocumentDetail(documentData);
+      setColorOption({ ...colorOption, [key]: colorCode });
     } catch (err: any) {
       toast.error(err?.message);
     }
