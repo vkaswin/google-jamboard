@@ -73,11 +73,7 @@ const DocumentList = () => {
     }
   };
 
-  const navigateToDocument = (formId: string) => {
-    navigate(`/document/${formId}`);
-  };
-
-  const handleDeleteForm = async (documentId: string) => {
+  const handleDeleteDocument = async (documentId: string) => {
     if (!window.confirm("Are you sure to delete this form?")) return;
 
     try {
@@ -100,6 +96,11 @@ const DocumentList = () => {
     });
     if (containerRef.current)
       containerRef.current.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const navigateToDocument = (formId: string, newTab: boolean = false) => {
+    let path = `/document/${formId}`;
+    newTab ? window.open(`#${path}`) : navigate(path);
   };
 
   return (
@@ -175,12 +176,14 @@ const DocumentList = () => {
                           placement="bottom"
                           className={styles.dropdown}
                         >
-                          <DropDown.Item onClick={() => handleDeleteForm(_id)}>
+                          <DropDown.Item
+                            onClick={() => handleDeleteDocument(_id)}
+                          >
                             <i className="bx-trash"></i>
                             <span>Remove</span>
                           </DropDown.Item>
                           <DropDown.Item
-                            onClick={() => navigateToDocument(_id)}
+                            onClick={() => navigateToDocument(_id, true)}
                           >
                             <i className="bx-link-external"></i>
                             <span>Open in new tab</span>

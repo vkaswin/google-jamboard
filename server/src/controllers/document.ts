@@ -99,10 +99,10 @@ export const deleteDocument = asyncHandler(async (req, res) => {
 
   await Canvas.deleteMany({ _id: canvas });
 
+  await Document.findByIdAndDelete(documentId);
+
   res.status(200).send({
     message: "Document has been deleted successfully",
-    canvas,
-    shapes,
   });
 });
 
