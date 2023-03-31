@@ -1,12 +1,12 @@
 import axios from "./axios";
 import { Slide } from "./config";
-import { SlideDetail, SlideProps } from "@/types/Document";
+import { DocumentDetail, SlideProps } from "@/types/Document";
 
 export const createSlide = (
   documentId: string,
   params: { position: number }
 ) => {
-  return axios<{ data: SlideDetail; message: string }>({
+  return axios<{ data: DocumentDetail; message: string }>({
     url: Slide.create(documentId),
     method: "post",
     params,

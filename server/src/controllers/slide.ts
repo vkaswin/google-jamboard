@@ -26,34 +26,17 @@ export const createSlide = asyncHandler(async (req, res) => {
     }
   );
 
-  let [slide] = await Document.aggregate([
-    { $match: { _id: new mongoose.Types.ObjectId(documentId) } },
-    {
-      $project: {
-        slide: { $last: "$slides" },
-      },
-    },
-    {
-      $lookup: {
-        from: "canvas",
-        localField: "slide.canvas",
-        foreignField: "_id",
-        as: "canvas",
-      },
-    },
-    {
-      $project: {
-        _id: "$slide._id",
-        shapes: "$slide.shapes",
-        canvas: { $first: "$canvas" },
-        props: "$slide.props",
-      },
-    },
-  ]);
+  let document = await Document.findById(documentId)
+    .populate("slides.canvas")
+    .populate("slides.shapes");
 
-  res
-    .status(200)
-    .send({ data: slide, message: "Slide has been created successfully" });
+  if (!document)
+    throw new CustomError({ message: "Document not found", status: 400 });
+
+  res.status(200).send({
+    data: document.toObject(),
+    message: "Slide has been created successfully",
+  });
 });
 
 const getSlideById = async (documentId: string, slideId: string) => {

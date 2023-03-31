@@ -257,8 +257,35 @@ const DocumentPage = () => {
     setSelectedShapeId(null);
   };
 
-  let handleDuplicateShape = () => {
-    if (!selectedShapeId) return;
+  let handleDuplicateShape = async () => {
+    if (!documentId || !activeSlideId || !selectedShapeId) return;
+
+    let slideIndex = activeSlide;
+
+    try {
+      let shape = slides[activeSlide].shapes.find(
+        ({ _id }) => _id === selectedShapeId
+      );
+
+      if (!shape) return;
+
+      let {
+        data: { data },
+      } = await createShape(
+        documentId,
+        { slideId: activeSlideId },
+        { type: shape.type, props: shape.props }
+      );
+      let doucmentData = { ...documentDetail };
+      doucmentData.slides[slideIndex].shapes.push(data);
+      setDocumentDetail(doucmentData);
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
+  };
+
+  const handleDuplicateSlide = (slideId: string) => {
+    console.log(slideId);
   };
 
   let handleDeleteShape = async () => {
@@ -434,9 +461,7 @@ const DocumentPage = () => {
       let {
         data: { data },
       } = await createSlide(documentId, { position });
-      let documentData = { ...documentDetail };
-      documentData.slides.splice(position, 0, data);
-      setDocumentDetail(documentData);
+      setDocumentDetail(data);
       setActiveSlide(position);
     } catch (err: any) {
       toast.error(err?.message);
@@ -547,6 +572,7 @@ const DocumentPage = () => {
           onSlideChange={setActiveSlide}
           onAddSlide={handleAddSlide}
           onDeleteSlide={handleDeleteSlide}
+          onDuplicateSlide={handleDuplicateShape}
         />
       </Header>
       <ToolBar
