@@ -8,18 +8,25 @@ export const createSlide = asyncHandler(async (req, res) => {
   let {
     params: { documentId },
     query: { position },
+    body,
   } = req;
 
-  let canvas = await Canvas.create({
-    image: Buffer.from(new ArrayBuffer(0)),
-  });
+  let isEmptyBody = Object.keys(body).length === 0;
+  let canvasId: string = "";
+
+  if (isEmptyBody) {
+    let canvas = await Canvas.create({
+      image: Buffer.from(new ArrayBuffer(0)),
+    });
+    canvasId = canvas._id.toString();
+  }
 
   await Document.updateOne(
     { _id: documentId },
     {
       $push: {
         slides: {
-          $each: [{ canvas: canvas._id, shapes: [] }],
+          $each: [isEmptyBody ? { canvas: canvasId, shapes: [] } : body],
           $position: position,
         },
       },

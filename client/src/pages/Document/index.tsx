@@ -284,8 +284,27 @@ const DocumentPage = () => {
     }
   };
 
-  const handleDuplicateSlide = (slideId: string) => {
-    console.log(slideId);
+  const handleDuplicateSlide = async (slideId: string) => {
+    if (!documentId) return;
+
+    let slideIndex = slides.findIndex(({ _id }) => _id === slideId);
+
+    if (slideIndex === -1) return;
+
+    try {
+      let slide = slides[slideIndex];
+      let {
+        data: { data },
+      } = await createSlide(
+        documentId,
+        { position: slideIndex + 1 },
+        { canvas: slide.canvas, props: slide.props, shapes: slide.shapes }
+      );
+      setDocumentDetail(data);
+      setActiveSlide(slideIndex + 1);
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
   };
 
   let handleDeleteShape = async () => {
@@ -572,7 +591,7 @@ const DocumentPage = () => {
           onSlideChange={setActiveSlide}
           onAddSlide={handleAddSlide}
           onDeleteSlide={handleDeleteSlide}
-          onDuplicateSlide={handleDuplicateShape}
+          onDuplicateSlide={handleDuplicateSlide}
         />
       </Header>
       <ToolBar
