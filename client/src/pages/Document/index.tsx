@@ -17,6 +17,7 @@ import Shapes, { InactiveShapes } from "@/components/Shapes";
 import DropDown from "@/components/DropDown";
 import Slides from "@/components/Slides";
 import TitlePopup from "@/components/TitlePopup";
+import EditPopup from "@/components/EditPopup";
 import { getDocumentById, updateDocument } from "@/services/Document";
 import {
   clearSlide,
@@ -64,6 +65,8 @@ const DocumentPage = () => {
   let [sketch, setSketch] = useState(0);
 
   let [sketchColor, setSketchColor] = useState(0);
+
+  let [showEditPopup, setShowEditPopup] = useState(false);
 
   let [documentDetail, setDocumentDetail] = useState({} as DocumentDetail);
 
@@ -254,57 +257,8 @@ const DocumentPage = () => {
   };
 
   let clearSelectedShapeId = () => {
+    if (showEditPopup) return;
     setSelectedShapeId(null);
-  };
-
-  let handleDuplicateShape = async () => {
-    if (!documentId || !activeSlideId || !selectedShapeId) return;
-
-    let slideIndex = activeSlide;
-
-    try {
-      let shape = slides[activeSlide].shapes.find(
-        ({ _id }) => _id === selectedShapeId
-      );
-
-      if (!shape) return;
-
-      let {
-        data: { data },
-      } = await createShape(
-        documentId,
-        { slideId: activeSlideId },
-        { type: shape.type, props: shape.props }
-      );
-      let doucmentData = { ...documentDetail };
-      doucmentData.slides[slideIndex].shapes.push(data);
-      setDocumentDetail(doucmentData);
-    } catch (err: any) {
-      toast.error(err?.message);
-    }
-  };
-
-  const handleDuplicateSlide = async (slideId: string) => {
-    if (!documentId) return;
-
-    let slideIndex = slides.findIndex(({ _id }) => _id === slideId);
-
-    if (slideIndex === -1) return;
-
-    try {
-      let slide = slides[slideIndex];
-      let {
-        data: { data },
-      } = await createSlide(
-        documentId,
-        { position: slideIndex + 1 },
-        { canvas: slide.canvas, props: slide.props, shapes: slide.shapes }
-      );
-      setDocumentDetail(data);
-      setActiveSlide(slideIndex + 1);
-    } catch (err: any) {
-      toast.error(err?.message);
-    }
   };
 
   let handleDeleteShape = async () => {
@@ -349,10 +303,23 @@ const DocumentPage = () => {
 
     return path
       ? `url(${getStaticUrl(path)}), auto`
-      : tool === 4
+      : tool === 4 || tool === 3
       ? "crosshair"
       : "default";
   }, [tool, sketchColor]);
+
+  let slideBackGround = useMemo(() => {
+    if (!slides || slides.length === 0) return;
+    return slides[activeSlide].props.backgroundImage;
+  }, [activeSlide, slides]);
+
+  let selectedShape = useMemo(() => {
+    if (!slides || slides.length === 0) return;
+    let shape = slides[activeSlide].shapes.find(
+      ({ _id }) => _id === selectedShapeId
+    );
+    return shape;
+  }, [selectedShapeId]);
 
   let handleMouseDown = ({ pageX, pageY }: React.MouseEvent) => {
     if (!slideRef.current || !activeSlideId) return;
@@ -363,15 +330,20 @@ const DocumentPage = () => {
     let scaleX = clientWidth / width;
     let scaleY = clientHeight / height;
 
+    let isStickyNote = tool === 3;
     let isTextBox = tool == 5;
 
     let shapeDetail: NewShapeType = {
       slideId: activeSlideId,
       shape: {
-        type: isTextBox ? "text-box" : shapes[shape].type,
+        type: isStickyNote
+          ? "sticky-note"
+          : isTextBox
+          ? "text-box"
+          : shapes[shape].type,
         props: {
-          width: isTextBox ? 250 : 1,
-          height: isTextBox ? 150 : 1,
+          width: 1,
+          height: 1,
           rotate: 0,
           translateX: (pageX - left) * scaleX,
           translateY: (pageY - top) * scaleY,
@@ -570,10 +542,31 @@ const DocumentPage = () => {
     }
   };
 
-  let slideBackGround = useMemo(() => {
-    if (!slides || slides.length === 0) return;
-    return slides[activeSlide].props.backgroundImage;
-  }, [activeSlide, slides]);
+  let handleUpdateStickyText = async (text: string) => {
+    if (!selectedShapeId) return;
+
+    let slideIndex = activeSlide;
+
+    try {
+      let shapeIndex = slides[activeSlide].shapes.findIndex(
+        ({ _id }) => _id === selectedShapeId
+      );
+      if (shapeIndex === -1) return;
+      let shape = slides[activeSlide].shapes[shapeIndex];
+      shape.props.text = text;
+      await updateShape(selectedShapeId, { props: shape.props });
+      let documentData = { ...documentDetail };
+      documentData.slides[slideIndex].shapes[shapeIndex].props.text = text;
+      toggleEditPopup();
+      setDocumentDetail(documentData);
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
+  };
+
+  let toggleEditPopup = () => {
+    setShowEditPopup(!showEditPopup);
+  };
 
   return (
     <Fragment>
@@ -591,7 +584,6 @@ const DocumentPage = () => {
           onSlideChange={setActiveSlide}
           onAddSlide={handleAddSlide}
           onDeleteSlide={handleDeleteSlide}
-          onDuplicateSlide={handleDuplicateSlide}
         />
       </Header>
       <ToolBar
@@ -630,7 +622,7 @@ const DocumentPage = () => {
                       `/background/${slide.props.backgroundImage}`
                     )}.png)`,
                   }}
-                  {...([4, 5].includes(tool) && {
+                  {...([3, 4, 5].includes(tool) && {
                     onMouseDown: handleMouseDown,
                   })}
                 >
@@ -670,10 +662,12 @@ const DocumentPage = () => {
         placement="bottom"
         aria-disabled={!!selectedShapeId}
       >
-        <DropDown.Item onClick={handleDuplicateShape}>
-          <i className="bx-duplicate"></i>
-          <span>Duplicate</span>
-        </DropDown.Item>
+        {selectedShape?.type === "sticky-note" && (
+          <DropDown.Item id="edit-sticky-note" onClick={toggleEditPopup}>
+            <i className="bx-edit"></i>
+            <span>Edit</span>
+          </DropDown.Item>
+        )}
         <DropDown.Item onClick={handleDeleteShape}>
           <i className="bx-trash"></i>
           <span>Delete</span>
@@ -684,6 +678,12 @@ const DocumentPage = () => {
         isOpen={showTitle}
         toggle={toggleTitle}
         onSubmit={handleUpdateTitle}
+      />
+      <EditPopup
+        isOpen={showEditPopup}
+        text={selectedShape?.props.text}
+        toggle={toggleEditPopup}
+        onSubmit={handleUpdateStickyText}
       />
     </Fragment>
   );

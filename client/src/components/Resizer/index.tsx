@@ -31,19 +31,19 @@ const Resizer = ({
       onClose: onClose,
       doNotClose: (ele) => {
         if (!resizerRef.current || !shapeRef) return;
-        let colorDropDown = [
+        let dropdowns = [
           ...document.querySelectorAll(
-            "#border,#background,#border-dropdown,#background-dropdown"
+            "#border,#background,#border-dropdown,#background-dropdown,#edit-sticky-note"
           ),
         ];
 
-        let isClickOnColorDropDown = colorDropDown.some((element) =>
+        let isClickOnDropDown = dropdowns.some((element) =>
           element.contains(ele)
         );
         return (
           resizerRef.current.contains(ele) ||
           shapeRef.contains(ele) ||
-          isClickOnColorDropDown
+          isClickOnDropDown
         );
       },
     });

@@ -2,27 +2,27 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Modal from "@/components/Modal";
 
-import styles from "./TitlePopup.module.scss";
+import styles from "./EditPopup.module.scss";
 
-type TitlePopupProps = {
+type EditPopupProps = {
   isOpen: boolean;
-  title?: string;
+  text?: string;
   toggle: () => void;
   onSubmit: (value: string) => void;
 };
 
-const TitlePopup = ({ isOpen, title, toggle, onSubmit }: TitlePopupProps) => {
+const EditPopup = ({ isOpen, text, toggle, onSubmit }: EditPopupProps) => {
   let {
     register,
     handleSubmit,
     reset,
     setValue,
     formState: { errors },
-  } = useForm<{ title: string }>();
+  } = useForm<{ text: string }>();
 
   useEffect(() => {
     if (isOpen) return;
-    setValue("title", "");
+    setValue("text", "");
     reset();
   }, [isOpen]);
 
@@ -42,22 +42,22 @@ const TitlePopup = ({ isOpen, title, toggle, onSubmit }: TitlePopupProps) => {
           <div className={styles.field}>
             <input
               id="title"
-              placeholder="Enter title"
-              defaultValue={title}
-              {...register("title", {
-                required: { value: true, message: "Please enter title" },
+              placeholder="Enter text"
+              defaultValue={text}
+              {...register("text", {
+                required: { value: true, message: "Please enter text" },
               })}
             />
-            {errors.title && (
+            {errors.text && (
               <div className={styles.error_msg}>
                 <i className="bx-error-circle"></i>
-                <span>{errors.title.message}</span>
+                <span>{errors.text.message}</span>
               </div>
             )}
           </div>
         </div>
         <div className={styles.submit_btn}>
-          <button onClick={handleSubmit(({ title }) => onSubmit(title))}>
+          <button onClick={handleSubmit(({ text }) => onSubmit(text))}>
             Ok
           </button>
           <button onClick={toggle}>Cancel</button>
@@ -67,4 +67,4 @@ const TitlePopup = ({ isOpen, title, toggle, onSubmit }: TitlePopupProps) => {
   );
 };
 
-export default TitlePopup;
+export default EditPopup;

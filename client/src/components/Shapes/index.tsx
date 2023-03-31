@@ -70,17 +70,11 @@ const Shapes = ({
   let shapeComponent = useMemo(() => {
     if (!shapeProps) return null;
 
-    let { width, height, borderColor, backgroundColor, color, text } =
-      shapeProps;
+    let { width, height, borderColor, backgroundColor, text } = shapeProps;
 
     switch (shape.type) {
       case "sticky-note":
-        return (
-          <StickyNote
-            text="Hello World"
-            style={{ borderColor, backgroundColor, color }}
-          />
-        );
+        return <StickyNote text={text} style={{ backgroundColor }} />;
 
       case "text-box":
         return (
@@ -161,6 +155,7 @@ const Shapes = ({
     shapeProps?.backgroundColor,
     shapeProps?.borderColor,
     shapeProps?.color,
+    shapeProps?.text,
     isReadOnly,
   ]);
 
@@ -354,7 +349,7 @@ export const InactiveShapes = ({
 
     switch (shape.type) {
       case "sticky-note":
-        return <StickyNote text="Hello World" />;
+        return <StickyNote text={text} style={{ backgroundColor }} />;
 
       case "text-box":
         return <TextBox defaultValue={text} readOnly />;
@@ -428,6 +423,7 @@ export const InactiveShapes = ({
     shapeProps?.height,
     shapeProps?.backgroundColor,
     shapeProps?.borderColor,
+    shapeProps?.text,
   ]);
 
   if (!shapeProps) return null;

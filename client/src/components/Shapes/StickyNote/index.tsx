@@ -1,9 +1,9 @@
-import React, { ComponentProps } from "react";
+import { ComponentProps } from "react";
 
 import styles from "./StickyNote.module.scss";
 
 type StickyNoteProps = {
-  text: string;
+  text?: string;
 } & ComponentProps<"div">;
 
 const StickyNote = ({ text, ...rest }: StickyNoteProps) => {

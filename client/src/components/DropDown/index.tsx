@@ -128,8 +128,8 @@ const DropDown = ({
 
 type DropDownItemProps = {
   children?: ReactNode;
-  onClick?: (event: MouseEvent) => void;
   className?: string;
+  onClick?: (event: MouseEvent) => void;
 } & ComponentProps<"button">;
 
 export const Item = ({

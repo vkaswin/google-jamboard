@@ -14,7 +14,6 @@ type SlidesProps = {
   onSlideChange: (slide: number) => void;
   onAddSlide: (position: number) => void;
   onDeleteSlide: (slideId: string) => void;
-  onDuplicateSlide: (slideId: string) => void;
 };
 
 // aspect ratio 16 / 9
@@ -31,7 +30,6 @@ const Slides = ({
   onSlideChange,
   onAddSlide,
   onDeleteSlide,
-  onDuplicateSlide,
 }: SlidesProps) => {
   let [isOpen, setIsOpen] = useState(false);
 
@@ -194,10 +192,6 @@ const Slides = ({
                     className={styles.slide_dropdown}
                     placement="bottom"
                   >
-                    <DropDown.Item onClick={() => onDuplicateSlide(slide._id)}>
-                      <i className="bx-duplicate"></i>
-                      <span>Duplicate</span>
-                    </DropDown.Item>
                     <DropDown.Item onClick={() => onDeleteSlide(slide._id)}>
                       <i className="bx-trash"></i>
                       <span>Delete</span>
