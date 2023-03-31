@@ -3,15 +3,15 @@ import Popper from "@/components/Popper";
 import ToolTip from "@/components/ToolTip";
 import { backGrounds } from "@/constants";
 import { getStaticUrl } from "@/utils";
-import { BacKGroundCode } from "@/types/Document";
+import { BackGroundCode } from "@/types/Document";
 
 import styles from "./BackGroundOptions.module.scss";
 
 type ShapeProps = {
   isOpen: boolean;
-  background?: BacKGroundCode;
+  background?: BackGroundCode;
   toggle: () => void;
-  onSelectBackGround: (bgCode: BacKGroundCode) => void;
+  onSelectBackGround: (bgCode: BackGroundCode) => void;
 };
 
 const BackGroundOptions = ({
@@ -20,7 +20,7 @@ const BackGroundOptions = ({
   toggle,
   onSelectBackGround,
 }: ShapeProps) => {
-  let handleClick = (bgCode: BacKGroundCode) => {
+  let handleClick = (bgCode: BackGroundCode) => {
     onSelectBackGround(bgCode);
     toggle();
   };
