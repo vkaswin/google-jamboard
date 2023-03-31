@@ -1,7 +1,7 @@
 const baseURL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:8000"
-    : "http://localhost:8000";
+    : "https://google-jamboard.vercel.app";
 
 const userUrl = `${baseURL}/api/user`;
 const documentUrl = `${baseURL}/api/document`;

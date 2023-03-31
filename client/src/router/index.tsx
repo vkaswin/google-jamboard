@@ -1,9 +1,10 @@
-import DocumentList from "@/pages/DocumentList";
 import { lazy } from "react";
 import { RouteObject, Navigate, useRoutes } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
+import { cookie } from "@/utils";
 
 let Document = lazy(() => import("@/pages/Document"));
+let DocumentList = lazy(() => import("@/pages/DocumentList"));
 let AuthLayout = lazy(() => import(`@/layouts/AuthLayout`));
 let SignIn = lazy(() => import("@/pages/SignIn"));
 let SignUp = lazy(() => import("@/pages/SignUp"));
@@ -11,7 +12,12 @@ let SignUp = lazy(() => import("@/pages/SignUp"));
 let routes: RouteObject[] = [
   {
     path: "/",
-    element: <Navigate to="/document/6422c4dd76c7ef0eaa9aca75" replace />,
+    element: (
+      <Navigate
+        to={cookie.get("auth_token") ? "/document/list" : "/auth/sign-in"}
+        replace
+      />
+    ),
   },
   {
     path: "/auth",

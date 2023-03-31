@@ -25,7 +25,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   let handleAuthResponse = (token: string) => {
     cookie.set({ name: "auth_token", value: token, days: 14 });
     setUser(jwtDecode<User>(token));
-    navigate("/document/6422c4dd76c7ef0eaa9aca75");
+    navigate("/document/list");
   };
 
   let signIn = async (data: SignInData) => {
