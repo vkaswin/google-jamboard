@@ -1,5 +1,5 @@
 import ReactPaginate from "react-paginate";
-import { PageMeta } from "types/Form";
+import { PageMeta } from "@/types/Document";
 
 import "./Pagination.scss";
 
