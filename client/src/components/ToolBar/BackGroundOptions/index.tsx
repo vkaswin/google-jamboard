@@ -1,6 +1,7 @@
-import { CSSProperties, Fragment } from "react";
+import { CSSProperties, Fragment, useEffect, useRef } from "react";
 import Popper from "@/components/Popper";
 import ToolTip from "@/components/ToolTip";
+import { clickOutside } from "@/utils";
 import { backGrounds } from "@/constants";
 import { getStaticUrl } from "@/utils";
 import { BackGroundCode } from "@/types/Document";
@@ -20,6 +21,23 @@ const BackGroundOptions = ({
   toggle,
   onSelectBackGround,
 }: ShapeProps) => {
+  let containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current || !isOpen) return;
+
+    let unRegister = clickOutside({
+      ref: containerRef.current,
+      onClose: toggle,
+      doNotClose: (ele) => {
+        return containerRef.current?.contains(ele);
+      },
+    });
+    return () => {
+      unRegister();
+    };
+  }, [isOpen]);
+
   let handleClick = (bgCode: BackGroundCode) => {
     onSelectBackGround(bgCode);
     toggle();
@@ -33,7 +51,7 @@ const BackGroundOptions = ({
       placement="bottom-start"
       toggle={toggle}
     >
-      <div className={styles.bg}>
+      <div ref={containerRef} className={styles.bg}>
         {backGrounds.map(({ label, bgCode }, index) => {
           let isActive = background === bgCode;
           return (

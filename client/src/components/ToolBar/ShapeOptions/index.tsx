@@ -1,9 +1,10 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import ToolTip from "@/components/ToolTip";
+import Popper from "@/components/Popper";
+import { clickOutside } from "@/utils";
 import { shapes } from "@/constants";
 
 import styles from "./Shapes.module.scss";
-import Popper from "@/components/Popper";
 
 type ShapeProps = {
   isOpen: boolean;
@@ -13,6 +14,23 @@ type ShapeProps = {
 };
 
 const ShapeOptions = ({ shape, isOpen, toggle, onSelectShape }: ShapeProps) => {
+  let containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current || !isOpen) return;
+
+    let unRegister = clickOutside({
+      ref: containerRef.current,
+      onClose: toggle,
+      doNotClose: (ele) => {
+        return containerRef.current?.contains(ele);
+      },
+    });
+    return () => {
+      unRegister();
+    };
+  }, [isOpen]);
+
   let handleClick = (index: number) => {
     onSelectShape(index);
     toggle();
@@ -25,7 +43,7 @@ const ShapeOptions = ({ shape, isOpen, toggle, onSelectShape }: ShapeProps) => {
       selector="#shapes"
       toggle={toggle}
     >
-      <div className={styles.shape}>
+      <div ref={containerRef} className={styles.shape}>
         {shapes.map(({ label, svg }, index) => {
           return (
             <Fragment key={index}>

@@ -1,6 +1,7 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import Popper from "@/components/Popper";
 import ToolTip from "@/components/ToolTip";
+import { clickOutside } from "@/utils";
 import { colors } from "@/constants";
 import { Colors } from "@/types/Document";
 
@@ -21,6 +22,23 @@ const ColorOptions = ({
   toggle,
   onSelectColor,
 }: SketchProps) => {
+  let containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current || !isOpen) return;
+
+    let unRegister = clickOutside({
+      ref: containerRef.current,
+      onClose: toggle,
+      doNotClose: (ele) => {
+        return containerRef.current?.contains(ele);
+      },
+    });
+    return () => {
+      unRegister();
+    };
+  }, [isOpen]);
+
   let handleColor = (colorCode: Colors) => {
     onSelectColor(colorCode);
     toggle();
@@ -35,7 +53,7 @@ const ColorOptions = ({
       placement="bottom-start"
       toggle={toggle}
     >
-      <div className={styles.color}>
+      <div ref={containerRef} className={styles.color}>
         {colors.map(({ label, colorCode, lightColorCode }, index) => {
           let code = id === "background" ? lightColorCode : colorCode;
           let className = code === color ? styles.active : undefined;

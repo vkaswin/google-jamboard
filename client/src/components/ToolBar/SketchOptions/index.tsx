@@ -1,9 +1,10 @@
-import { CSSProperties, Fragment } from "react";
+import { CSSProperties, Fragment, useEffect, useRef } from "react";
 import Popper from "@/components/Popper";
 import ToolTip from "@/components/ToolTip";
 import { sketches, colors } from "@/constants";
 
 import styles from "./Sketches.module.scss";
+import { clickOutside } from "@/utils";
 
 type SketchProps = {
   isOpen: boolean;
@@ -22,6 +23,23 @@ const SketchOptions = ({
   onSelectSketch,
   onSelectSketchColor,
 }: SketchProps) => {
+  let containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current || !isOpen) return;
+
+    let unRegister = clickOutside({
+      ref: containerRef.current,
+      onClose: toggle,
+      doNotClose: (ele) => {
+        return containerRef.current?.contains(ele);
+      },
+    });
+    return () => {
+      unRegister();
+    };
+  }, [isOpen]);
+
   let handleSketch = (index: number) => {
     onSelectSketch(index);
     toggle();
@@ -65,7 +83,7 @@ const SketchOptions = ({
           );
         })}
       </div> */}
-      <div className={styles.color}>
+      <div ref={containerRef} className={styles.color}>
         {colors.map(({ label, colorCode }, index) => {
           let className = index === sketchColor ? styles.active : undefined;
 
