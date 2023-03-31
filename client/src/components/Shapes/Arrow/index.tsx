@@ -3,9 +3,11 @@ import React from "react";
 type ArrowProps = {
   width: number;
   height: number;
+  borderColor: string;
+  backgroundColor: string;
 };
 
-const Arrow = ({ width, height }: ArrowProps) => {
+const Arrow = ({ width, height, borderColor, backgroundColor }: ArrowProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -18,6 +20,7 @@ const Arrow = ({ width, height }: ArrowProps) => {
         } ${height / 6} L0 ${height / 6} L0 ${height - height / 6} L${
           width / 2
         } ${height - height / 6} L${width / 2} ${height} Z`}
+        style={{ stroke: borderColor, fill: backgroundColor }}
       />
     </svg>
   );

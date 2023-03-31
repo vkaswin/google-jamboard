@@ -1,20 +1,31 @@
 import { CSSProperties, Fragment, useState } from "react";
+import ToolTip from "@/components/ToolTip";
 import SketchOptions from "./SketchOptions";
 import ShapeOptions from "./ShapeOptions";
+import BackGroundOptions from "./BackGroundOptions";
+import ColorOptions from "./ColorOptions";
 import { toolBarIcons, shapes, sketches, colors } from "@/constants";
+import { BackGroundCode, Colors } from "@/types/Document";
 
 import styles from "./ToolBar.module.scss";
-import ToolTip from "@/components/ToolTip";
 
 type ToolBarProps = {
   shape: number;
   sketch: number;
   sketchColor: number;
+  slideBackGround?: BackGroundCode;
   tool: number;
+  borderColor: Colors;
+  backgroundColor: Colors;
+  selectedShapeId: string | null;
   onSelectTool: (index: number) => void;
   onSelectShape: (index: number) => void;
   onSelectSketch: (index: number) => void;
+  onClearSlide: () => void;
+  onSelectBackGround: (bgCode: BackGroundCode) => void;
   onSelectSketchColor: (index: number) => void;
+  onSelectBorderColor: (key: "borderColor", colorCode: Colors) => void;
+  onSelectBackGroundColor: (key: "backgroundColor", colorCode: Colors) => void;
 };
 
 const ToolBar = ({
@@ -22,14 +33,32 @@ const ToolBar = ({
   sketch,
   shape,
   sketchColor,
+  slideBackGround,
+  borderColor,
+  backgroundColor,
+  selectedShapeId,
+  onClearSlide,
   onSelectTool,
   onSelectShape,
   onSelectSketch,
   onSelectSketchColor,
+  onSelectBackGround,
+  onSelectBorderColor,
+  onSelectBackGroundColor,
 }: ToolBarProps) => {
   let [showShape, setShowShape] = useState(false);
 
   let [showSketch, setShowSketch] = useState(false);
+
+  let [showBackGround, setShowBackGround] = useState(false);
+
+  let [showBordorColor, setShowBorderColor] = useState(false);
+
+  let [showBackGroundColor, setShowBackGroundColor] = useState(false);
+
+  let toggleBackGround = () => {
+    setShowBackGround(!showBackGround);
+  };
 
   let toggleShape = () => {
     setShowShape(!showShape);
@@ -37,6 +66,14 @@ const ToolBar = ({
 
   let toggleSketch = () => {
     setShowSketch(!showSketch);
+  };
+
+  let toggleBackGroundColor = () => {
+    setShowBackGroundColor(!showBackGroundColor);
+  };
+
+  let toggleBorderColor = () => {
+    setShowBorderColor(!showBordorColor);
   };
 
   let handleToolBar = (index: number, type: string) => {
@@ -50,6 +87,50 @@ const ToolBar = ({
 
   return (
     <Fragment>
+      <div className={styles.toolbar}>
+        <button className={styles.redo} disabled>
+          <i className="bx-undo"></i>
+        </button>
+        <button className={styles.undo} disabled>
+          <i className="bx-redo"></i>
+        </button>
+        <div className={styles.separator}></div>
+        <button className={styles.zoom_out}>
+          <i className="bx-zoom-out"></i>
+        </button>
+        <button className={styles.zoom_in}>
+          <i className="bx-zoom-in"></i>
+        </button>
+        <div className={styles.separator}></div>
+        {tool !== 4 && tool !== 5 && !selectedShapeId && (
+          <Fragment>
+            <button
+              id="backgrounds"
+              className={styles.background_btn}
+              onClick={toggleBackGround}
+            >
+              Set background
+            </button>
+            <div className={styles.separator}></div>
+            <button className={styles.clear_btn} onClick={onClearSlide}>
+              Clear frame
+            </button>
+          </Fragment>
+        )}
+        {(tool === 4 || selectedShapeId) && (
+          <div className={styles.color_btn}>
+            <button id="border" onClick={toggleBorderColor}>
+              <i className="bxs-edit-alt" style={{ color: borderColor }}></i>
+            </button>
+            <button id="background" onClick={toggleBackGroundColor}>
+              <i
+                className="bxs-color-fill"
+                style={{ color: backgroundColor }}
+              ></i>
+            </button>
+          </div>
+        )}
+      </div>
       <div className={styles.container}>
         {toolBarIcons.map(({ label, svg }, index) => {
           let icon =
@@ -98,20 +179,54 @@ const ToolBar = ({
           );
         })}
       </div>
-      <ShapeOptions
-        isOpen={showShape}
-        shape={shape}
-        toggle={toggleShape}
-        onSelectShape={onSelectShape}
-      />
-      <SketchOptions
-        isOpen={showSketch}
-        sketch={sketch}
-        sketchColor={sketchColor}
-        toggle={toggleSketch}
-        onSelectSketch={onSelectSketch}
-        onSelectSketchColor={onSelectSketchColor}
-      />
+      {showShape && (
+        <ShapeOptions
+          isOpen={showShape}
+          shape={shape}
+          toggle={toggleShape}
+          onSelectShape={onSelectShape}
+        />
+      )}
+      {showSketch && (
+        <SketchOptions
+          isOpen={showSketch}
+          sketch={sketch}
+          sketchColor={sketchColor}
+          toggle={toggleSketch}
+          onSelectSketch={onSelectSketch}
+          onSelectSketchColor={onSelectSketchColor}
+        />
+      )}
+      {showBackGround && (
+        <BackGroundOptions
+          isOpen={showBackGround}
+          background={slideBackGround}
+          toggle={toggleBackGround}
+          onSelectBackGround={onSelectBackGround}
+        />
+      )}
+      {showBordorColor && (
+        <ColorOptions
+          id="border"
+          isOpen={showBordorColor}
+          color={borderColor}
+          toggle={toggleBorderColor}
+          onSelectColor={(colorCode) =>
+            onSelectBorderColor("borderColor", colorCode)
+          }
+        />
+      )}
+      {showBackGroundColor && (
+        <ColorOptions
+          id="background"
+          isOpen={showBackGroundColor}
+          color={backgroundColor}
+          toggle={toggleBackGroundColor}
+          onSelectColor={(colorCode) =>
+            onSelectBackGroundColor("backgroundColor", colorCode)
+          }
+        />
+      )}
     </Fragment>
   );
 };

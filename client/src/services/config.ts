@@ -35,4 +35,5 @@ export const Slide = {
   create: (documentId: string) => `${slideUrl}/${documentId}/create`,
   delete: (documentId: string) => `${slideUrl}/${documentId}/remove`,
   clear: (documentId: string) => `${slideUrl}/${documentId}/clear`,
+  update: (documentId: string) => `${slideUrl}/${documentId}/edit`,
 };

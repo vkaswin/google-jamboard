@@ -5,11 +5,13 @@ import Portal from "@/components/Portal";
 import { clickOutside } from "@/utils";
 
 import styles from "./Popper.module.scss";
+import { Placement } from "@/types/Popper";
 
 type PopperProps = {
   children: ReactNode;
   selector: string;
   isOpen: boolean;
+  placement?: Placement;
   toggle: () => void;
 } & ComponentProps<"div">;
 
@@ -17,6 +19,7 @@ const Popper = ({
   children,
   selector,
   isOpen,
+  placement = "right",
   toggle,
   ...rest
 }: PopperProps) => {
@@ -29,7 +32,7 @@ const Popper = ({
     referenceElement,
     popperElement,
     {
-      placement: "right",
+      placement,
       modifiers: [
         {
           name: "offset",

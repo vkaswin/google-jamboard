@@ -22,6 +22,8 @@ import {
   ShapeProps,
   ResizeType,
   MouseDownEvent,
+  NewShapeType,
+  ShapeTypes,
 } from "@/types/Document";
 
 import styles from "./Shape.module.scss";
@@ -70,11 +72,17 @@ const Shapes = ({
   let shapeComponent = useMemo(() => {
     if (!shapeProps) return null;
 
-    let { width, height, text } = shapeProps;
+    let { width, height, borderColor, backgroundColor, color, text } =
+      shapeProps;
 
     switch (shape.type) {
       case "sticky-note":
-        return <StickyNote text="Hello World" />;
+        return (
+          <StickyNote
+            text="Hello World"
+            style={{ borderColor, backgroundColor, color }}
+          />
+        );
 
       case "text-box":
         return (
@@ -86,30 +94,87 @@ const Shapes = ({
         );
 
       case "arrow":
-        return <Arrow width={width} height={height} />;
+        return (
+          <Arrow
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       case "circle":
-        return <Circle width={width} height={height} />;
+        return (
+          <Circle
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       case "diamond":
-        return <Diamond width={width} height={height} />;
+        return (
+          <Diamond
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       case "rectangle":
-        return <Rectangle width={width} height={height} />;
+        return (
+          <Rectangle
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       case "semi-circle":
-        return <SemiCircle width={width} height={height} />;
+        return (
+          <SemiCircle
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       case "square":
-        return <Square width={width} height={height} />;
+        return (
+          <Square
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       case "triangle":
-        return <Triangle width={width} height={height} />;
+        return (
+          <Triangle
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       default:
         return null;
     }
-  }, [shape.type, shapeProps?.width, shapeProps?.height, isReadOnly]);
+  }, [
+    shape.type,
+    shapeProps?.width,
+    shapeProps?.height,
+    shapeProps?.backgroundColor,
+    shapeProps?.borderColor,
+    shapeProps?.color,
+    isReadOnly,
+  ]);
 
   let handleMouseMove = ({ x, y }: MouseEvent) => {
     if (!shapeProps || !mouseDownEvent.current || !shapeRef.current) return;
@@ -280,7 +345,14 @@ const Shapes = ({
 
 export default Shapes;
 
-export const InactiveShapes = ({ shape }: { shape: ShapeDetail }) => {
+export const InactiveShapes = ({
+  shape,
+}: {
+  shape: {
+    type: ShapeTypes;
+    props: ShapeProps;
+  };
+}) => {
   let [shapeProps, setShapeProps] = useState<ShapeProps | null>(null);
 
   useEffect(() => {
@@ -290,7 +362,7 @@ export const InactiveShapes = ({ shape }: { shape: ShapeDetail }) => {
   let shapeComponent = useMemo(() => {
     if (!shapeProps) return null;
 
-    let { width, height, text } = shapeProps;
+    let { width, height, backgroundColor, borderColor, text } = shapeProps;
 
     switch (shape.type) {
       case "sticky-note":
@@ -300,30 +372,85 @@ export const InactiveShapes = ({ shape }: { shape: ShapeDetail }) => {
         return <TextBox defaultValue={text} readOnly />;
 
       case "arrow":
-        return <Arrow width={width} height={height} />;
+        return (
+          <Arrow
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       case "circle":
-        return <Circle width={width} height={height} />;
+        return (
+          <Circle
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       case "diamond":
-        return <Diamond width={width} height={height} />;
+        return (
+          <Diamond
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       case "rectangle":
-        return <Rectangle width={width} height={height} />;
+        return (
+          <Rectangle
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       case "semi-circle":
-        return <SemiCircle width={width} height={height} />;
+        return (
+          <SemiCircle
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       case "square":
-        return <Square width={width} height={height} />;
+        return (
+          <Square
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       case "triangle":
-        return <Triangle width={width} height={height} />;
+        return (
+          <Triangle
+            width={width}
+            height={height}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+          />
+        );
 
       default:
         return null;
     }
-  }, [shape.type, shapeProps?.width, shapeProps?.height]);
+  }, [
+    shape.type,
+    shapeProps?.width,
+    shapeProps?.height,
+    shapeProps?.backgroundColor,
+    shapeProps?.borderColor,
+  ]);
 
   if (!shapeProps) return null;
 

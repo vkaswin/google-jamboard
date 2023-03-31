@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import shape from "../models/shape";
 
 const connect = async () => {
   mongoose.set("strictQuery", true);

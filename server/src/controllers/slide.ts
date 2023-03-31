@@ -46,6 +46,7 @@ export const createSlide = asyncHandler(async (req, res) => {
         _id: "$slide._id",
         shapes: "$slide.shapes",
         canvas: { $first: "$canvas" },
+        props: "$slide.props",
       },
     },
   ]);
@@ -137,4 +138,24 @@ export const clearSlide = asyncHandler(async (req, res) => {
   );
 
   res.status(200).send({ message: "Slide has been cleared successfully" });
+});
+
+export const updateSlide = asyncHandler(async (req, res) => {
+  let {
+    params: { documentId },
+    query: { slideId },
+    body,
+  } = req;
+
+  let document = await Document.findById(documentId, { "slides._id": slideId });
+
+  if (!document)
+    throw new CustomError({ message: "Slide not found", status: 400 });
+
+  await Document.findOneAndUpdate(
+    { _id: documentId, "slides._id": slideId },
+    { "slides.$.props": body }
+  );
+
+  res.status(200).send({ message: "Slide has been updated successfully" });
 });

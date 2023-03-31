@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { InactiveShapes } from "@/components/Shapes";
 import DropDown from "@/components/DropDown";
+import { getStaticUrl } from "@/utils";
 import { SlideDetail } from "@/types/Document";
 
 import styles from "./Slides.module.scss";
@@ -156,6 +157,9 @@ const Slides = ({
                         transform: `scale(${
                           slideDimension.width / dimension.width
                         },${slideDimension.height / dimension.height})`,
+                        backgroundImage: `url(/background/${getStaticUrl(
+                          slide.props.backgroundImage
+                        )}.png)`,
                       }}
                     >
                       <canvas

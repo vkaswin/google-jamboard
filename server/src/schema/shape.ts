@@ -8,7 +8,9 @@ export const ShapeSchema = z.object({
     translateX: z.number(),
     translateY: z.number(),
     rotate: z.number(),
-    backgroundColor: z.string().optional(),
+    backgroundColor: z.string(),
+    borderColor: z.string(),
     text: z.string().optional(),
+    color: z.string().optional(),
   }),
 });

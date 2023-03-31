@@ -8,13 +8,42 @@ const ShapeSchema = new Schema(
     },
     props: {
       type: {
-        width: Number,
-        height: Number,
-        translateX: Number,
-        translateY: Number,
-        rotate: Number,
-        text: String,
-        backgroundColor: String,
+        width: {
+          type: Number,
+          required: [true, "Please add width"],
+        },
+        height: {
+          type: Number,
+          required: [true, "Please add height"],
+        },
+        translateX: {
+          type: Number,
+          required: [true, "Please add translateX"],
+        },
+        translateY: {
+          type: Number,
+          required: [true, "Please add translateY"],
+        },
+        rotate: {
+          type: Number,
+          required: [true, "Please add rotate"],
+        },
+        text: {
+          type: String,
+          default: "",
+        },
+        color: {
+          type: String,
+          default: "#3C4043",
+        },
+        borderColor: {
+          type: String,
+          default: "#262626",
+        },
+        backgroundColor: {
+          type: String,
+          default: "#fff",
+        },
       },
       required: [true, "Please add props"],
       _id: false,

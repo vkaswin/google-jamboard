@@ -18,12 +18,23 @@ import DropDown from "@/components/DropDown";
 import Slides from "@/components/Slides";
 import TitlePopup from "@/components/TitlePopup";
 import { getDocumentById, updateDocument } from "@/services/Document";
-import { clearSlide, createSlide, deleteSlide } from "@/services/Slide";
+import {
+  clearSlide,
+  createSlide,
+  deleteSlide,
+  updateSlide,
+} from "@/services/Slide";
 import { createShape, deleteShape, updateShape } from "@/services/Shape";
 import { updateCanvas } from "@/services/Canvas";
 import { getStaticUrl } from "@/utils";
 import { shapes } from "@/constants";
-import { DocumentDetail, ShapeDetail } from "@/types/Document";
+import {
+  BackGroundCode,
+  DocumentDetail,
+  ShapeDetail,
+  NewShapeType,
+  Colors,
+} from "@/types/Document";
 
 import styles from "./Document.module.scss";
 
@@ -37,6 +48,11 @@ let canvasDimension = {
   width: dimension.width / 2,
   height: dimension.height / 2,
 };
+
+let defaultColors = {
+  borderColor: "#262626",
+  backgroundColor: "#FFFFFF",
+} as const;
 
 const DocumentPage = () => {
   let { user, logout } = useAuth();
@@ -61,14 +77,16 @@ const DocumentPage = () => {
 
   let [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
 
-  let [newShape, setNewShape] = useState<{
-    slideId: string;
-    shape: ShapeDetail;
-  } | null>(null);
+  let [newShape, setNewShape] = useState<NewShapeType | null>(null);
 
   let [showTitle, setShowTitle] = useState(false);
 
   let [scale, setScale] = useState({ x: 1, y: 1 });
+
+  let [colorOption, setColorOption] = useState<{
+    borderColor: Colors;
+    backgroundColor: Colors;
+  }>(defaultColors);
 
   let mouseDownEvent = useRef({
     pageX: 0,
@@ -115,6 +133,22 @@ const DocumentPage = () => {
   useEffect(() => {
     getDocumentDetail();
   }, [documentId]);
+
+  useEffect(() => {
+    if (!selectedShapeId) return;
+
+    let selectedSlide = slides[activeSlide];
+    let selectedShape = selectedSlide.shapes.find(
+      ({ _id }) => _id === selectedShapeId
+    );
+
+    if (!selectedShape) return;
+
+    setColorOption({
+      borderColor: selectedShape.props.borderColor,
+      backgroundColor: selectedShape.props.backgroundColor,
+    });
+  }, [selectedShapeId, slides, activeSlide]);
 
   let getDocumentDetail = async () => {
     if (!documentId) return;
@@ -285,10 +319,9 @@ const DocumentPage = () => {
 
     let isTextBox = tool == 5;
 
-    let shapeDetail: { slideId: string; shape: ShapeDetail } = {
+    let shapeDetail: NewShapeType = {
       slideId: activeSlideId,
       shape: {
-        _id: crypto.randomUUID(),
         type: isTextBox ? "text-box" : shapes[shape].type,
         props: {
           width: isTextBox ? 250 : 1,
@@ -296,6 +329,8 @@ const DocumentPage = () => {
           rotate: 0,
           translateX: (pageX - left) * scaleX,
           translateY: (pageY - top) * scaleY,
+          borderColor: colorOption.borderColor,
+          backgroundColor: colorOption.backgroundColor,
         },
       },
     };
@@ -368,7 +403,7 @@ const DocumentPage = () => {
     }
   };
 
-  let handleAddShape = async (shape: ShapeDetail) => {
+  let handleAddShape = async (shape: NewShapeType["shape"]) => {
     if (!documentId || !activeSlideId) return;
 
     let body = {
@@ -418,6 +453,7 @@ const DocumentPage = () => {
       let documentData = { ...documentDetail };
       documentData.slides.splice(slideIndex, 1);
       setDocumentDetail(documentData);
+      if (slideId === activeSlideId) setActiveSlide(0);
     } catch (err: any) {
       toast.error(err?.message);
     }
@@ -439,13 +475,67 @@ const DocumentPage = () => {
     setShowTitle(!showTitle);
   };
 
+  let handleUpdateBackGround = async (bgCode: BackGroundCode) => {
+    if (!documentId || !activeSlideId) return;
+
+    let slideIndex = activeSlide;
+
+    try {
+      await updateSlide(
+        documentId,
+        { slideId: activeSlideId },
+        {
+          backgroundImage: bgCode,
+        }
+      );
+      let documentData = { ...documentDetail };
+      documentData.slides[slideIndex].props = { backgroundImage: bgCode };
+      setDocumentDetail(documentData);
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
+  };
+
+  let handleUpdateShapeColor = async (
+    key: "backgroundColor" | "borderColor",
+    colorCode: Colors
+  ) => {
+    if (!selectedShapeId) return;
+
+    let slideIndex = activeSlide;
+
+    try {
+      let shapes = slides[activeSlide].shapes;
+      let shapeIndex = shapes.findIndex(({ _id }) => _id === selectedShapeId);
+
+      if (shapeIndex === -1) return;
+
+      let shape = shapes[shapeIndex];
+
+      if (shape.props[key] === colorCode) return;
+
+      let body = { ...shape };
+      body.props[key] = colorCode;
+      await updateShape(selectedShapeId, body);
+      let documentData = { ...documentDetail };
+      documentData.slides[slideIndex].shapes[shapeIndex] = body;
+      setDocumentDetail(documentData);
+    } catch (err: any) {
+      toast.error(err?.message);
+    }
+  };
+
+  let slideBackGround = useMemo(() => {
+    if (!slides || slides.length === 0) return;
+    return slides[activeSlide].props.backgroundImage;
+  }, [activeSlide, slides]);
+
   return (
     <Fragment>
       <Header
         user={user}
         title={title}
         logout={logout}
-        onClearSlide={handleClearSlide}
         toggleTitle={toggleTitle}
       >
         <Slides
@@ -458,17 +548,25 @@ const DocumentPage = () => {
           onDeleteSlide={handleDeleteSlide}
         />
       </Header>
+      <ToolBar
+        tool={tool}
+        shape={shape}
+        sketch={sketch}
+        sketchColor={sketchColor}
+        slideBackGround={slideBackGround}
+        borderColor={colorOption.borderColor}
+        backgroundColor={colorOption.backgroundColor}
+        selectedShapeId={selectedShapeId}
+        onSelectTool={setTool}
+        onSelectShape={setShape}
+        onSelectSketch={setSketch}
+        onClearSlide={handleClearSlide}
+        onSelectSketchColor={setSketchColor}
+        onSelectBackGround={handleUpdateBackGround}
+        onSelectBorderColor={handleUpdateShapeColor}
+        onSelectBackGroundColor={handleUpdateShapeColor}
+      />
       <div ref={containerRef} className={styles.container}>
-        <ToolBar
-          tool={tool}
-          shape={shape}
-          sketch={sketch}
-          sketchColor={sketchColor}
-          onSelectTool={setTool}
-          onSelectShape={setShape}
-          onSelectSketch={setSketch}
-          onSelectSketchColor={setSketchColor}
-        />
         {slides &&
           slides.length > 0 &&
           slides.map((slide) => {
@@ -482,6 +580,9 @@ const DocumentPage = () => {
                     width: dimension.width,
                     height: dimension.height,
                     transform: `scale(${scale.x},${scale.y}) translate(-50%, -50%)`,
+                    backgroundImage: `url(/background/${getStaticUrl(
+                      slide.props.backgroundImage
+                    )}.png)`,
                   }}
                   {...([4, 5].includes(tool) && {
                     onMouseDown: handleMouseDown,

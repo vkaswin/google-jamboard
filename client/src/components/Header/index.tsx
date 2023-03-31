@@ -10,7 +10,6 @@ type HeaderProps = {
   title?: string;
   children: ReactNode;
   logout: () => void;
-  onClearSlide: () => void;
   toggleTitle: () => void;
 };
 
@@ -19,7 +18,6 @@ const Header = ({
   title,
   children,
   logout,
-  onClearSlide,
   toggleTitle,
 }: HeaderProps) => {
   let userInitial = useMemo(() => {
@@ -41,27 +39,6 @@ const Header = ({
           className={styles.avatar}
           data-letter={userInitial}
         ></div>
-      </div>
-      <div className={styles.toolbar}>
-        <button className={styles.redo} disabled>
-          <i className="bx-undo"></i>
-        </button>
-        <button className={styles.undo} disabled>
-          <i className="bx-redo"></i>
-        </button>
-        <div className={styles.separator}></div>
-        <button className={styles.zoom_out}>
-          <i className="bx-zoom-out"></i>
-        </button>
-        <button className={styles.zoom_in}>
-          <i className="bx-zoom-in"></i>
-        </button>
-        <div className={styles.separator}></div>
-        <button className={styles.background_btn}>Set background</button>
-        <div className={styles.separator}></div>
-        <button className={styles.clear_btn} onClick={onClearSlide}>
-          Clear frame
-        </button>
       </div>
       <DropDown
         selector="#user-dropdown"

@@ -10,6 +10,11 @@ export interface SlideDetail {
   _id: string;
   canvas: CanvasDetail;
   shapes: ShapeDetail[];
+  props: SlideProps;
+}
+
+export interface SlideProps {
+  backgroundImage: BackGroundCode;
 }
 
 export interface CanvasDetail {
@@ -34,8 +39,9 @@ export interface ShapeProps {
   translateX: number;
   translateY: number;
   rotate: number;
-  backgroundColor?: string;
-  color?: string;
+  backgroundColor: Colors;
+  borderColor: Colors;
+  color?: Colors;
   text?: string;
 }
 
@@ -52,3 +58,28 @@ export type MouseDownEvent = {
   pageX: number;
   pageY: number;
 };
+
+export type BackGroundCode =
+  | "default"
+  | "dots"
+  | "blue-line"
+  | "blue-graph"
+  | "gray-graph"
+  | "blue-board"
+  | "chalk-board";
+
+export type NewShapeType = {
+  slideId: string;
+  shape: {
+    type: ShapeTypes;
+    props: ShapeProps;
+  };
+};
+
+export type Colors =
+  | "#262626"
+  | "#19ACC0"
+  | "#699E3E"
+  | "#FFFFFF"
+  | "#F3B32A"
+  | "#D9453C";

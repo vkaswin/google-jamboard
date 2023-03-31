@@ -280,7 +280,7 @@ export let sketches = [
 export let colors = [
   {
     label: "Black",
-    colorCode: "#3D4043",
+    colorCode: "#262626",
   },
   {
     label: "Blue",
@@ -301,5 +301,36 @@ export let colors = [
   {
     label: "Red",
     colorCode: "#D9453C",
+  },
+] as const;
+
+export const backGrounds = [
+  {
+    label: "Default",
+    bgCode: "default",
+  },
+  {
+    label: "Dots",
+    bgCode: "dots",
+  },
+  {
+    label: "Blue line",
+    bgCode: "blue-line",
+  },
+  {
+    label: "Blue graph",
+    bgCode: "blue-graph",
+  },
+  {
+    label: "Gray graph",
+    bgCode: "gray-graph",
+  },
+  {
+    label: "Blueboard",
+    bgCode: "blue-board",
+  },
+  {
+    label: "Chalkboard",
+    bgCode: "chalk-board",
   },
 ] as const;

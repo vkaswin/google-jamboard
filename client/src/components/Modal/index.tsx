@@ -47,9 +47,7 @@ const Modal = ({
               </div>
             </div>
           </div>
-          <div
-            className={`${styles.overlay} ${isOpen ? styles.show : ""}`.trim()}
-          ></div>
+          <div className={styles.overlay}></div>
         </div>
       </CSSTransition>
     </Portal>

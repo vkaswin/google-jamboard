@@ -31,7 +31,20 @@ const Resizer = ({
       onClose: onClose,
       doNotClose: (ele) => {
         if (!resizerRef.current || !shapeRef) return;
-        return resizerRef.current.contains(ele) || shapeRef.contains(ele);
+        let colorDropDown = [
+          ...document.querySelectorAll(
+            "#border,#background,#border-dropdown,#background-dropdown"
+          ),
+        ];
+
+        let isClickOnColorDropDown = colorDropDown.some((element) =>
+          element.contains(ele)
+        );
+        return (
+          resizerRef.current.contains(ele) ||
+          shapeRef.contains(ele) ||
+          isClickOnColorDropDown
+        );
       },
     });
 

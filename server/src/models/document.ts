@@ -24,6 +24,16 @@ const DocumentSchema = new Schema(
             type: [Schema.Types.ObjectId],
             ref: "Shape",
           },
+          props: {
+            type: {
+              backgroundImage: {
+                type: String,
+                default: "default",
+              },
+            },
+            default: {},
+            _id: false,
+          },
         },
       ],
     },
