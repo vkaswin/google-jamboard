@@ -1,0 +1,28 @@
+.container {
+  position: relative;
+  background-color: #f9a825;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  &::before {
+    content: attr(data-letter);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 18px;
+  }
+}
+
+.dropdown {
+  button {
+    span {
+      font-size: 16px;
+    }
+    i {
+      font-size: 24px;
+    }
+  }
+}

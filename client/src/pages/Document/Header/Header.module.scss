@@ -1,0 +1,26 @@
+.header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  height: 64px;
+  padding: 0px 15px;
+  background-color: #fff;
+  z-index: 3;
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    img {
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+    span {
+      color: #000;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  }
+}

@@ -16,10 +16,44 @@ export const createDocument = asyncHandler(async (req, res) => {
   });
 
   res.status(200).send({
-    data: {
-      documentId: document._id,
-    },
+    data: document,
     message: "Document has been created successfully",
+  });
+});
+
+export const getAllDocuments = asyncHandler(async (req, res) => {
+  let { user, query } = req;
+
+  let limit = query.limit ? +query.limit : 25;
+  let page = query.page ? +query.page : 1;
+  let skip = (page - 1) * limit;
+
+  let filterQuery = {
+    creatorId: user._id,
+    ...(query.search && {
+      title: { $regex: query.search, $options: "i" },
+    }),
+  };
+
+  let documents = await Document.find(filterQuery, {
+    title: 1,
+    updatedAt: 1,
+    createdAt: 1,
+  })
+    .sort({ updatedAt: -1 })
+    .limit(limit)
+    .skip(skip);
+
+  let total = await Document.find(filterQuery).countDocuments();
+
+  res.status(200).send({
+    list: documents,
+    pageMeta: {
+      page,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+    message: "Success",
   });
 });
 

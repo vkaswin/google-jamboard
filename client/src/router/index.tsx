@@ -1,3 +1,4 @@
+import DocumentList from "@/pages/DocumentList";
 import { lazy } from "react";
 import { RouteObject, Navigate, useRoutes } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
@@ -33,6 +34,14 @@ let routes: RouteObject[] = [
         ),
       },
     ],
+  },
+  {
+    path: "/document/list",
+    element: (
+      <ProtectedRoute>
+        <DocumentList />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/document/:documentId",

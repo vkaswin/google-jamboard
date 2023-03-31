@@ -23,7 +23,7 @@ const Triangle = ({
         d={`M${width} ${height} L${width} ${height} L0 ${height} L${
           width / 2
         } 0 Z`}
-        style={{ borderColor, backgroundColor }}
+        style={{ stroke: borderColor, fill: backgroundColor }}
       />
     </svg>
   );

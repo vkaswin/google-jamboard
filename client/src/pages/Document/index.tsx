@@ -10,7 +10,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import useAuth from "@/hooks/useAuth";
 import useTitle from "@/hooks/useTitle";
-import Header from "@/components/Header";
+import Header from "./Header";
 import ToolBar from "@/components/ToolBar";
 import SketchBoard from "@/components/SketchBoard";
 import Shapes, { InactiveShapes } from "@/components/Shapes";

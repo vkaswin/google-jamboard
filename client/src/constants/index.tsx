@@ -72,24 +72,6 @@ export let shapes = [
     ),
   },
   {
-    label: "Rectangle",
-    type: "rectangle",
-    svg: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-      >
-        <path fill="none" d="M24 0v24H0V0h24z"></path>
-        <path
-          strokeWidth="1"
-          d="M2,7 L22,7 L22,17 L2,17 L2,7 Z M4,9 L4,15 L20,15 L20,9 L4,9 Z"
-        ></path>
-      </svg>
-    ),
-  },
-  {
     label: "Arrow",
     type: "arrow",
     svg: (
@@ -108,8 +90,8 @@ export let shapes = [
     ),
   },
   {
-    label: "Semi Circle",
-    type: "semi-circle",
+    label: "Rectangle",
+    type: "rectangle",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -120,7 +102,7 @@ export let shapes = [
         <path fill="none" d="M24 0v24H0V0h24z"></path>
         <path
           strokeWidth="1"
-          d="M22,17 C22,11.4771525 17.5228475,7 12,7 C6.4771525,7 2,11.4771525 2,17 C2,17 22,17 22,17 Z M4.25203497,15 C5.14012056,11.5495456 8.27232114,9 12,9 C15.7276789,9 18.8598794,11.5495456 19.747965,15 L4.25203497,15 Z"
+          d="M2,7 L22,7 L22,17 L2,17 L2,7 Z M4,9 L4,15 L20,15 L20,9 L4,9 Z"
         ></path>
       </svg>
     ),
@@ -281,26 +263,32 @@ export let colors = [
   {
     label: "Black",
     colorCode: "#262626",
+    lightColorCode: "#b1b3b4",
   },
   {
     label: "Blue",
     colorCode: "#19ACC0",
+    lightColorCode: "#99dee6",
   },
   {
     label: "Green",
     colorCode: "#699E3E",
-  },
-  {
-    label: "White",
-    colorCode: "#FFFFFF",
+    lightColorCode: "#c3d9af",
   },
   {
     label: "Yellow",
     colorCode: "#F3B32A",
+    lightColorCode: "#fbe199",
   },
   {
     label: "Red",
     colorCode: "#D9453C",
+    lightColorCode: "#f1b4af",
+  },
+  {
+    label: "White",
+    colorCode: "#FFFFFF",
+    lightColorCode: "#FFFFFF",
   },
 ] as const;
 

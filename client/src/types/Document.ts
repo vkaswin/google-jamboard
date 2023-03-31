@@ -4,6 +4,15 @@ export interface DocumentDetail {
   title: string;
   creatorId: string;
   slides: SlideDetail[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DocumentList {
+  _id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface SlideDetail {
@@ -27,7 +36,6 @@ export type ShapeTypes =
   | "circle"
   | "diamond"
   | "rectangle"
-  | "semi-circle"
   | "square"
   | "triangle"
   | "sticky-note"
@@ -82,4 +90,15 @@ export type Colors =
   | "#699E3E"
   | "#FFFFFF"
   | "#F3B32A"
-  | "#D9453C";
+  | "#D9453C"
+  | "#b1b3b4"
+  | "#99dee6"
+  | "#c3d9af"
+  | "#fbe199"
+  | "#f1b4af";
+
+export type PageMeta = {
+  page: number;
+  total: number;
+  totalPages: number;
+};

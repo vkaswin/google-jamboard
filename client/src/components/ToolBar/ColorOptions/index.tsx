@@ -36,16 +36,21 @@ const ColorOptions = ({
       toggle={toggle}
     >
       <div className={styles.color}>
-        {colors.map(({ label, colorCode }, index) => {
-          let className = colorCode === color ? styles.active : undefined;
+        {colors.map(({ label, colorCode, lightColorCode }, index) => {
+          let code = id === "background" ? lightColorCode : colorCode;
+          let className = code === color ? styles.active : undefined;
           return (
             <Fragment key={index}>
               <button
                 id={`${id}-${index}`}
                 className={className}
-                onClick={() => handleColor(colorCode)}
+                onClick={() => handleColor(code)}
               >
-                <span style={{ backgroundColor: colorCode }}></span>
+                <span
+                  style={{
+                    backgroundColor: code,
+                  }}
+                ></span>
               </button>
               <ToolTip selector={`#${id}-${index}`} placement="bottom">
                 {label}

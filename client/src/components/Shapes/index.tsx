@@ -9,7 +9,6 @@ import React, {
 import Circle from "./Circle";
 import Diamond from "./Diamond";
 import Rectangle from "./Rectangle";
-import SemiCircle from "./SemiCircle";
 import Square from "./Square";
 import Triangle from "./Triangle";
 import Arrow from "./Arrow";
@@ -22,7 +21,6 @@ import {
   ShapeProps,
   ResizeType,
   MouseDownEvent,
-  NewShapeType,
   ShapeTypes,
 } from "@/types/Document";
 
@@ -126,16 +124,6 @@ const Shapes = ({
       case "rectangle":
         return (
           <Rectangle
-            width={width}
-            height={height}
-            borderColor={borderColor}
-            backgroundColor={backgroundColor}
-          />
-        );
-
-      case "semi-circle":
-        return (
-          <SemiCircle
             width={width}
             height={height}
             borderColor={borderColor}
@@ -404,16 +392,6 @@ export const InactiveShapes = ({
       case "rectangle":
         return (
           <Rectangle
-            width={width}
-            height={height}
-            borderColor={borderColor}
-            backgroundColor={backgroundColor}
-          />
-        );
-
-      case "semi-circle":
-        return (
-          <SemiCircle
             width={width}
             height={height}
             borderColor={borderColor}

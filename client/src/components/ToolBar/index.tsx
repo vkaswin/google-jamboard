@@ -119,14 +119,19 @@ const ToolBar = ({
         )}
         {(tool === 4 || selectedShapeId) && (
           <div className={styles.color_btn}>
-            <button id="border" onClick={toggleBorderColor}>
-              <i className="bxs-edit-alt" style={{ color: borderColor }}></i>
+            <button
+              id="border"
+              onClick={toggleBorderColor}
+              style={{ "--bg": borderColor } as CSSProperties}
+            >
+              <i className="bxs-pencil"></i>
             </button>
-            <button id="background" onClick={toggleBackGroundColor}>
-              <i
-                className="bxs-color-fill"
-                style={{ color: backgroundColor }}
-              ></i>
+            <button
+              id="background"
+              onClick={toggleBackGroundColor}
+              style={{ "--bg": backgroundColor } as CSSProperties}
+            >
+              <i className="bxs-color-fill"></i>
             </button>
           </div>
         )}
