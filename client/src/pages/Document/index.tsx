@@ -581,8 +581,8 @@ const DocumentPage = () => {
                     width: dimension.width,
                     height: dimension.height,
                     transform: `scale(${scale.x},${scale.y}) translate(-50%, -50%)`,
-                    backgroundImage: `url(/background/${getStaticUrl(
-                      slide.props.backgroundImage
+                    backgroundImage: `url(${getStaticUrl(
+                      `/background/${slide.props.backgroundImage}`
                     )}.png)`,
                   }}
                   {...([4, 5].includes(tool) && {

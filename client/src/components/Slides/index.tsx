@@ -157,8 +157,8 @@ const Slides = ({
                         transform: `scale(${
                           slideDimension.width / dimension.width
                         },${slideDimension.height / dimension.height})`,
-                        backgroundImage: `url(/background/${getStaticUrl(
-                          slide.props.backgroundImage
+                        backgroundImage: `url(${getStaticUrl(
+                          `/background/${slide.props.backgroundImage}`
                         )}.png)`,
                       }}
                     >
