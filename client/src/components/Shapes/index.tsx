@@ -163,6 +163,24 @@ const Shapes = ({
     isReadOnly,
   ]);
 
+  let findAngle = ({
+    cx,
+    cy,
+    ex,
+    ey,
+  }: {
+    cx: number;
+    cy: number;
+    ex: number;
+    ey: number;
+  }) => {
+    let dy = ey - cy;
+    let dx = ex - cx;
+    let rad = Math.atan2(dy, dx);
+    let deg = (rad * 180) / Math.PI;
+    return deg;
+  };
+
   let handleMouseMove = ({ x, y }: MouseEvent) => {
     if (!shapeProps || !mouseDownEvent.current || !shapeRef) return;
 
@@ -185,6 +203,10 @@ const Shapes = ({
         break;
 
       case "rotate":
+        let { left, top, width, height } = shapeRef.getBoundingClientRect();
+        let shapeX = left + width / 2;
+        let shapeY = top + height / 2;
+        props.rotate = 90 + findAngle({ cx: x, cy: y, ex: shapeX, ey: shapeY });
         break;
 
       case "left":
@@ -299,7 +321,7 @@ const Shapes = ({
         style={{
           width: `${shapeProps.width}px`,
           height: `${shapeProps.height}px`,
-          transform: `translate(${shapeProps.translateX}px, ${shapeProps.translateY}px) rotate(${shapeProps.rotate}deg)`,
+          transform: `translate(${shapeProps.translateX}px, ${shapeProps.translateY}px) rotate( ${shapeProps.rotate}deg)`,
         }}
       >
         {shapeComponent}
