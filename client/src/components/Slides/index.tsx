@@ -1,9 +1,12 @@
 import { Fragment, useEffect, useRef, useState } from "react";
+import { Navigation } from "swiper";
+import { Swiper, SwiperSlide, SwiperProps } from "swiper/react";
 import { InactiveShapes } from "@/components/Shapes";
 import DropDown from "@/components/DropDown";
 import { getStaticUrl } from "@/utils";
 import { SlideDetail } from "@/types/Document";
 
+import "swiper/scss";
 import styles from "./Slides.module.scss";
 
 type SlidesProps = {
@@ -20,6 +23,18 @@ type SlidesProps = {
 let slideDimension = {
   width: 224,
   height: 126,
+};
+
+const swiperOptions: SwiperProps = {
+  slidesPerView: "auto",
+  spaceBetween: 10,
+  initialSlide: 0,
+  modules: [Navigation],
+  navigation: {
+    nextEl: "#slide_next",
+    prevEl: "#slide_prev",
+  },
+  style: { padding: "25px 0px" },
 };
 
 const Slides = ({
@@ -123,87 +138,86 @@ const Slides = ({
       </div>
       <div ref={containerRef} className={styles.slides} aria-expanded={isOpen}>
         <button
+          id="slide_prev"
           className={styles.navigate_btn}
-          disabled={activeSlide === 0}
           onClick={handlePrevious}
         >
           <i className="bx-chevron-left"></i>
         </button>
         <div className={styles.slide_list}>
-          <button className={styles.add_btn} onClick={() => onAddSlide(0)}>
-            <i className="bx-plus"></i>
-          </button>
-          {slides &&
-            slides.length > 0 &&
-            slides.map((slide, index) => {
-              return (
-                <Fragment key={slide._id}>
-                  <div
-                    className={`${styles.slide} ${
-                      slide._id === activeSlideId ? styles.active : ""
-                    }`.trim()}
-                    style={{
-                      width: `${slideDimension.width + 4}px`,
-                      height: `${slideDimension.height + 4}px`,
-                    }}
-                    data-mini-slide={slide._id}
-                    onClick={() => onSlideChange(index)}
-                  >
+          <Swiper {...swiperOptions}>
+            {slides &&
+              slides.length > 0 &&
+              slides.map((slide, index) => {
+                return (
+                  <SwiperSlide key={slide._id} className={styles.swiper_slide}>
                     <div
-                      className={styles.board}
+                      className={`${styles.slide} ${
+                        slide._id === activeSlideId ? styles.active : ""
+                      }`.trim()}
                       style={{
-                        width: `${dimension.width}px`,
-                        height: `${dimension.height}px`,
-                        transform: `scale(${
-                          slideDimension.width / dimension.width
-                        },${slideDimension.height / dimension.height})`,
-                        backgroundImage: `url(${getStaticUrl(
-                          `/background/${slide.props.backgroundImage}`
-                        )}.png)`,
+                        width: `${slideDimension.width + 4}px`,
+                        height: `${slideDimension.height + 4}px`,
                       }}
+                      data-mini-slide={slide._id}
+                      onClick={() => onSlideChange(index)}
                     >
-                      <canvas
-                        width={canvasDimension.width}
-                        height={canvasDimension.height}
-                        mini-canvas={slide.canvas._id}
-                      />
-                      {slide.shapes &&
-                        slide.shapes.map((shape) => {
-                          return (
-                            <InactiveShapes key={shape._id} shape={shape} />
-                          );
-                        })}
+                      <div
+                        className={styles.board}
+                        style={{
+                          width: `${dimension.width}px`,
+                          height: `${dimension.height}px`,
+                          transform: `scale(${
+                            slideDimension.width / dimension.width
+                          },${slideDimension.height / dimension.height})`,
+                          backgroundImage: `url(${getStaticUrl(
+                            `/background/${slide.props.backgroundImage}`
+                          )}.png)`,
+                        }}
+                      >
+                        <canvas
+                          width={canvasDimension.width}
+                          height={canvasDimension.height}
+                          mini-canvas={slide.canvas._id}
+                        />
+                        {slide.shapes &&
+                          slide.shapes.map((shape) => {
+                            return (
+                              <InactiveShapes key={shape._id} shape={shape} />
+                            );
+                          })}
+                      </div>
+                      <button
+                        id={`slide-dropdown-${slide._id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <i className="bx-dots-vertical-rounded"></i>
+                      </button>
                     </div>
                     <button
-                      id={`slide-dropdown-${slide._id}`}
-                      onClick={(e) => e.stopPropagation()}
+                      className={styles.add_btn}
+                      onClick={() => onAddSlide(index + 1)}
                     >
-                      <i className="bx-dots-vertical-rounded"></i>
+                      <i className="bx-plus"></i>
                     </button>
-                  </div>
-                  <button
-                    className={styles.add_btn}
-                    onClick={() => onAddSlide(index + 1)}
-                  >
-                    <i className="bx-plus"></i>
-                  </button>
-                  <DropDown
-                    selector={`#slide-dropdown-${slide._id}`}
-                    className={styles.slide_dropdown}
-                    placement="bottom"
-                  >
-                    <DropDown.Item onClick={() => onDeleteSlide(slide._id)}>
-                      <i className="bx-trash"></i>
-                      <span>Delete</span>
-                    </DropDown.Item>
-                  </DropDown>
-                </Fragment>
-              );
-            })}
+                    <DropDown
+                      selector={`#slide-dropdown-${slide._id}`}
+                      className={styles.slide_dropdown}
+                      placement="bottom"
+                    >
+                      <DropDown.Item onClick={() => onDeleteSlide(slide._id)}>
+                        <i className="bx-trash"></i>
+                        <span>Delete</span>
+                      </DropDown.Item>
+                    </DropDown>
+                  </SwiperSlide>
+                );
+              })}
+          </Swiper>
         </div>
         <button
+          id="slide_next"
           className={styles.navigate_btn}
-          disabled={activeSlide === totalSlides - 1}
           onClick={handleNext}
         >
           <i className="bx-chevron-right"></i>

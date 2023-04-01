@@ -71,6 +71,12 @@
     gap: 15px;
     height: 100%;
     overflow: hidden;
+    .swiper_slide {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      width: 280px;
+    }
     .slide {
       position: relative;
       background-color: #f3f3f3;

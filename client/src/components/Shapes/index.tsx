@@ -32,6 +32,8 @@ type ShapesPropsType = {
   onUpdateShape: (shape: Omit<ShapeDetail, "type">) => void;
   onClick: (id: string) => void;
   onBlur: () => void;
+  onEditStickyNote?: () => void;
+  onDeleteShape: (shapeId: string) => void;
 };
 
 const Shapes = ({
@@ -40,12 +42,14 @@ const Shapes = ({
   onClick,
   onBlur,
   onUpdateShape,
+  onDeleteShape,
+  onEditStickyNote,
 }: ShapesPropsType) => {
   let [shapeProps, setShapeProps] = useState<ShapeProps | null>(null);
 
   let [isReadOnly, setIsReadOnly] = useState(true);
 
-  let shapeRef = useRef<HTMLDivElement | null>(null);
+  let [shapeRef, setShapeRef] = useState<HTMLDivElement | null>(null);
 
   let mouseDownEvent = useRef<MouseDownEvent | null>(null);
 
@@ -160,7 +164,7 @@ const Shapes = ({
   ]);
 
   let handleMouseMove = ({ x, y }: MouseEvent) => {
-    if (!shapeProps || !mouseDownEvent.current || !shapeRef.current) return;
+    if (!shapeProps || !mouseDownEvent.current || !shapeRef) return;
 
     let { pageX, pageY, type } = mouseDownEvent.current;
 
@@ -168,9 +172,8 @@ const Shapes = ({
       ...shapeProps,
     };
 
-    let { width, height } =
-      shapeRef.current.parentElement!.getBoundingClientRect();
-    let { clientWidth, clientHeight } = shapeRef.current.parentElement!;
+    let { width, height } = shapeRef.parentElement!.getBoundingClientRect();
+    let { clientWidth, clientHeight } = shapeRef.parentElement!;
 
     let scaleX = clientWidth / width;
     let scaleY = clientHeight / height;
@@ -290,7 +293,7 @@ const Shapes = ({
   return (
     <Fragment>
       <div
-        ref={shapeRef}
+        ref={setShapeRef}
         className={styles.container}
         onClick={handleClickShape}
         style={{
@@ -316,10 +319,12 @@ const Shapes = ({
         <Resizer
           shapeId={shape._id}
           shapeProps={shapeProps}
-          shapeRef={shapeRef.current}
+          shapeRef={shapeRef}
           onClose={onBlur}
           onMouseDown={handleMouseDown}
           onReset={resetEditText}
+          onDeleteShape={onDeleteShape}
+          {...(typeof onEditStickyNote === "function" && { onEditStickyNote })}
         />
       )}
     </Fragment>

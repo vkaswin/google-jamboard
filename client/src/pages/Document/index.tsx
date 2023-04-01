@@ -436,10 +436,10 @@ const DocumentPage = () => {
 
       let documentData = { ...documentDetail };
       documentData.slides[activeSlide].shapes.push(data);
-      setDocumentDetail(documentData);
-      setSelectedShapeId(data._id);
-      setNewShape(null);
       setTool(2);
+      setNewShape(null);
+      setSelectedShapeId(data._id);
+      setDocumentDetail(documentData);
     } catch (err: any) {
       toast.error(err?.message);
     }
@@ -645,6 +645,10 @@ const DocumentPage = () => {
                           onClick={handleClickShape}
                           onBlur={clearSelectedShapeId}
                           onUpdateShape={handleUpdateShape}
+                          onDeleteShape={handleDeleteShape}
+                          {...(shape.type === "sticky-note" && {
+                            onEditStickyNote: toggleEditPopup,
+                          })}
                         />
                       );
                     })}
@@ -656,23 +660,6 @@ const DocumentPage = () => {
             );
           })}
       </div>
-      <DropDown
-        selector={`button[shape-id='${selectedShapeId}']`}
-        className={styles.shape_dropdown}
-        placement="bottom"
-        aria-disabled={!!selectedShapeId}
-      >
-        {selectedShape?.type === "sticky-note" && (
-          <DropDown.Item id="edit-sticky-note" onClick={toggleEditPopup}>
-            <i className="bx-edit"></i>
-            <span>Edit</span>
-          </DropDown.Item>
-        )}
-        <DropDown.Item onClick={handleDeleteShape}>
-          <i className="bx-trash"></i>
-          <span>Delete</span>
-        </DropDown.Item>
-      </DropDown>
       <TitlePopup
         title={title}
         isOpen={showTitle}

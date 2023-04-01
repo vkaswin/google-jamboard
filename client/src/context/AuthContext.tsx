@@ -20,6 +20,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     let authToken = cookie.get("auth_token");
     authToken && setUser(jwtDecode<User>(authToken));
+    document.addEventListener("unauthorized", logout);
+    return () => {
+      document.removeEventListener("unauthorized", logout);
+    };
   }, []);
 
   let handleAuthResponse = (token: string) => {
