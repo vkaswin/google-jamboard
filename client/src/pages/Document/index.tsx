@@ -14,7 +14,6 @@ import Header from "./Header";
 import ToolBar from "@/components/ToolBar";
 import SketchBoard from "@/components/SketchBoard";
 import Shapes, { InactiveShapes } from "@/components/Shapes";
-import DropDown from "@/components/DropDown";
 import Slides from "@/components/Slides";
 import TitlePopup from "@/components/TitlePopup";
 import EditPopup from "@/components/EditPopup";
